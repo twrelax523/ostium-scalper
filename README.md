@@ -209,7 +209,7 @@ except Exception as e:
 
 ### Create a Short ETH Limit Order
 
-This example shows how to create a short ETH limit order, 10% below the current ETHUSD price. 
+This example shows how to create a short ETH limit order, 10% above the current ETHUSD price. So if price goes up 10% we order a Short ETH trade.
 
 ```python
 # Get private key from environment variable
@@ -238,7 +238,7 @@ try:
     # Get latest price for ETH
     latest_price, _ = await sdk.price.get_price("ETH", "USD")
     print(f"Latest price: {latest_price}")
-    # Execute trade at current market price
+    # Execute LIMIT trade order at 10% above the current price
     receipt = sdk.ostium.perform_trade(order_params, at_price=latest_price * 1.1)
     print(
         f"Order successful! Transaction hash: {receipt['transactionHash'].hex()}")
@@ -266,8 +266,7 @@ except Exception as e:
     print(f"Order failed: {str(e)}")
 ```
 
-<b>NOTE:</b> Similiarly you can create a Stop order, just use 'STOP' as the order_type and make sure at_price is set to the stop loss price.
-
+<b>NOTE:</b> Similiarly you can create a Stop order, just use 'STOP' as the order_type and make sure at_price is set to an acceptable stop loss price.
 
 
 ## Example Usage Scripts
