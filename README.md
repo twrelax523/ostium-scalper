@@ -80,7 +80,9 @@ The intraction with Ostium platform is denoted with pair_id and trade_index.
 - `pair_id`: The id of the pair, available via `sdk.subgraph.get_pairs()`
 - `trade_index`: The index of the trade for this trader on the pair, available via `sdk.subgraph.get_open_trades()`
 
-## List of available pairs (Mainnet, as of Jnuary 2025)
+## List of available pairs (Mainnet)
+
+- As of January 2025, the following pairs are available on the mainnet: 
 
 | ID | Trading Pair | Description                    |
 |----|--------------|--------------------------------|
