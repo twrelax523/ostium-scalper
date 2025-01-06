@@ -98,7 +98,7 @@ The intraction with Ostium platform is denoted with pair_id and trade_index.
 | 9  | SOL-USD      | Solana                         |
 | 10 | SPX-USD      | S&P 500 Index                  |
 
-## Usage Example
+## Usage Examples
 
 ### Reading available pairs / feeds
 
@@ -146,7 +146,7 @@ for pair in pairs:
     print("----------------------------------------")
 ```
 
-### Opening a Trade, Reading Open Trades, Setting Take Profit and Stop Loss, Closing a Trade
+### Opening a Trade, Reading Open Trades, Setting TP and SL, Closing a Trade
 
 ```python
 # Define trade parameters
@@ -207,8 +207,72 @@ except Exception as e:
 
 ```
 
+### Create a Short ETH Limit Order
+
+This example shows how to create a short ETH limit order, 10% below the current ETHUSD price. 
+
+```python
+# Get private key from environment variable
+private_key = os.getenv('PRIVATE_KEY')
+if not private_key:
+    raise ValueError("PRIVATE_KEY not found in .env file")
+
+rpc_url = os.getenv('RPC_URL')
+if not rpc_url:
+    raise ValueError("RPC_URL not found in .env file")
+
+# Initialize SDK
+config = NetworkConfig.testnet()
+sdk = OstiumSDK(config, private_key)
+
+# Define trade parameters
+order_params = {
+    'collateral': 10,         # USDC amount
+    'leverage': 50,           # Leverage multiplier
+    'asset_type': 1,          # 1 for ETH
+    'direction': False,       # True for Long, False for Short
+    'order_type': 'LIMIT'     # 'MARKET', 'LIMIT', or 'STOP'
+}
+
+try:
+    # Get latest price for ETH
+    latest_price, _ = await sdk.price.get_price("ETH", "USD")
+    print(f"Latest price: {latest_price}")
+    # Execute trade at current market price
+    receipt = sdk.ostium.perform_trade(order_params, at_price=latest_price * 1.1)
+    print(
+        f"Order successful! Transaction hash: {receipt['transactionHash'].hex()}")
+
+    # Wait for the transaction to be confirmed
+    await asyncio.sleep(10)
+
+    # Get public address from private key
+    account = Account.from_key(private_key)
+    trader_public_address = account.address
+
+    # Get the trade details
+    open_orders = await sdk.subgraph.get_orders(trader_public_address)
+    for order_index, order_data in enumerate(open_orders):
+        print(f"Order {order_index + 1}: {order_data}\n")
+
+    if len(open_orders) == 0:
+        print(
+            "No open order found. Maybe the order failed? enough USDC and ETH in the account?")
+    else:
+        opened_order = open_orders[len(open_orders) - 1]
+        print(f"Opened order: {opened_order}\n")
+
+except Exception as e:
+    print(f"Order failed: {str(e)}")
+```
+
+<b>NOTE:</b> Similiarly you can create a Stop order, just use 'STOP' as the order_type and make sure at_price is set to the stop loss price.
+
+
+
 ## Example Usage Scripts
 
+More examples can be found in the [examples](https://github.com/0xOstium/ostium_python_sdk/tree/main/examples) folder.
 
 ### Read Block Number
 
