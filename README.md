@@ -100,7 +100,7 @@ The intraction with Ostium platform is denoted with pair_id and trade_index.
 
 ## Usage Example
 
-### Opening a Trade, Reading Open Trades, Setting Take Profit and Stop Loss, Closing a Trade
+### Reading available pairs / feeds
 
 ```python
 from ostium_python_sdk import OstiumSDK
@@ -144,8 +144,11 @@ for pair in pairs:
     for key, value in pair_details.items():
         print(f"{key}: {value}")
     print("----------------------------------------")
+```
 
+### Opening a Trade, Reading Open Trades, Setting Take Profit and Stop Loss, Closing a Trade
 
+```python
 # Define trade parameters
 trade_params = {
     'collateral': 100,        # USDC amount
@@ -198,8 +201,6 @@ try:
           opened_trade['pair']['id'], opened_trade['index'])
       print(
           f"Closed trade! Transaction hash: {receipt['transactionHash'].hex()}\n")
-
-
 
 except Exception as e:
   print(f"Trade failed: {str(e)}")
