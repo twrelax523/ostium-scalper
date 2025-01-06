@@ -7,7 +7,7 @@ Ostium is a decentralized perpetuals exchange on Arbitrum (Ethereum L2) with a f
 This SDK is designed to be used by developers who want to build applications on top of Ostium and automate their trading strategies.
 
 
-## Pip Install
+## Installation
 
 The SDK can be installed via pip:
 
@@ -21,10 +21,73 @@ Developed using:
 ```python
   python=3.8
 ```
+## SDK Instantiation 
+
+You can instantiate the SDK with the following parameters. 
+Ostium Platform is deployed on Arbitrum. You can use the testnet or mainnet config via the `NetworkConfig` class, see below for an example.
+
+```python
+from dotenv import load_dotenv
+from ostium_python_sdk import OstiumSDK, NetworkConfig
+
+# Load environment variables if using .env file
+load_dotenv()
+
+# Get private key from environment variable
+private_key = os.getenv('PRIVATE_KEY')
+if not private_key:
+    raise ValueError("PRIVATE_KEY not found in .env file")
+
+rpc_url = os.getenv('RPC_URL')
+if not rpc_url:
+    raise ValueError("RPC_URL not found in .env file")
+
+# Initialize SDK
+config = NetworkConfig.testnet()
+sdk = OstiumSDK(config, private_key)
+```
+
+## The SDK contains the following classes:
+
+- `OstiumSDK`: The main class for interacting with the Ostium Platform.
+
+- `NetworkConfig`: The class for configuring the network.
+
+- `Balance`: The class for interacting with the account, fetching balance, etc. available via `sdk.balance`.
+
+- `SubgraphClient`: The class for interacting with the subgraph, getting pair details, open trades, open orders,etc. available via `sdk.subgraph`.
+
+- `Price`: The class for interacting with the price, fetching latest price, etc. available via `sdk.price`
+
+- `Ostium`: The class for interacting with the Ostium Smart contracts, opening trades, updating take profit and stop loss, closing trades, opening orders, etc. available via `sdk.ostium`.
+
+## Basic Usage
+
+The intraction with Ostium platform is denoted with pair_id and trade_index. 
+
+- `pair_id`: The id of the pair, available via `sdk.subgraph.get_pairs()`
+- `trade_index`: The index of the trade for this trader on the pair, available via `sdk.subgraph.get_open_trades()`
+
+## List of available pairs (Mainnet, as of Jnuary 2025)
+
+| ID | Trading Pair | Description                    |
+|----|--------------|--------------------------------|
+| 0  | BTC-USD      | Bitcoin                        |
+| 1  | ETH-USD      | Ethereum                       |
+| 2  | EUR-USD      | Euro                           |
+| 3  | GBP-USD      | British Pound                  |
+| 4  | USD-JPY      | US Dollar to Japanese Yen      |
+| 5  | XAU-USD      | Gold                           |
+| 6  | HG-USD       | Copper                         |
+| 7  | CL-USD       | Crude Oil                      |
+| 8  | XAG-USD      | Silver                         |
+| 9  | SOL-USD      | Solana                         |
+| 10 | SPX-USD      | S&P 500 Index                  |
 
 ## Usage Example
 
 ### Opening a Trade, Reading Open Trades, Setting Take Profit and Stop Loss, Closing a Trade
+
 ```python
 from ostium_python_sdk import OstiumSDK
 from dotenv import load_dotenv
