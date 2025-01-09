@@ -107,7 +107,9 @@ else:
 
 ```
 
-![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) NOTE: You will also need gas aka Ether on Arbitrum Sepolia to even be able to request USDC tokens from the faucet. You can get some at: https://www.alchemy.com/faucets/arbitrum-sepolia
+```
+![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) NOTE: You will also need gas aka ethereum or native token on Arbitrum Sepolia to even be able to request USDC tokens from the faucet or perform any write blockchain operation. You can get some native token for Arbitrum Sepolia for free at: https://www.alchemy.com/faucets/arbitrum-sepolia (or search for "arbitrum sepolia faucet")
+```
 
 
 ## The SDK contains the following classes:
@@ -173,7 +175,14 @@ if not rpc_url:
 config = NetworkConfig.testnet()
 sdk = OstiumSDK(config, private_key)
 
-# Or initialize with explicit private key & rpc url
+# Or, initialize:
+#
+# (1) mainnet:
+#
+# config = NetworkConfig.mainnet()
+# sdk = OstiumSDK(config, private_key)
+# 
+# (2) with explicit private key & rpc url, i.e: not read from env variables
 # sdk = OstiumSDK(
 #     network="arbitrum",
 #     private_key="your_private_key_here",
