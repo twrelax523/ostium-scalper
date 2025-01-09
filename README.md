@@ -66,9 +66,10 @@ if not rpc_url:
 
 # Initialize SDK
 configTestnet = NetworkConfig.testnet()
-configMainnet = NetworkConfig.mainnet()
+#
+#configMainnet = NetworkConfig.mainnet()
 sdk = OstiumSDK(configTestnet, private_key)
-sdk = OstiumSDK(configMainnet, private_key)
+#sdk = OstiumSDK(configMainnet, private_key)
 ```
 <b>NOTE:</b> create a .env file with PRIVATE_KEY and RPC_URL to use the SDK. An RPC URL is required to use the SDK. You can get one by signing up for a free account at https://www.alchemy.com/ and creating an app. 
 
@@ -79,6 +80,32 @@ RPC_URL=https://arb-sepolia.g.alchemy.com/v2/...
 ```
 
 `your_private_key_here` should be a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use. Make sure to save it in a secure location, and that the .env file is not shared with anyone or committed to a public repository (make sure you add it to .gitignore if you are pushing your code).
+
+## Testnet and Fuacet to get USDC tokens
+
+As you can see above, we show use case on testnet. In order to use Ostium on testnet, aka on Arbitrum Sepolia, you need to get testnet USDC tokens. You can do this by using the faucet which is also available on the SDK once instantiated in testnet config.
+
+```python
+# Get current token amount from faucet
+# On testnet
+sdk = OstiumSDK(NetworkConfig.testnet(), private_key)
+
+# Check if tokens can be requested
+if sdk.faucet.can_request_tokens(address):
+    # Get amount that will be received
+    amount = sdk.faucet.get_token_amount()
+    print(f"Will receive {amount} tokens")
+    
+    # Request tokens
+    receipt = sdk.faucet.request_tokens()
+    print(f"Tokens requested successfully! TX: {receipt['transactionHash'].hex()}")
+else:
+    next_time = sdk.faucet.get_next_request_time(address)
+    print(f"Cannot request tokens yet. Next request allowed at: {next_time}")
+
+```
+
+![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) NOTE: You will also need gas aka Ether on Arbitrum Sepolia to even be able to request USDC tokens from the faucet. You can get some at: https://www.alchemy.com/faucets/arbitrum-sepolia
 
 
 ## The SDK contains the following classes:
