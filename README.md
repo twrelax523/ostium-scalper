@@ -81,7 +81,9 @@ RPC_URL=https://arb-sepolia.g.alchemy.com/v2/...
 #RPC_URL="https://arb-mainnet.g.alchemy.com/v2/...",
 ```
 
-`your_private_key_here` should be a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use. Make sure to save it in a secure location, and that the .env file is not shared with anyone or committed to a public repository (make sure you add it to .gitignore if you are pushing your code).
+`your_private_key_here` should be a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use. 
+
+*Make sure to save it in a secure location, and that the .env file is not shared with anyone or committed to a public repository (make sure you add it to .gitignore if you are pushing your code).*
 
 ## Testnet and Fuacet to get USDC tokens
 
