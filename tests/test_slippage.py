@@ -37,7 +37,7 @@ async def test_slippage_validation(sdk):
     print(f"Current ETH balance: {eth_balance}")
     print(f"Current USDC balance: {usdc_balance}")
 
-    if eth_balance < Decimal('0.05'):
+    if eth_balance < Decimal('0.001'):
         msg = f"Insufficient ETH balance: {eth_balance} ETH (need at least 0.05 ETH for gas)"
         print(msg)  # Add print statement
         pytest.skip(msg)
