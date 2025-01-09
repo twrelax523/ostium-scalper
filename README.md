@@ -66,10 +66,12 @@ if not rpc_url:
 
 # Initialize SDK
 configTestnet = NetworkConfig.testnet()
-#
-#configMainnet = NetworkConfig.mainnet()
 sdk = OstiumSDK(configTestnet, private_key)
-#sdk = OstiumSDK(configMainnet, private_key)
+
+# NOTE: When you are ready to go live, you can switch to mainnet usage as simple as specifying the below init code:
+# configMainnet = NetworkConfig.mainnet()
+# sdk = OstiumSDK(configMainnet, private_key)
+#
 ```
 <b>NOTE:</b> create a .env file with PRIVATE_KEY and RPC_URL to use the SDK. An RPC URL is required to use the SDK. You can get one by signing up for a free account at https://www.alchemy.com/ and creating an app. 
 
