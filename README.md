@@ -6,7 +6,23 @@ Ostium is a decentralized perpetuals exchange on Arbitrum (Ethereum L2) with a f
 
 This SDK is designed to be used by developers who want to build applications on top of Ostium and automate their trading strategies.
 
+## Supported Operations
 
+Basically you can perfrom any operation that is supported by the Ostium's web site in a programmatic way, via the SDK:
+
+- Get list of feeds and their details
+- Create a Trade/Order
+- Close a Trade, Set Take Profit, Set Stop Loss
+- Cancel an Order, Set Take Profit, Set Stop Loss, Set Entry Price
+- Read Open Trades aka Positions
+- Read Open Orders (Limit, Stop)
+- Read Order History along with their details such as Pnl, etc.
+- Get latest price of a feed
+- Calculate fees such as funding rate, rollover fee, etc.
+- Call testnet faucet to get testnet USDC tokens
+- Read balance of your account, usdc and native token
+
+*To use the SDK you need to have a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use and supply a RPC URL, see below for more details.*
 ## Installation
 
 The SDK can be installed via pip:
