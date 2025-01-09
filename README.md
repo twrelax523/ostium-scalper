@@ -15,6 +15,28 @@ The SDK can be installed via pip:
 pip install ostium-python-sdk
 ```
 
+## Running Tests
+
+```bash
+pip install -e ".[dev]"
+```
+
+Run tests using pytest:
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=your_package
+
+# Run specific test file
+pytest tests/test_trade_liquidation_price.py
+
+# Run with verbose output
+pytest -v
+```
+
 ## Requirements
 
 Developed using:
