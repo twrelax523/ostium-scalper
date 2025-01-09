@@ -185,3 +185,53 @@ class SubgraphClient:
         result = await self.client.execute_async(query, variable_values={"trader": trader})
 
         return result['limits']
+
+    async def get_recent_history(self, trader, last_n_orders=10):
+        query = gql(
+            """
+        query ListOrdersHistory($trader: Bytes, $last_n_orders: Int) {
+          orders(
+            where: { trader: $trader, isPending: false}
+            first: $last_n_orders
+            orderBy: executedAt
+            orderDirection: desc
+          ) {
+            id
+            isBuy
+            trader
+            notional
+            tradeNotional
+            collateral
+            leverage
+            orderType
+            orderAction
+            price
+            initiatedAt
+            executedAt
+            executedTx
+            isCancelled
+            cancelReason
+            profitPercent
+            totalProfitPercent
+            isPending
+            amountSentToTrader
+            rolloverFee
+            fundingFee
+            pair {
+              id
+              from
+              to
+              feed
+              longOI
+              shortOI
+              group {
+                  name
+              }
+            }
+          }
+        }
+        """
+        )
+        result = await self.client.execute_async(query, variable_values={"trader": trader, "last_n_orders": last_n_orders})
+
+        return list(reversed(result['orders']))  # Reverse the final list

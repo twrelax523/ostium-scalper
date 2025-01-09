@@ -54,6 +54,5 @@ class OstiumSDK:
         # Initialize subgraph client
         self.subgraph = SubgraphClient(url=self.network_config.graph_url)
 
-        self.balance = Balance(self.w3, self.network_config.contracts["usdc"])  
-        self.price = Price()  
-    
+        self.balance = Balance(self.w3, self.network_config.contracts["usdc"])
+        self.price = Price()

@@ -159,6 +159,9 @@ trade_params = {
 }
 
 try:
+  sdk.ostium.set_slippage_percentage(1)
+  print(f"Slippage percentage set to: {sdk.ostium.get_slippage_percentage()}%")
+
   # Get latest price for BTC
   latest_price, _ = await sdk.price.get_price("BTC", "USD")
   print(f"Latest price: {latest_price}")
@@ -243,14 +246,14 @@ try:
     print(
         f"Order successful! Transaction hash: {receipt['transactionHash'].hex()}")
 
-    # Wait for the transaction to be confirmed
+    # Wait for the order to be confirmed
     await asyncio.sleep(10)
 
     # Get public address from private key
     account = Account.from_key(private_key)
     trader_public_address = account.address
 
-    # Get the trade details
+    # Get the order details
     open_orders = await sdk.subgraph.get_orders(trader_public_address)
     for order_index, order_data in enumerate(open_orders):
         print(f"Order {order_index + 1}: {order_data}\n")
@@ -267,6 +270,23 @@ except Exception as e:
 ```
 
 <b>NOTE:</b> Similiarly you can create a Stop order, just use 'STOP' as the order_type and make sure at_price is set to an acceptable stop loss price.
+
+
+### Add Colateral
+TBD
+
+### Add control of Slippage (also in the SDK) - Not only default
+TBD
+
+### Tp / Sl - explain not specifying what means - 900 % for TP max and SL meaning
+TBD
+
+### Maybe take or Make sure we have the error mapping from code to string errro msgs.
+TBD
+
+
+### Funding rate calculation - SDK to get breakdown of FF, RF, PnL, etc.
+TBD
 
 
 ## Example Usage Scripts
