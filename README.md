@@ -33,24 +33,16 @@ pip install ostium-python-sdk
 
 ## Running Tests
 
+First, install the package with development dependencies:
+
 ```bash
 pip install -e ".[dev]"
 ```
 
-Run tests using pytest:
+Then run the tests:
 
 ```bash
-# Run all tests
 pytest
-
-# Run with coverage
-pytest --cov=your_package
-
-# Run specific test file
-pytest tests/test_trade_liquidation_price.py
-
-# Run with verbose output
-pytest -v
 ```
 
 ## Requirements
