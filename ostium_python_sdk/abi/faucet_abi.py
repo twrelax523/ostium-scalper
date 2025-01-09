@@ -115,7 +115,7 @@ faucet_abi = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "",
+                "name": "account",
                 "type": "address",
             },
         ],
@@ -234,4 +234,17 @@ faucet_abi = [
         "stateMutability": "view",
         "type": "function",
     },
+    {
+        "inputs": [],
+        "name": "amount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256",
+            },
+        ],
+        "stateMutability": "view",
+        "type": "function",
+    }
 ]

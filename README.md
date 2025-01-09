@@ -344,6 +344,16 @@ TBD
 
 More examples can be found in the [examples](https://github.com/0xOstium/ostium_python_sdk/tree/main/examples) folder.
 
+### Get Testnet USDC from Faucet
+
+To get testnet USDC tokens (only available on Arbitrum Sepolia testnet):
+
+```bash
+python examples/example-faucet-request.py
+```
+
+See [example-faucet-request.py](https://github.com/0xOstium/ostium_python_sdk/blob/main/examples/example-faucet-request.py) for an example of how to use the faucet to get testnet USDC tokens.
+
 ### Read Block Number
 
 To run the example:
