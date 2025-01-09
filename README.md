@@ -107,9 +107,7 @@ else:
 
 ```
 
-```
 ![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) NOTE: You will also need gas aka ethereum or native token on Arbitrum Sepolia to even be able to request USDC tokens from the faucet or perform any write blockchain operation. You can get some native token for Arbitrum Sepolia for free at: https://www.alchemy.com/faucets/arbitrum-sepolia (or search for "arbitrum sepolia faucet")
-```
 
 
 ## The SDK contains the following classes:
