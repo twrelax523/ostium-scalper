@@ -1,7 +1,7 @@
 import unittest
-from constants import MAX_PROFIT_P
-from formulae import GetTakeProfitPrice
 from decimal import Decimal
+
+from ostium_python_sdk.formulae import GetTakeProfitPrice
 
 
 class TestGetTradeTpPrice(unittest.TestCase):
@@ -12,6 +12,7 @@ class TestGetTradeTpPrice(unittest.TestCase):
                 'openPrice': Decimal('100000'),
                 'leverage': Decimal('100'),
                 'isLong': True,
+                'profit_p': Decimal('900'),
                 'expected_tp_price': Decimal('109000')
             },
         ]
@@ -20,9 +21,11 @@ class TestGetTradeTpPrice(unittest.TestCase):
         for case in self.test_cases:
             with self.subTest(case=case):
                 sl_price = GetTakeProfitPrice(
+                    case['isLong'],
                     case['openPrice'],
                     case['leverage'],
                     case['isLong'],
+                    case['profit_p']
                 )
                 self.assertAlmostEqual(
                     sl_price,

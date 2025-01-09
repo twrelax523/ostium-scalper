@@ -91,7 +91,7 @@ def GetTradeLiquidationPrice(
 
         liq_price_distance = (
             open_price *
-            (collateral * LIQ_THRESHOLD_P / 100 - rollover_fee - funding_fee) /
+            (collateral * Decimal(LIQ_THRESHOLD_P) / Decimal(100) - rollover_fee - funding_fee) /
             collateral /
             leverage
         )
