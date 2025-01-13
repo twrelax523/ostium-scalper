@@ -143,7 +143,7 @@ class OstiumSDK:
                 'isMarketOpen': is_market_open,
                 'longOI': Decimal(pair_details['longOI']) / PRECISION_18,
                 'shortOI': Decimal(pair_details['shortOI']) / PRECISION_18,
-                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_18,
+                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_6,
                 'utilizationP': Decimal(pair_details['utilizationThresholdP']) / PRECISION_2,
                 'makerFeeP': Decimal(pair_details['makerFeeP']) / PRECISION_6,
                 'takerFeeP': Decimal(pair_details['takerFeeP']) / PRECISION_6,
