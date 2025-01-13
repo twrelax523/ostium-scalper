@@ -1,4 +1,7 @@
-[Changelog](https://github.com/0xOstium/ostium-python-sdk/blob/main/CHANGELOG.md)
+# Changelog
+[![Changelog](https://img.shields.io/badge/changelog-View%20Latest%20Changes-blue.svg)](https://github.com/0xOstium/ostium-python-sdk/blob/main/CHANGELOG.md)
+
+Track all notable changes, updates, and improvements to the Ostium Python SDK in our [Changelog](https://github.com/0xOstium/ostium-python-sdk/blob/main/CHANGELOG.md).
 
 # Ostium Python SDK
 
