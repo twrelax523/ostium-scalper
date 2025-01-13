@@ -3,12 +3,16 @@ from pathlib import Path
 
 # Read the contents of README.md and CHANGELOG.md
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text() + "\n\n" + \
-                  (this_directory / "CHANGELOG.md").read_text()
+long_description = (this_directory / "README.md").read_text()
+
+# Try to append CHANGELOG.md if it exists
+changelog_path = this_directory / "CHANGELOG.md"
+if changelog_path.exists():
+    long_description += "\n\n" + changelog_path.read_text()
 
 setup(
     name="ostium-python-sdk",
-    version="0.1.26",
+    version="0.1.28",
     packages=find_packages(),
     install_requires=[
         "web3>=6.0.0",
