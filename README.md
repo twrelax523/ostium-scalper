@@ -341,9 +341,14 @@ except Exception as e:
 
 
 ### Add Colateral
-TBD
 
-### Add control of Slippage (also in the SDK) - Not only default
+Added in version 0.1.2
+
+### Add control of Slippage - Not only default 2%
+
+Added in version 0.1.25
+
+### Remove Colleteral - Add when Audit is done
 TBD
 
 ### Tp / Sl - explain not specifying what means - 900 % for TP max and SL meaning

@@ -3,7 +3,7 @@ import traceback
 from enum import Enum
 from ostium_python_sdk.constants import PRECISION_2
 from web3 import Web3
-from .abi import usdc_abi, ostium_trading_abi, ostium_trading_storage_abi
+from .abi.abi import usdc_abi, ostium_trading_abi, ostium_trading_storage_abi
 from .utils import convert_to_scaled_integer, fromErrorCodeToMessage, get_tp_sl_prices, to_base_units
 from eth_account.account import Account
 
@@ -34,13 +34,13 @@ class Ostium:
         self.ostium_trading_contract = self.web3.eth.contract(
             address=self.ostium_trading_address, abi=ostium_trading_abi)
 
-        self.slippage_percentage = 9 * PRECISION_2
+        self.slippage_percentage = 2  # 2%
 
     def set_slippage_percentage(self, slippage_percentage):
-        self.slippage_percentage = slippage_percentage * PRECISION_2
+        self.slippage_percentage = slippage_percentage
 
     def get_slippage_percentage(self):
-        return self.slippage_percentage / PRECISION_2
+        return self.slippage_percentage
 
     def _get_account(self) -> Account:
         """Get account from stored private key"""
@@ -86,7 +86,7 @@ class Ostium:
                     raise Exception('Invalid order type')
 
             trade_tx = self.ostium_trading_contract.functions.openTrade(
-                trade, order_type, 9000).build_transaction({'from': account.address})
+                trade, order_type, int(self.slippage_percentage * PRECISION_2)).build_transaction({'from': account.address})
             trade_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(

@@ -60,9 +60,9 @@ async def test_slippage_validation(sdk):
         'direction': True,        # Long
         'order_type': 'MARKET'
     }
-
-    # Test case 1: Trade at exact price (should succeed)
+    # Test case 1: Trade within slippage should succeed
     sdk.ostium.set_slippage_percentage(1)  # 1% slippage
+
     print(
         f"Slippage percentage set to: {sdk.ostium.get_slippage_percentage()}%")
 
@@ -76,9 +76,9 @@ async def test_slippage_validation(sdk):
     # Test case 2: Trade with price outside slippage range (should fail)
     await asyncio.sleep(1)  # Wait a bit to ensure price feed has updated
     price_outside_range = latest_price * \
-        Decimal('1.05')  # 5% higher than latest price
+        Decimal('1.05')  # 2% higher than latest price
     print(
-        f"Attempting trade at price {price_outside_range} (5% higher than {latest_price})")
+        f"Attempting trade at price {price_outside_range} (2% higher than {latest_price})")
 
     try:
         receipt = sdk.ostium.perform_trade(
