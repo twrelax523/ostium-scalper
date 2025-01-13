@@ -1,8 +1,14 @@
 from setuptools import setup, find_packages
+from pathlib import Path
+
+# Read the contents of README.md and CHANGELOG.md
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text() + "\n\n" + \
+                  (this_directory / "CHANGELOG.md").read_text()
 
 setup(
     name="ostium-python-sdk",
-    version="0.1.25",
+    version="0.1.26",
     packages=find_packages(),
     install_requires=[
         "web3>=6.0.0",
@@ -18,7 +24,7 @@ setup(
 
     author="ami@ostium.io",
     description="A python based SDK developed for interacting with Ostium, a leveraged trading application for trading currencies, commodities, indices, crypto and more.",
-    long_description=open("README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/0xOstium/ostium-python-sdk",
     classifiers=[
