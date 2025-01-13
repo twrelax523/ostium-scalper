@@ -1,3 +1,5 @@
+[Changelog](https://github.com/0xOstium/ostium-python-sdk/blob/main/CHANGELOG.md)
+
 # Ostium Python SDK
 
 A python based SDK developed for interacting with Ostium v1 Trading Platform (https://ostium.app/)
