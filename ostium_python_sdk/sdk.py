@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
 import os
+from decimal import Decimal
+from .constants import PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
 
 from ostium_python_sdk.faucet import Faucet
 from .balance import Balance
@@ -63,3 +65,101 @@ class OstiumSDK:
             self.faucet = Faucet(self.w3, self.private_key)
         else:
             self.faucet = None
+
+    async def get_formatted_pairs_details(self) -> list:
+        """
+        Get formatted details for all trading pairs, with proper decimal conversion.
+
+        Crypto pairs example:
+        BTC-USD:
+            - price: 65432.50
+            - longOI: 0.41008148 (410.08148 BTC)
+            - shortOI: 2.59812309 (2,598.12309 BTC)
+            - maxOI: 1000.00000000
+            - utilizationP: 80.00%
+            - makerFeeP: 0.01%
+            - takerFeeP: 0.10%
+            - maxLeverage: 50x
+            - group: crypto
+
+        ETH-USD:
+            - price: 3050.50
+            - longOI: 5.90560023 (5,905.60023 ETH)
+            - shortOI: 0.00000000
+            - maxOI: 1000.00000000
+            - utilizationP: 80.00%
+            - makerFeeP: 0.01%
+            - takerFeeP: 0.10%
+            - maxLeverage: 50x
+            - group: crypto
+
+        Returns:
+            list: List of dictionaries containing formatted pair details including:
+                - id: Pair ID
+                - from: Base asset (e.g., 'BTC')
+                - to: Quote asset (e.g., 'USD')
+                - price: Current market price
+                - isMarketOpen: Market open status
+                - longOI: Total long open interest in notional value
+                - shortOI: Total short open interest in notional value
+                - maxOI: Maximum allowed open interest
+                - utilizationP: Utilization threshold percentage
+                - makerFeeP: Maker fee percentage
+                - takerFeeP: Taker fee percentage
+                - usageFeeP: Usage fee percentage
+                - maxLeverage: Maximum allowed leverage
+                - minLeverage: Minimum allowed leverage
+                - makerMaxLeverage: Maximum leverage for makers
+                - group: Trading group name
+                - groupMaxCollateralP: Maximum collateral percentage for the group
+                - minLevPos: Minimum leverage position size
+                - lastFundingRate: Latest funding rate
+                - curFundingLong: Current funding for longs
+                - curFundingShort: Current funding for shorts
+                - lastFundingBlock: Block number of last funding update
+                - lastFundingVelocity: Velocity of last funding rate change
+        """
+        pairs = await self.subgraph.get_pairs()
+        formatted_pairs = []
+
+        for pair in pairs:
+            pair_details = await self.subgraph.get_pair_details(pair['id'])
+
+            # Get current price and market status
+            try:
+                price, is_market_open = await self.price.get_price(
+                    pair_details['from'],
+                    pair_details['to']
+                )
+            except ValueError:
+                price = 0
+                is_market_open = False
+
+            formatted_pair = {
+                'id': int(pair_details['id']),
+                'from': pair_details['from'],
+                'to': pair_details['to'],
+                'price': price,
+                'isMarketOpen': is_market_open,
+                'longOI': Decimal(pair_details['longOI']) / PRECISION_18,
+                'shortOI': Decimal(pair_details['shortOI']) / PRECISION_18,
+                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_18,
+                'utilizationP': Decimal(pair_details['utilizationThresholdP']) / PRECISION_2,
+                'makerFeeP': Decimal(pair_details['makerFeeP']) / PRECISION_6,
+                'takerFeeP': Decimal(pair_details['takerFeeP']) / PRECISION_6,
+                'usageFeeP': Decimal(pair_details['usageFeeP']) / PRECISION_6,
+                'maxLeverage': Decimal(pair_details['group']['maxLeverage']) / PRECISION_2,
+                'minLeverage': Decimal(pair_details['group']['minLeverage']) / PRECISION_2,
+                'makerMaxLeverage': Decimal(pair_details['makerMaxLeverage']) / PRECISION_2,
+                'group': pair_details['group']['name'],
+                'groupMaxCollateralP': Decimal(pair_details['group']['maxCollateralP']) / PRECISION_2,
+                'minLevPos': Decimal(pair_details['fee']['minLevPos']) / PRECISION_9,
+                'lastFundingRate': Decimal(pair_details['lastFundingRate']) / PRECISION_9,
+                'curFundingLong': Decimal(pair_details['curFundingLong']) / PRECISION_9,
+                'curFundingShort': Decimal(pair_details['curFundingShort']) / PRECISION_9,
+                'lastFundingBlock': int(pair_details['lastFundingBlock']),
+                'lastFundingVelocity': int(pair_details['lastFundingVelocity'])
+            }
+            formatted_pairs.append(formatted_pair)
+
+        return formatted_pairs

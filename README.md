@@ -429,5 +429,9 @@ python examples/example-get-balance.py
 See [example-get-balance.py](https://github.com/0xOstium/ostium_python_sdk/blob/main/examples/example-get-balance.py) for an example of how to use the SDK.
 
 
+## Run an example from local install
 
+```bash
+ pip uninstall ostium-python-sdk  &&  pip install -e .  &&  python examples/example-pairs-details.py
+```
 
