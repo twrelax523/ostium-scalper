@@ -6,13 +6,43 @@ Ostium is a decentralized perpetuals exchange on Arbitrum (Ethereum L2) with a f
 
 This SDK is designed to be used by developers who want to build applications on top of Ostium and automate their trading strategies.
 
+## Supported Operations
 
+Basically you can perfrom any operation that is supported by the Ostium's web site in a programmatic way, via the SDK:
+
+- Get list of feeds and their details
+- Create a Trade/Order
+- Close a Trade, Set Take Profit, Set Stop Loss
+- Cancel an Order, Set Take Profit, Set Stop Loss, Set Entry Price
+- Read Open Trades aka Positions
+- Read Open Orders (Limit, Stop)
+- Read Order History along with their details such as Pnl, etc.
+- Get latest price of a feed
+- Calculate fees such as funding rate, rollover fee, etc.
+- Call testnet faucet to get testnet USDC tokens
+- Read balance of your account, usdc and native token
+
+*To use the SDK you need to have a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use and supply a RPC URL, see below for more details.*
 ## Installation
 
 The SDK can be installed via pip:
 
 ```bash
 pip install ostium-python-sdk
+```
+
+## Running Tests
+
+First, install the package with development dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+Then run the tests:
+
+```bash
+pytest
 ```
 
 ## Requirements
@@ -44,9 +74,12 @@ if not rpc_url:
 
 # Initialize SDK
 configTestnet = NetworkConfig.testnet()
-configMainnet = NetworkConfig.mainnet()
 sdk = OstiumSDK(configTestnet, private_key)
-sdk = OstiumSDK(configMainnet, private_key)
+
+# NOTE: When you are ready to go live, you can switch to mainnet usage as simple as specifying the below init code:
+# configMainnet = NetworkConfig.mainnet()
+# sdk = OstiumSDK(configMainnet, private_key)
+#
 ```
 <b>NOTE:</b> create a .env file with PRIVATE_KEY and RPC_URL to use the SDK. An RPC URL is required to use the SDK. You can get one by signing up for a free account at https://www.alchemy.com/ and creating an app. 
 
@@ -56,7 +89,35 @@ RPC_URL=https://arb-sepolia.g.alchemy.com/v2/...
 #RPC_URL="https://arb-mainnet.g.alchemy.com/v2/...",
 ```
 
-`your_private_key_here` should be a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use. Make sure to save it in a secure location, and that the .env file is not shared with anyone or committed to a public repository (make sure you add it to .gitignore if you are pushing your code).
+`your_private_key_here` should be a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use. 
+
+**Make sure to save it in a secure location, and that the .env file is not shared with anyone or committed to a public repository (make sure you add it to .gitignore if you are pushing your code).**
+
+## Testnet and Fuacet to get USDC tokens
+
+As you can see above, we show use case on testnet. In order to use Ostium on testnet, aka on Arbitrum Sepolia, you need to get testnet USDC tokens. You can do this by using the faucet which is also available on the SDK once instantiated in testnet config.
+
+```python
+# Get current token amount from faucet
+# On testnet
+sdk = OstiumSDK(NetworkConfig.testnet(), private_key)
+
+# Check if tokens can be requested
+if sdk.faucet.can_request_tokens(address):
+    # Get amount that will be received
+    amount = sdk.faucet.get_token_amount()
+    print(f"Will receive {amount} tokens")
+    
+    # Request tokens
+    receipt = sdk.faucet.request_tokens()
+    print(f"Tokens requested successfully! TX: {receipt['transactionHash'].hex()}")
+else:
+    next_time = sdk.faucet.get_next_request_time(address)
+    print(f"Cannot request tokens yet. Next request allowed at: {next_time}")
+
+```
+
+![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) NOTE: You will also need gas aka ethereum or native token on Arbitrum Sepolia to even be able to request USDC tokens from the faucet or perform any write blockchain operation. You can get some native token for Arbitrum Sepolia for free at: https://www.alchemy.com/faucets/arbitrum-sepolia (or search for "arbitrum sepolia faucet")
 
 
 ## The SDK contains the following classes:
@@ -122,7 +183,14 @@ if not rpc_url:
 config = NetworkConfig.testnet()
 sdk = OstiumSDK(config, private_key)
 
-# Or initialize with explicit private key & rpc url
+# Or, initialize:
+#
+# (1) mainnet:
+#
+# config = NetworkConfig.mainnet()
+# sdk = OstiumSDK(config, private_key)
+# 
+# (2) with explicit private key & rpc url, i.e: not read from env variables
 # sdk = OstiumSDK(
 #     network="arbitrum",
 #     private_key="your_private_key_here",
@@ -159,6 +227,9 @@ trade_params = {
 }
 
 try:
+  sdk.ostium.set_slippage_percentage(1)
+  print(f"Slippage percentage set to: {sdk.ostium.get_slippage_percentage()}%")
+
   # Get latest price for BTC
   latest_price, _ = await sdk.price.get_price("BTC", "USD")
   print(f"Latest price: {latest_price}")
@@ -243,14 +314,14 @@ try:
     print(
         f"Order successful! Transaction hash: {receipt['transactionHash'].hex()}")
 
-    # Wait for the transaction to be confirmed
+    # Wait for the order to be confirmed
     await asyncio.sleep(10)
 
     # Get public address from private key
     account = Account.from_key(private_key)
     trader_public_address = account.address
 
-    # Get the trade details
+    # Get the order details
     open_orders = await sdk.subgraph.get_orders(trader_public_address)
     for order_index, order_data in enumerate(open_orders):
         print(f"Order {order_index + 1}: {order_data}\n")
@@ -269,9 +340,41 @@ except Exception as e:
 <b>NOTE:</b> Similiarly you can create a Stop order, just use 'STOP' as the order_type and make sure at_price is set to an acceptable stop loss price.
 
 
+### Add Colateral
+
+Added in version 0.1.2
+
+### Add control of Slippage - Not only default 2%
+
+Added in version 0.1.25
+
+### Remove Colleteral - Add when Audit is done
+TBD
+
+### Tp / Sl - explain not specifying what means - 900 % for TP max and SL meaning
+TBD
+
+### Maybe take or Make sure we have the error mapping from code to string errro msgs.
+TBD
+
+
+### Funding rate calculation - SDK to get breakdown of FF, RF, PnL, etc.
+TBD
+
+
 ## Example Usage Scripts
 
 More examples can be found in the [examples](https://github.com/0xOstium/ostium_python_sdk/tree/main/examples) folder.
+
+### Get Testnet USDC from Faucet
+
+To get testnet USDC tokens (only available on Arbitrum Sepolia testnet):
+
+```bash
+python examples/example-faucet-request.py
+```
+
+See [example-faucet-request.py](https://github.com/0xOstium/ostium_python_sdk/blob/main/examples/example-faucet-request.py) for an example of how to use the faucet to get testnet USDC tokens.
 
 ### Read Block Number
 

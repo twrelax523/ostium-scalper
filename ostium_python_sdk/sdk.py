@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
 import os
+
+from ostium_python_sdk.faucet import Faucet
 from .balance import Balance
 from .price import Price
 from web3 import Web3
@@ -54,6 +56,10 @@ class OstiumSDK:
         # Initialize subgraph client
         self.subgraph = SubgraphClient(url=self.network_config.graph_url)
 
-        self.balance = Balance(self.w3, self.network_config.contracts["usdc"])  
-        self.price = Price()  
-    
+        self.balance = Balance(self.w3, self.network_config.contracts["usdc"])
+        self.price = Price()
+
+        if self.network_config.is_testnet:
+            self.faucet = Faucet(self.w3, self.private_key)
+        else:
+            self.faucet = None
