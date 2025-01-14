@@ -1,8 +1,15 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 
-# Read the contents of README.md and CHANGELOG.md
 this_directory = Path(__file__).parent
+
+# Read requirements.txt
+def read_requirements(filename: str):
+    return [line.strip() 
+            for line in (this_directory / filename).read_text().splitlines()
+            if line.strip() and not line.startswith('#')]
+
+# Read the contents of README.md and CHANGELOG.md
 long_description = (this_directory / "README.md").read_text()
 
 # Try to append CHANGELOG.md if it exists
@@ -12,17 +19,11 @@ if changelog_path.exists():
 
 setup(
     name="ostium-python-sdk",
-    version="0.1.40",
+    version="0.1.41",
     packages=find_packages(),
-    install_requires=[
-        "web3>=6.0.0",
-    ],
+    install_requires=read_requirements('requirements.txt'),
     extras_require={
-        "dev": [
-            "pytest>=7.1.1",
-            "pytest-cov>=3.0.0",
-            "pytest-asyncio>=0.21.1",
-        ],
+        "dev": read_requirements('requirements-dev.txt'),
     },
     python_requires=">=3.8",
 
