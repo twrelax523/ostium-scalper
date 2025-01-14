@@ -144,6 +144,8 @@ else:
 
 - `Ostium`: The class for interacting with the Ostium Smart contracts, opening trades, updating take profit and stop loss, closing trades, opening orders, etc. available via `sdk.ostium`.
 
+- `Faucet`: The class for interacting with the Faucet for getting testnet USDC tokens. available via `sdk.faucet`.
+
 ## Basic Usage
 
 The intraction with Ostium platform is denoted with pair_id and trade_index. 
