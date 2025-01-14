@@ -6,7 +6,6 @@ pytest-cov  # for coverage reports
 pytest-asyncio
 #
 humanize
-dotenv
 # HTTP clients for gql
 aiohttp>=3.8.0
 requests>=2.28.0
