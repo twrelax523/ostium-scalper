@@ -61,6 +61,9 @@ Developed using:
 You can instantiate the SDK with the following parameters. 
 Ostium Platform is deployed on Arbitrum. You can use the testnet or mainnet config via the `NetworkConfig` class, see below for an example.
 
+
+**NOTE: You can also use the SDK _without_ providing a private key, in which case you will be limited to read only operations on the SDK.**
+
 ```python
 from dotenv import load_dotenv
 from ostium_python_sdk import OstiumSDK, NetworkConfig
@@ -68,7 +71,7 @@ from ostium_python_sdk import OstiumSDK, NetworkConfig
 # Load environment variables if using .env file
 load_dotenv()
 
-# Get private key from environment variable
+# Get private key from environment variable 
 private_key = os.getenv('PRIVATE_KEY')
 if not private_key:
     raise ValueError("PRIVATE_KEY not found in .env file")

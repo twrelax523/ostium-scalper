@@ -16,9 +16,9 @@ class OpenOrderType(Enum):
 
 class Ostium:
     def __init__(self, w3: Web3, usdc_address: str, ostium_trading_storage_address: str, ostium_trading_address: str, private_key: str) -> None:
-        if not private_key:
-            raise ValueError(
-                "Private key is required for Ostium initialization")
+        # if not private_key:
+        #     raise ValueError(
+        #         "Private key is required for Ostium initialization")
 
         self.web3 = w3
         self.private_key = private_key

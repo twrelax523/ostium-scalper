@@ -17,9 +17,9 @@ class OstiumSDK:
     def __init__(self, network: Union[str, NetworkConfig], private_key: str = None, rpc_url: str = None):
         load_dotenv()
         self.private_key = private_key or os.getenv('PRIVATE_KEY')
-        if not self.private_key:
-            raise ValueError(
-                "No private key provided. Please provide via constructor or PRIVATE_KEY environment variable")
+        # if not self.private_key:
+        #     raise ValueError(
+        #         "No private key provided. Please provide via constructor or PRIVATE_KEY environment variable")
 
         self.rpc_url = rpc_url or os.getenv('RPC_URL')
         if not self.rpc_url:
@@ -143,7 +143,7 @@ class OstiumSDK:
                 'isMarketOpen': is_market_open,
                 'longOI': Decimal(pair_details['longOI']) / PRECISION_18,
                 'shortOI': Decimal(pair_details['shortOI']) / PRECISION_18,
-                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_18,
+                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_6,
                 'utilizationP': Decimal(pair_details['utilizationThresholdP']) / PRECISION_2,
                 'makerFeeP': Decimal(pair_details['makerFeeP']) / PRECISION_6,
                 'takerFeeP': Decimal(pair_details['takerFeeP']) / PRECISION_6,
