@@ -16,10 +16,6 @@ class OpenOrderType(Enum):
 
 class Ostium:
     def __init__(self, w3: Web3, usdc_address: str, ostium_trading_storage_address: str, ostium_trading_address: str, private_key: str) -> None:
-        # if not private_key:
-        #     raise ValueError(
-        #         "Private key is required for Ostium initialization")
-
         self.web3 = w3
         self.private_key = private_key
         self.usdc_address = usdc_address
@@ -43,6 +39,7 @@ class Ostium:
         return self.slippage_percentage
 
     def _get_account(self) -> Account:
+        self._check_private_key()
         """Get account from stored private key"""
         return self.web3.eth.account.from_key(self.private_key)
 
@@ -51,6 +48,11 @@ class Ostium:
 
     def get_nonce(self, address):
         return self.web3.eth.get_transaction_count(address)
+
+    def _check_private_key(self):
+        if not self.private_key:
+            raise ValueError(
+                "Private key is required for Ostium platform write-operations")
 
     def perform_trade(self, trade_params, at_price):
         account = self._get_account()
@@ -142,8 +144,8 @@ class Ostium:
         return trade_receipt
 
     def add_collateral(self, pairID, index, collateral):
+        account = self._get_account()
         try:
-            account = self._get_account()
             amount = to_base_units(collateral, decimals=6)
             self.__approve(account, amount)
 
@@ -168,8 +170,8 @@ class Ostium:
             raise e
 
     def update_tp(self, pairID, index, tp):
+        account = self._get_account()
         try:
-            account = self._get_account()
             tp_value = to_base_units(tp, decimals=18)
 
             update_tp_tx = self.ostium_trading_contract.functions.updateTp(
@@ -188,8 +190,8 @@ class Ostium:
             raise e
 
     def update_sl(self, pairID, index, sl):
+        account = self._get_account()
         try:
-            account = self._get_account()
             sl_value = to_base_units(sl, decimals=18)
 
             update_sl_tx = self.ostium_trading_contract.functions.updateSl(
@@ -232,8 +234,9 @@ class Ostium:
             print('Approval Receipt:', approve_receipt)
 
     def withdraw(self, amount, receiving_address):
+        account = self._get_account()
+
         try:
-            account = self._get_account()
             amount_in_base_units = to_base_units(amount, decimals=6)
 
             if not self.web3.is_address(receiving_address):

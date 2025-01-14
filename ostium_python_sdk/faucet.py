@@ -40,7 +40,17 @@ class Faucet:
         wait_days = wait_hours // 24
         return f"{wait_days} day{'s' if wait_days != 1 else ''}"
 
+    def _check_private_key(self):
+        if not self.private_key:
+            raise ValueError(
+                "Private key is required for Faucet operations")
+
+    def _get_account(self):
+        self._check_private_key()
+        return self.web3.eth.account.from_key(self.private_key)
+
     def request_tokens(self) -> dict:
+        account = self._get_account()
         """
         Request testnet USDC tokens from the faucet.
         Raises:
@@ -50,8 +60,6 @@ class Faucet:
             Transaction receipt
         """
         try:
-            account = self.web3.eth.account.from_key(self.private_key)
-
             # Get the current base fee and add a buffer
             base_fee = self.web3.eth.get_block('latest')['baseFeePerGas']
             # Add 50% buffer to ensure it's above base fee
