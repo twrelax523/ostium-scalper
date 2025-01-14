@@ -13,10 +13,10 @@ def sdk():
     # Load environment variables
     load_dotenv()
 
-    # Get private key and RPC URL from environment variables
-    private_key = os.getenv('PRIVATE_KEY')
-    if not private_key:
-        raise ValueError("PRIVATE_KEY not found in .env file")
+    # # Get private key and RPC URL from environment variables
+    # private_key = os.getenv('PRIVATE_KEY')
+    # if not private_key:
+    #     raise ValueError("PRIVATE_KEY not found in .env file")
 
     rpc_url = os.getenv('RPC_URL')
     if not rpc_url:
@@ -24,7 +24,7 @@ def sdk():
 
     # Initialize SDK with testnet config
     config = NetworkConfig.testnet()
-    return OstiumSDK(config, private_key)
+    return OstiumSDK(config)
 
 
 @pytest.mark.asyncio
