@@ -12,7 +12,7 @@ if changelog_path.exists():
 
 setup(
     name="ostium-python-sdk",
-    version="0.1.36",
+    version="0.1.37",
     packages=find_packages(),
     install_requires=[
         "web3>=6.0.0",
