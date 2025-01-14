@@ -25,6 +25,9 @@ setup(
     extras_require={
         "dev": read_requirements('requirements-dev.txt'),
     },
+    package_data={
+        '': ['requirements.txt', 'requirements-dev.txt']
+    },
     python_requires=">=3.8",
 
     author="ami@ostium.io",
