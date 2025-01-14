@@ -62,7 +62,6 @@ You can instantiate the SDK with the following parameters.
 Ostium Platform is deployed on Arbitrum. You can use the testnet or mainnet config via the `NetworkConfig` class, see below for an example.
 
 
-**NOTE: You can also use the SDK _without_ providing a private key, in which case you will be limited to read only operations on the SDK.**
 
 ```python
 from dotenv import load_dotenv
@@ -89,7 +88,10 @@ sdk = OstiumSDK(configTestnet, private_key)
 # sdk = OstiumSDK(configMainnet, private_key)
 #
 ```
+
 <b>NOTE:</b> create a .env file with PRIVATE_KEY and RPC_URL to use the SDK. An RPC URL is required to use the SDK. You can get one by signing up for a free account at https://www.alchemy.com/ and creating an app. 
+
+**NOTE: You can also use the SDK _without_ providing a private key, in which case you will be limited to read only operations on the SDK.**
 
 ```
 PRIVATE_KEY=your_private_key_here
