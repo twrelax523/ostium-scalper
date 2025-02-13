@@ -236,6 +236,8 @@ trade_params = {
     'asset_type': 0,          # 0 for BTC, see pair_details above for other asset types 
     'direction': True,        # True for Long, False for Short
     'order_type': 'MARKET'    # 'MARKET', 'LIMIT', or 'STOP'
+    #'tp': 0,                 # Take Profit price - if not specified or Zero means no TP
+    #'sl': 0,                 # Stop Loss price - if not specified or Zero means no SL
 }
 
 try:
