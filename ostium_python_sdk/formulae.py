@@ -96,11 +96,8 @@ def GetTradeLiquidationPrice(
             leverage
         )
 
-        # print('# liq_price_distance', liq_price_distance)
         liq_price = open_price - liq_price_distance if long else open_price + liq_price_distance
-
         liq_price = liq_price if liq_price > 0 else 0
-        # print('---> liq_price', liq_price)
         return liq_price
 
     except Exception as error:

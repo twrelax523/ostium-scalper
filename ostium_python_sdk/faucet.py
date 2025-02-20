@@ -8,14 +8,19 @@ from ostium_python_sdk.abi.faucet_abi import faucet_abi  # Import the ABI
 
 
 class Faucet:
-    def __init__(self, w3: Web3, private_key: str) -> None:
+    def __init__(self, w3: Web3, private_key: str, verbose=False) -> None:
         self.web3 = w3
+        self.verbose = verbose
         self.private_key = private_key
         self.faucet_address = "0x6830C550814105d8B27bDAEC0DB391cAa7B967c8"
         self.faucet_contract = self.web3.eth.contract(
             address=self.faucet_address,
             abi=faucet_abi
         )
+
+    def log(self, message):
+        if self.verbose:
+            print(message)
 
     def _format_waiting_time(self, next_request_time: int) -> str:
         """Format the waiting time into a human-readable string"""
@@ -51,6 +56,7 @@ class Faucet:
 
     def request_tokens(self) -> dict:
         account = self._get_account()
+        self.log("Requesting tokens from faucet")
         """
         Request testnet USDC tokens from the faucet.
         Raises:
@@ -114,10 +120,10 @@ class Faucet:
     def get_token_amount(self) -> int:
         """Get the amount of tokens that will be received from the faucet"""
         try:
-            print(f"Debug - Calling tokenAmount() function")  # Add debug print
+            self.log("Calling tokenAmount() function")  # Add debug print
             return self.faucet_contract.functions.tokenAmount().call()
         except Exception as e:
-            print(f"Debug - Error details: {str(e)}")  # Add debug print
+            self.log(f"Error details: {str(e)}")  # Add debug print
             raise Exception(f"Failed to get token amount: {str(e)}")
 
     def get_next_request_time(self, address: str) -> int:

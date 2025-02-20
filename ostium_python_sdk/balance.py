@@ -8,13 +8,18 @@ REFRESH_BALANCE_SECONDS_INTERVAL = 60 * 5
 
 
 class Balance:
-    def __init__(self, w3: Web3, usdc_address: str) -> None:
+    def __init__(self, w3: Web3, usdc_address: str, verbose=False) -> None:
         self.web3 = w3
         self.usdc_address = usdc_address
+        self.verbose = verbose
         self.usdc_contract = self.web3.eth.contract(
             address=self.usdc_address, abi=usdc_abi)
         # Format: {address: {'ether': value, 'usdc': value, 'last_refresh': timestamp}}
         self.balances = {}
+
+    def log(self, message):
+        if self.verbose:
+            print(message)
 
     def get_balance(self, address, refresh=False):
         if address not in self.balances:
@@ -34,7 +39,6 @@ class Balance:
         return self.balances[address]['ether'], self.balances[address]['usdc']
 
     def read_balances(self, address):
-        # print(f'actual [{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {address} - reading balances')
         start_time = time.time()
         self.balances[address] = {
             'ether': Decimal(self.get_ether_balance(address)),

@@ -7,12 +7,18 @@ from decimal import Decimal
 
 
 class SubgraphClient:
-    def __init__(self, url: str = None) -> None:
+    def __init__(self, url: str = None, verbose=False) -> None:
+        self.verbose = verbose
         transport = AIOHTTPTransport(url=url)
         self.client = Client(transport=transport,
                              fetch_schema_from_transport=True)
 
+    def log(self, message):
+        if self.verbose:
+            print(message)
+
     async def get_pairs(self):
+        self.log("Fetching available pairs")
         query = gql(
             """
           query getPairs {
@@ -88,7 +94,8 @@ class SubgraphClient:
         else:
             raise ValueError(f"No pair details found for pair ID: {pair_id}")
 
-    async def get_open_trades(self, trader):
+    async def get_open_trades(self, address):
+        self.log(f"Fetching open trades for address: {address}")
         query = gql(
             """
           query trades($trader: Bytes!) {
@@ -133,10 +140,7 @@ class SubgraphClient:
       }
           """
         )
-        result = await self.client.execute_async(query, variable_values={"trader": trader})
-
-        # print(result)
-
+        result = await self.client.execute_async(query, variable_values={"trader": address})
         return result['trades']
 
     async def get_orders(self, trader):

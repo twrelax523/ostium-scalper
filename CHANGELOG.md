@@ -5,6 +5,19 @@ All notable changes to the Ostium Python SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-02-20
+
+### Added
+
+- Added sdk method `get_open_trade_metrics` to get open trade metrics such as:
+  - Funding fee
+  - Roll over fee
+  - Unrealized Pnl and Pnl Percent
+  - Total Profit
+  - Liquidation Price 
+
+- Added verbose mode to sdk (default is False, set to True to see debug logs)
+
 ## [0.1.36] - 2025-01-14
 
 ### Added

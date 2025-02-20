@@ -16,7 +16,8 @@ from .subgraph import SubgraphClient
 
 
 class OstiumSDK:
-    def __init__(self, network: Union[str, NetworkConfig], private_key: str = None, rpc_url: str = None):
+    def __init__(self, network: Union[str, NetworkConfig], private_key: str = None, rpc_url: str = None, verbose=False):
+        self.verbose = verbose
         load_dotenv()
         self.private_key = private_key or os.getenv('PRIVATE_KEY')
         # if not self.private_key:
@@ -54,27 +55,35 @@ class OstiumSDK:
             self.network_config.contracts["usdc"],
             self.network_config.contracts["tradingStorage"],
             self.network_config.contracts["trading"],
-            private_key=self.private_key
+            private_key=self.private_key,
+            verbose=self.verbose
         )
 
         # Initialize subgraph client
-        self.subgraph = SubgraphClient(url=self.network_config.graph_url)
+        self.subgraph = SubgraphClient(
+            url=self.network_config.graph_url, verbose=self.verbose)
 
-        self.balance = Balance(self.w3, self.network_config.contracts["usdc"])
-        self.price = Price()
+        self.balance = Balance(
+            self.w3, self.network_config.contracts["usdc"], verbose=self.verbose)
+        self.price = Price(verbose=self.verbose)
 
         if self.network_config.is_testnet:
-            self.faucet = Faucet(self.w3, self.private_key)
+            self.faucet = Faucet(self.w3, self.private_key,
+                                 verbose=self.verbose)
         else:
             self.faucet = None
+
+    def log(self, message):
+        if self.verbose:
+            print(message)
 
     # if SDK instantiated with a private key, this function will return a given open trade metrics,
     # such as: funding fee, roll over fee, Unrealized Pnl, Profit Percent, etc.
     #
     # Will thorw in case SDK instantiated with no private key
-    async def get_open_trade_metrics(self, pair_id, index):
+    async def get_open_trade_metrics(self, pair_id, trade_index):
         trader_public_address = self.ostium.get_public_address()
-        print(f"Trader public address: {trader_public_address}")
+        self.log(f"Trader public address: {trader_public_address}")
         open_trades = await self.subgraph.get_open_trades(trader_public_address)
 
         trade_details = None
@@ -83,21 +92,21 @@ class OstiumSDK:
             raise ValueError(f"No Open Trades for {trader_public_address}")
 
         for t in open_trades:
-            if int(t['pair']['id']) == int(pair_id) and int(t['index']) == int(index):
+            if int(t['pair']['id']) == int(pair_id) and int(t['index']) == int(trade_index):
                 trade_details = t
                 break
 
         if trade_details is None:
             raise ValueError(
-                f"Trade not found for {trader_public_address} pair {pair_id} and index {index}")
+                f"Trade not found for {trader_public_address} pair {pair_id} and index {trade_index}")
 
-        print(f"Trade details: {trade_details}")
+        self.log(f"Trade details: {trade_details}")
         # get the price for this trade's asset/feed
         price_data = await self.price.get_latest_price_json(trade_details['pair']['from'], trade_details['pair']['to'])
-        print(f"Price data: {price_data} (need here bid, mid, ask prices)")
+        self.log(f"Price data: {price_data} (need here bid, mid, ask prices)")
         # get the block number
         block_number = self.ostium.get_block_number()
-        print(f"Block number: {block_number}")
+        self.log(f"Block number: {block_number}")
         return get_trade_metrics(trade_details, price_data, block_number)
 
     async def get_formatted_pairs_details(self) -> list:

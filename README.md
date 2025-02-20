@@ -61,8 +61,6 @@ Developed using:
 You can instantiate the SDK with the following parameters. 
 Ostium Platform is deployed on Arbitrum. You can use the testnet or mainnet config via the `NetworkConfig` class, see below for an example.
 
-
-
 ```python
 from dotenv import load_dotenv
 from ostium_python_sdk import OstiumSDK, NetworkConfig
@@ -79,14 +77,12 @@ rpc_url = os.getenv('RPC_URL')
 if not rpc_url:
     raise ValueError("RPC_URL not found in .env file")
 
-# Initialize SDK
+# Initialize SDK (default: verbose=False for quiet operation)
 configTestnet = NetworkConfig.testnet()
 sdk = OstiumSDK(configTestnet, private_key)
 
-# NOTE: When you are ready to go live, you can switch to mainnet usage as simple as specifying the below init code:
-# configMainnet = NetworkConfig.mainnet()
-# sdk = OstiumSDK(configMainnet, private_key)
-#
+# For verbose mode with detailed logging:
+sdk = OstiumSDK(configTestnet, private_key, verbose=True)
 ```
 
 <b>NOTE:</b> create a .env file with PRIVATE_KEY and RPC_URL to use the SDK. An RPC URL is required to use the SDK. You can get one by signing up for a free account at https://www.alchemy.com/ and creating an app. 
@@ -290,6 +286,20 @@ try:
 except Exception as e:
   print(f"Trade failed: {str(e)}")
 
+```
+
+
+**NOTE:** Use SDK method `get_open_trade_metrics` every so often while trade is open to get the trade's metrics such as:
+
+- Funding fee
+- Roll over fee
+- Unrealized Pnl and Pnl Percent
+- Total Profit
+- Liquidation Price 
+
+```python
+metrics = await sdk.get_open_trade_metrics(pair_id, trade_index)
+print(metrics)
 ```
 
 ### Create a Short ETH Limit Order
