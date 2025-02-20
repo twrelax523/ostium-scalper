@@ -27,6 +27,9 @@ Basically you can perfrom any operation that is supported by the Ostium's web si
 - Call testnet faucet to get testnet USDC tokens
 - Read balance of your account, usdc and native token
 
+You can check this repository - https://github.com/0xOstium/use-ostium-python-sdk for more examples of how to use the SDK. Its shows how to create orders, trade,
+set tp/sl, cancel orders, get funding rate, rollover fee, percent profit/loss etc.
+
 *To use the SDK you need to have a valid EVM private key for an account on either Arbitrum (mainnet) or Arbitrum Sepolia (testnet), depending on which network you plan to use and supply a RPC URL, see below for more details.*
 ## Installation
 
