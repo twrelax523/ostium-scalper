@@ -1,8 +1,8 @@
 from decimal import Decimal
-from formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRolloverFee,
-                      GetTradeFundingFee, GetTradeLiquidationPrice, GetTradeRolloverFee,
-                      GetFundingRate, GetPriceImpact, CurrentTradeProfitRaw,
-                      CurrentTotalProfitRaw, CurrentTotalProfitP)
+from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRolloverFee,
+                       GetTradeFundingFee, GetTradeLiquidationPrice, GetTradeRolloverFee,
+                       GetFundingRate, GetPriceImpact, CurrentTradeProfitRaw,
+                       CurrentTotalProfitRaw, CurrentTotalProfitP)
 from typing import Dict, Union
 
 
@@ -59,11 +59,11 @@ def get_funding_fee_long_short(pair_info, block_number):
     return float(long_rate), float(short_rate)
 
 
-def get_trade_pnl(trade_details, pair_info, price_data, block_number):
+def get_trade_metrics(trade_details, price_data, block_number):
     """
     Calculate PNL and related metrics for a trade.
     """
-    if not trade_details or not price_data or not block_number or not pair_info:
+    if not trade_details or not price_data or not block_number:
         return {
             'pnl': 0,
             'pnl_raw': '0',
@@ -76,6 +76,7 @@ def get_trade_pnl(trade_details, pair_info, price_data, block_number):
             'liquidation_price': 0
         }
 
+    pair_info = trade_details['pair']
     # Calculate current rollover fee
     current_rollover_raw = GetCurrentRolloverFee(
         pair_info['accRollover'],

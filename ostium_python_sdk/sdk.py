@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import os
 from decimal import Decimal
+
+from .formulae_wrapper import get_trade_metrics
 from .constants import PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
 
 from ostium_python_sdk.faucet import Faucet
@@ -65,6 +67,38 @@ class OstiumSDK:
             self.faucet = Faucet(self.w3, self.private_key)
         else:
             self.faucet = None
+
+    # if SDK instantiated with a private key, this function will return a given open trade metrics,
+    # such as: funding fee, roll over fee, Unrealized Pnl, Profit Percent, etc.
+    #
+    # Will thorw in case SDK instantiated with no private key
+    async def get_open_trade_metrics(self, pair_id, index):
+        trader_public_address = self.ostium.get_public_address()
+        print(f"Trader public address: {trader_public_address}")
+        open_trades = await self.subgraph.get_open_trades(trader_public_address)
+
+        trade_details = None
+
+        if len(open_trades) == 0:
+            raise ValueError(f"No Open Trades for {trader_public_address}")
+
+        for t in open_trades:
+            if int(t['pair']['id']) == int(pair_id) and int(t['index']) == int(index):
+                trade_details = t
+                break
+
+        if trade_details is None:
+            raise ValueError(
+                f"Trade not found for {trader_public_address} pair {pair_id} and index {index}")
+
+        print(f"Trade details: {trade_details}")
+        # get the price for this trade's asset/feed
+        price_data = await self.price.get_latest_price_json(trade_details['pair']['from'], trade_details['pair']['to'])
+        print(f"Price data: {price_data} (need here bid, mid, ask prices)")
+        # get the block number
+        block_number = self.ostium.get_block_number()
+        print(f"Block number: {block_number}")
+        return get_trade_metrics(trade_details, price_data, block_number)
 
     async def get_formatted_pairs_details(self) -> list:
         """

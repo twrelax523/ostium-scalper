@@ -2,6 +2,7 @@ import os
 import traceback
 from enum import Enum
 from ostium_python_sdk.constants import PRECISION_2
+from ostium_python_sdk.formulae_wrapper import get_trade_metrics
 from web3 import Web3
 from .abi.abi import usdc_abi, ostium_trading_abi, ostium_trading_storage_abi
 from .utils import convert_to_scaled_integer, fromErrorCodeToMessage, get_tp_sl_prices, to_base_units
@@ -37,6 +38,10 @@ class Ostium:
 
     def get_slippage_percentage(self):
         return self.slippage_percentage
+
+    def get_public_address(self):
+        public_address = self._get_account().address
+        return public_address
 
     def _get_account(self) -> Account:
         self._check_private_key()
@@ -97,7 +102,7 @@ class Ostium:
                 signed_tx.raw_transaction)
             trade_receipt = self.web3.eth.wait_for_transaction_receipt(
                 trade_tx_hash)
-            print('Trade Receipt:', trade_receipt)
+            # print('Trade Receipt:', trade_receipt)
             return trade_receipt
 
         except Exception as e:
@@ -107,11 +112,11 @@ class Ostium:
             raise Exception(
                 f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
-    def cancel_limit_order(self, pairID, index):
+    def cancel_limit_order(self, pair_id, index):
         account = self._get_account()
 
         trade_tx = self.ostium_trading_contract.functions.cancelOpenLimitOrder(
-            int(pairID), int(index)).build_transaction({'from': account.address})
+            int(pair_id), int(index)).build_transaction({'from': account.address})
         trade_tx['nonce'] = self.get_nonce(account.address)
 
         signed_tx = self.web3.eth.account.sign_transaction(
@@ -140,7 +145,7 @@ class Ostium:
 
         trade_receipt = self.web3.eth.wait_for_transaction_receipt(
             trade_tx_hash)
-        print('Trade Receipt:', trade_receipt)
+        # print('Trade Receipt:', trade_receipt)
         return trade_receipt
 
     def add_collateral(self, pairID, index, collateral):
