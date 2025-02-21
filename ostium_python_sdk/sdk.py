@@ -2,7 +2,9 @@ from dotenv import load_dotenv
 import os
 from decimal import Decimal
 
-from .formulae_wrapper import get_trade_metrics
+from ostium_python_sdk.utils import calculate_fee_per_hours, convert_decimals, format_with_precision
+
+from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
 from .constants import PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
 
 from ostium_python_sdk.faucet import Faucet
@@ -108,6 +110,29 @@ class OstiumSDK:
         block_number = self.ostium.get_block_number()
         self.log(f"Block number: {block_number}")
         return get_trade_metrics(trade_details, price_data, block_number)
+
+    async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
+        pair_details = await self.subgraph.get_pair_details(pair_id)
+        block_number = self.ostium.get_block_number()
+
+        funding_fee_long_per_block, funding_fee_short_per_block = get_funding_fee_long_short(
+            pair_details, block_number)
+        rollover_fee_per_block = Decimal(
+            pair_details['rolloverFeePerBlock']) / Decimal('1e18')
+
+        ff_long = calculate_fee_per_hours(
+            funding_fee_long_per_block, hours=period_hours)
+        ff_short = calculate_fee_per_hours(
+            funding_fee_short_per_block, hours=period_hours)
+        rollover = calculate_fee_per_hours(
+            rollover_fee_per_block, hours=period_hours)
+
+        rollover_value = Decimal('0') if rollover == 0 else rollover
+        net_long_percent = format_with_precision(
+            ff_long-rollover_value, precision=4)
+        net_short_percent = format_with_precision(
+            ff_short-rollover_value, precision=4)
+        return net_long_percent, net_short_percent
 
     async def get_formatted_pairs_details(self) -> list:
         """

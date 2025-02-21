@@ -9,6 +9,42 @@ from .constants import MAX_PROFIT_P, MAX_STOP_LOSS_P
 from .formulae import GetTakeProfitPrice
 
 
+def format_with_precision(number, precision):
+    """
+    Formats a number to a specified decimal precision, removing trailing zeros.
+
+    Args:
+        number: The number to be formatted (can be int, float, or numeric string)
+        precision (int): Maximum number of decimal places to round to
+
+    Returns:
+        str: Formatted number with up to specified decimal precision, trailing zeros removed
+    """
+    try:
+        if callable(number):
+            raise TypeError("Input cannot be a function")
+
+        float_number = float(number)
+        precision = int(precision)
+
+        # Format with specified precision first
+        formatted = "{:.{}f}".format(round(float_number, precision), precision)
+        # Remove trailing zeros after decimal point, but keep at least one digit before decimal
+        formatted = formatted.rstrip('0').rstrip(
+            '.') if '.' in formatted else formatted
+
+        return float(formatted)
+
+    except (TypeError, ValueError) as e:
+        raise TypeError(f"Invalid input: {e}")
+
+
+def calculate_fee_per_hours(cur_funding_rate, hours=24):
+    period = hours * (10 / 3) * 60 * 60 * 100
+    rate = Decimal(cur_funding_rate) * Decimal(period)
+    return rate
+
+
 def get_tp_sl_prices(trade_params):
     tp_price = 0
     sl_price = 0
