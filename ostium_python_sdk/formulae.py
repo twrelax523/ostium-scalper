@@ -147,7 +147,7 @@ def GetTradeRolloverFee(
     except Exception as error:
         raise Exception(f"Unable to compute Trade Rollover Fee: {error}")
 
-
+# Gets the funding fee (abs) for an open trade (up to this block, aka based on current_funding up till this block)
 def GetTradeFundingFee(
     trade_funding: str,
     current_funding: str,
@@ -257,6 +257,7 @@ def GetPriceImpact(
         raise Exception(f"Unable to compute Price Impact: {error}")
 
 
+# calculates the gross (without fees) profit (abs) of an open trade
 def CurrentTradeProfitRaw(
     open_price: str,
     current_price: str,
@@ -285,7 +286,7 @@ def CurrentTradeProfitRaw(
     except Exception as error:
         raise Exception(f"Unable to compute Current Trade Profit Raw: {error}")
 
-
+# calculates the net profit (after fees) of an open trade (abs)
 def CurrentTotalProfitRaw(
     open_price: str,
     current_price: str,

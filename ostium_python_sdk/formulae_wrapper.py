@@ -67,7 +67,7 @@ def get_trade_metrics(trade_details, price_data, block_number):
     if not trade_details or not price_data or not block_number:
         return {
             'pnl': 0,
-            'pnl_raw': '0',
+            # 'pnl_raw': '0',
             'pnl_percent': 0,
             'rollover': 0,
             'funding': 0,
@@ -138,7 +138,7 @@ def get_trade_metrics(trade_details, price_data, block_number):
     )
     price_after_impact = price_impact_raw['priceAfterImpact']
 
-    # Calculate PNL
+    # Calculate PNL (abs)
     pnl_raw = CurrentTradeProfitRaw(
         trade_details['openPrice'],
         price_after_impact,
@@ -147,7 +147,7 @@ def get_trade_metrics(trade_details, price_data, block_number):
         trade_details['collateral']
     )
 
-    # Calculate total profit
+    # Calculate total profit (abs)
     total_profit_raw = CurrentTotalProfitRaw(
         trade_details['openPrice'],
         price_after_impact,
@@ -174,12 +174,12 @@ def get_trade_metrics(trade_details, price_data, block_number):
 
     return {
         'pnl': float(pnl),
-        'pnl_raw': str(pnl_raw),
+        # 'pnl_raw': str(pnl_raw),
         'pnl_percent': float(pnl_percent),
         'rollover': float(rollover),
         'funding': float(funding),
-        'funding_raw': str(funding_raw),
-        'rollover_raw': str(rollover_raw),
+        # 'funding_raw': str(funding_raw),
+        # 'rollover_raw': str(rollover_raw),
         'total_profit': float(total_profit),
         'net_pnl': float(net_pnl),
         'net_value': float(net_value),
