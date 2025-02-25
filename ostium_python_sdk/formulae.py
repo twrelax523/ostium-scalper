@@ -230,40 +230,27 @@ def GetPriceImpact(
     mid_price: str,
     bid_price: str,
     ask_price: str,
-    spread_p: str,
-    is_limit: bool,
-    is_buy: bool,
-    is_close: bool,
-    trade_size: str,
-    trade_size_ref: str
+    is_open: bool,
+    is_long: bool,  # aka is_long
 ) -> dict:
     try:
         mid_price = Decimal(mid_price)
         bid_price = Decimal(bid_price)
         ask_price = Decimal(ask_price)
-        spread_p = Decimal(spread_p)
-        trade_size = Decimal(trade_size)
-        trade_size_ref = Decimal(trade_size_ref)
 
-        # Calculate base spread
-        base_spread = (ask_price - bid_price) / mid_price
+        if (mid_price == 0):
+            return {
+                'priceImpactP': str(0),
+                'priceAfterImpact': str(0)
+            }
 
-        # Calculate impact spread
-        impact_spread = base_spread * (trade_size / trade_size_ref)
-
-        # Calculate price after impact
-        price_after_impact = mid_price
-        if not is_limit:
-            if is_buy:
-                price_after_impact = mid_price * \
-                    (Decimal('1') + impact_spread / Decimal('2'))
-            else:
-                price_after_impact = mid_price * \
-                    (Decimal('1') - impact_spread / Decimal('2'))
+        above_spot = is_open == is_long
+        used_price = ask_price if above_spot else bid_price
+        priceImpactP = 100 * (abs(mid_price - used_price) / mid_price)
 
         return {
-            'priceAfterImpact': str(price_after_impact),
-            'impactSpread': str(impact_spread)
+            'priceImpactP': str(priceImpactP),
+            'priceAfterImpact': str(used_price)
         }
 
     except Exception as error:

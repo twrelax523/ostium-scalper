@@ -59,6 +59,7 @@ def get_funding_fee_long_short(pair_info, block_number):
     return float(long_rate), float(short_rate)
 
 
+# Gets an open trade metrics: such as the open pnl, rollover, funding, etc.
 def get_trade_metrics(trade_details, price_data, block_number):
     """
     Calculate PNL and related metrics for a trade.
@@ -126,17 +127,14 @@ def get_trade_metrics(trade_details, price_data, block_number):
     liquidation_price = Decimal(liquidation_price) / PRECISION_18
 
     # Calculate price impact
+    is_open = False  # Get the price assuming a close
+
     price_impact_raw = GetPriceImpact(
         str(int(Decimal(str(price_data['mid'])) * PRECISION_18)),
         str(int(Decimal(str(price_data['bid'])) * PRECISION_18)),
         str(int(Decimal(str(price_data['ask'])) * PRECISION_18)),
-        pair_info['spreadP'],
-        False,
-        trade_details['isBuy'],
-        True,
-        str(Decimal(trade_details['collateral']) *
-            Decimal(trade_details['leverage']) / PRECISION_2),
-        pair_info['tradeSizeRef']
+        is_open,
+        trade_details['isBuy']
     )
     price_after_impact = price_impact_raw['priceAfterImpact']
 
