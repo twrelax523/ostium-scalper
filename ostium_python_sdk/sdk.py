@@ -2,7 +2,8 @@ from dotenv import load_dotenv
 import os
 from decimal import Decimal
 
-from ostium_python_sdk.utils import calculate_fee_per_hours, convert_decimals, format_with_precision
+from ostium_python_sdk.formulae import get_funding_rate
+from ostium_python_sdk.utils import calculate_fee_per_hours, format_with_precision
 
 from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
 from .constants import PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
@@ -109,7 +110,7 @@ class OstiumSDK:
         # get the block number
         block_number = self.ostium.get_block_number()
         self.log(f"Block number: {block_number}")
-        return get_trade_metrics(trade_details, price_data, block_number)
+        return get_trade_metrics(trade_details, price_data, block_number, verbose=self.verbose)
 
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
         pair_details = await self.subgraph.get_pair_details(pair_id)
@@ -133,6 +134,36 @@ class OstiumSDK:
         net_short_percent = format_with_precision(
             ff_short-rollover_value, precision=4)
         return net_long_percent, net_short_percent
+
+    async def get_funding_rate_for_pair_id(self, pair_id):
+        pair_details = await self.subgraph.get_pair_details(pair_id)
+        # get the block number
+        block_number = self.ostium.get_block_number()
+
+        self.log(f"Pair details: {pair_details}")
+        self.log(f"Block number: {block_number}")
+
+        ret = get_funding_rate(
+            pair_details['curFundingLong'],
+            pair_details['curFundingShort'],
+            pair_details['lastFundingRate'],
+            # pair_details['lastFundingVelocity'],
+            pair_details['maxFundingFeePerBlock'],
+            pair_details['lastFundingBlock'],
+            block_number,
+            pair_details['longOI'],
+            pair_details['shortOI'],
+            pair_details['maxOI'],
+            pair_details['hillInflectionPoint'],
+            pair_details['hillPosScale'],
+            pair_details['hillNegScale'],
+            pair_details['springFactor'],
+            pair_details['sFactorUpScaleP'],
+            pair_details['sFactorDownScaleP'],
+        )
+
+        self.log(f"Funding rate: {ret}")
+        return ret
 
     async def get_formatted_pairs_details(self) -> list:
         """
