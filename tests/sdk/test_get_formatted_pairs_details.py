@@ -13,10 +13,10 @@ def mock_pair_details():
         'longOI': '410081480598314460',
         'shortOI': '2598123090421427575',
         'maxOI': '1000000000000000000000',
-        'utilizationThresholdP': '8000',
+        
         'makerFeeP': '10000',
         'takerFeeP': '100000',
-        'usageFeeP': '100000',
+        
         'makerMaxLeverage': '2000',
         'lastFundingRate': '-4813483532',
         'curFundingLong': '-44780202510',
@@ -65,8 +65,7 @@ async def test_get_formatted_pairs_details(sdk):
     assert pair['maxOI'] == Decimal('1000')
     assert pair['utilizationP'] == Decimal('80.00')
     assert pair['makerFeeP'] == Decimal('0.01')
-    assert pair['takerFeeP'] == Decimal('0.10')
-    assert pair['usageFeeP'] == Decimal('0.10')
+    assert pair['takerFeeP'] == Decimal('0.10')    
     assert pair['maxLeverage'] == Decimal('50.00')
     assert pair['minLeverage'] == Decimal('1.00')
     assert pair['makerMaxLeverage'] == Decimal('20.00')
