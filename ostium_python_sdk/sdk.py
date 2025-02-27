@@ -144,16 +144,16 @@ class OstiumSDK:
         self.log(f"Block number: {block_number}")
 
         # Get current price
-        price = pair_details['lastTradePrice']
-        self.log(f"Price: {price}")
+        last_trade_price = pair_details['lastTradePrice']
+        self.log(f"lastTradePrice: {last_trade_price}")
 
         long_oi = int(
             (Decimal(pair_details['longOI']) *
-             Decimal(price) / PRECISION_18 / PRECISION_12)
+             Decimal(last_trade_price) / PRECISION_18 / PRECISION_12)
         )
         short_oi = int(
             (Decimal(pair_details['shortOI']) *
-             Decimal(price) / PRECISION_18 / PRECISION_12)
+             Decimal(last_trade_price) / PRECISION_18 / PRECISION_12)
         )
 
         self.log(f"notional_long_oi: {long_oi}")

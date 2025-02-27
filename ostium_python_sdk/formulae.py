@@ -391,8 +391,9 @@ def get_funding_rate(
 
     # Calculate target funding rate
     open_interest_max = max(Decimal(oi_long), Decimal(oi_short))
-    normalized_oi_delta = ((Decimal(oi_long) - Decimal(oi_short)) * PRECISION_6) / max(Decimal(oi_cap), open_interest_max)
-    
+    normalized_oi_delta = ((Decimal(oi_long) - Decimal(oi_short))
+                           * PRECISION_6) / max(Decimal(oi_cap), open_interest_max)
+
     target_fr = getTargetFundingRate(
         normalized_oi_delta,
         Decimal(hill_inflection_point),
