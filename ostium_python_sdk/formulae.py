@@ -362,13 +362,40 @@ def get_funding_rate(
     s_factor_up_scale_p: str,
     s_factor_down_scale_p: str,
     verbose: bool = False
-) -> dict:
+) -> tuple[int, int, int, int]:
     """
-    Calculate funding rate using the accurate implementation from funding.py
+    Calculate funding rates and return as integers multiplied by PRECISION_18
+    Returns: (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)
     """
+    def log(message):
+        if verbose:
+            print(message)
+
     # Set decimal precision
     getcontext().prec = 128
     getcontext().rounding = ROUND_DOWN
+
+    # Convert all inputs to Decimal
+    oi_long_dec = Decimal(oi_long)
+    oi_short_dec = Decimal(oi_short)
+    oi_cap_dec = Decimal(oi_cap)
+
+    log(f"Input values:")
+    log(f"OI Long: {oi_long_dec}")
+    log(f"OI Short: {oi_short_dec}")
+    log(f"OI Cap: {oi_cap_dec}")
+    log(f"Last Funding Rate: {last_funding_rate}")
+    log(f"Last Update Block: {last_update_block}")
+    log(f"Latest Block: {latest_block}")
+
+    # Calculate normalized OI delta
+    open_interest_max = max(oi_long_dec, oi_short_dec)
+    normalized_oi_delta = ((oi_long_dec - oi_short_dec)
+                           * PRECISION_6) / max(oi_cap_dec, open_interest_max)
+
+    log(f"\nCalculated values:")
+    log(f"Open Interest Max: {open_interest_max}")
+    log(f"Normalized OI Delta: {normalized_oi_delta}")
 
     # Get funding values
     acc_funding_long, acc_funding_short, latest_funding_rate = getPendingAccFundingFees(
@@ -376,9 +403,9 @@ def get_funding_rate(
         lastUpdateBlock=Decimal(last_update_block),
         valueLong=Decimal(acc_per_oi_long),
         valueShort=Decimal(acc_per_oi_short),
-        openInterestUsdcLong=Decimal(oi_long),
-        openInterestUsdcShort=Decimal(oi_short),
-        OiCap=Decimal(oi_cap),
+        openInterestUsdcLong=oi_long_dec,
+        openInterestUsdcShort=oi_short_dec,
+        OiCap=oi_cap_dec,
         maxFundingFeePerBlock=Decimal(max_funding_fee_per_block),
         lastFundingRate=Decimal(last_funding_rate),
         hillInflectionPoint=Decimal(hill_inflection_point),
@@ -389,11 +416,12 @@ def get_funding_rate(
         sFactorDownScaleP=Decimal(s_factor_down_scale_p),
     )
 
-    # Calculate target funding rate
-    open_interest_max = max(Decimal(oi_long), Decimal(oi_short))
-    normalized_oi_delta = ((Decimal(oi_long) - Decimal(oi_short))
-                           * PRECISION_6) / max(Decimal(oi_cap), open_interest_max)
+    log(f"\nIntermediate results:")
+    log(f"Acc Funding Long (pre-conversion): {acc_funding_long}")
+    log(f"Acc Funding Short (pre-conversion): {acc_funding_short}")
+    log(f"Latest Funding Rate (pre-conversion): {latest_funding_rate}")
 
+    # Calculate target funding rate
     target_fr = getTargetFundingRate(
         normalized_oi_delta,
         Decimal(hill_inflection_point),
@@ -402,9 +430,23 @@ def get_funding_rate(
         Decimal(hill_neg_scale)
     )
 
-    return {
-        'accFundingLong': str(acc_funding_long),
-        'accFundingShort': str(acc_funding_short),
-        'latestFundingRate': str(latest_funding_rate),
-        'targetFr': str(target_fr)
-    }
+    log(f"Target Funding Rate (pre-conversion): {target_fr}")
+
+    # Convert all values to integers (multiplied by PRECISION_18)
+    acc_funding_long_int = int(acc_funding_long * PRECISION_18)
+    acc_funding_short_int = int(acc_funding_short * PRECISION_18)
+    latest_funding_rate_int = int(latest_funding_rate * PRECISION_18)
+    target_fr_int = int(target_fr * PRECISION_18)
+
+    log(f"\nFinal results (multiplied by 10^18):")
+    log(f"Acc Funding Long: {acc_funding_long_int}")
+    log(f"Acc Funding Short: {acc_funding_short_int}")
+    log(f"Latest Funding Rate: {latest_funding_rate_int}")
+    log(f"Target Funding Rate: {target_fr_int}")
+
+    return (
+        acc_funding_long_int,
+        acc_funding_short_int,
+        latest_funding_rate_int,
+        target_fr_int
+    )

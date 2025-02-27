@@ -131,8 +131,9 @@ if __name__ == "__main__":
         )
         encodedResult = "0x" + \
             encode(["int"], [int(result*PRECISION_18)]).hex()
+        # returns targetFr
         print(encodedResult)
-    elif sys.argv[1] == "accFundingRate":
+    elif sys.argv[1] == "accFundingRate": 
         blockNumber = Decimal(sys.argv[2])
         lastUpdateBlock = Decimal(sys.argv[3])
         valueLong = Decimal(sys.argv[4]) / PRECISION_18
@@ -155,6 +156,7 @@ if __name__ == "__main__":
         encodedResult = "0x" + \
             encode(["int", "int", "int64"], [int(result[0]*PRECISION_18),
                 int(result[1]*PRECISION_18), int(result[2]*PRECISION_18)]).hex()
+        # returns valueLong, valueShort, fr
         print(encodedResult)
     else:
         print("Invalid Operation")
