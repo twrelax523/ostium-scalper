@@ -75,6 +75,8 @@ def CurrentTradeProfitP(open_price: str, current_price: str, long: bool, leverag
         return str(e)
 
 # tbd - used by SDK
+
+
 def GetTradeLiquidationPrice(
     open_price: str,
     long: bool,
@@ -149,6 +151,8 @@ def GetTradeRolloverFee(
         raise Exception(f"Unable to compute Trade Rollover Fee: {error}")
 
 # Gets the funding fee (abs) for an open trade (up to this block, aka based on current_funding up till this block)
+
+
 def GetTradeFundingFee(
     trade_funding: str,
     current_funding: str,
@@ -288,6 +292,8 @@ def CurrentTradeProfitRaw(
         raise Exception(f"Unable to compute Current Trade Profit Raw: {error}")
 
 # calculates the net profit (after fees) of an open trade (abs)
+
+
 def CurrentTotalProfitRaw(
     open_price: str,
     current_price: str,
@@ -339,6 +345,7 @@ def CurrentTotalProfitP(total_profit: str, collateral: str) -> str:
 
 # given desired TP percentage, like 35, 50, 75, 100, 500 and 900 which is max: gives you the TP price
 
+
 def get_target_funding_rate(
     normalized_oi_delta: Decimal,
     hill_inflection_point: Decimal,
@@ -348,7 +355,7 @@ def get_target_funding_rate(
 ) -> Decimal:
     a = Decimal('184')
     k = Decimal('16')
-    
+
     x = a * normalized_oi_delta / PRECISION_2
     x2 = x * x * PRECISION_6  # convert to PRECISION_18
     hill = x2 * PRECISION_18 / (k * PRECISION_16 + x2)
@@ -356,7 +363,8 @@ def get_target_funding_rate(
     if normalized_oi_delta >= 0:
         target_fr = hill_pos_scale * hill / PRECISION_2 + hill_inflection_point
     else:
-        target_fr = hill_neg_scale * Decimal('-1') * hill / PRECISION_2 + hill_inflection_point
+        target_fr = hill_neg_scale * \
+            Decimal('-1') * hill / PRECISION_2 + hill_inflection_point
 
     if target_fr > PRECISION_18:
         target_fr = PRECISION_18
@@ -364,6 +372,7 @@ def get_target_funding_rate(
         target_fr = PRECISION_18 * Decimal('-1')
 
     return target_fr * max_fr / PRECISION_18
+
 
 def exponential_approximation(x: Decimal) -> Decimal:
     approx_threshold = Decimal('793231258909201900')
@@ -377,7 +386,8 @@ def exponential_approximation(x: Decimal) -> Decimal:
 
         return numerator * PRECISION_18 / denominator
     else:
-        k = [1648721, 1284025, 1133148, 1064494, 1031743, 1015748, 1007843, 1003915, 1001955, 1000977]
+        k = [1648721, 1284025, 1133148, 1064494, 1031743,
+             1015748, 1007843, 1003915, 1001955, 1000977]
         integer_part = abs(x) // PRECISION_18
         decimal_part = abs(x) - (integer_part * PRECISION_18)
 
@@ -391,10 +401,11 @@ def exponential_approximation(x: Decimal) -> Decimal:
             if decimal_part == 0:
                 break
 
-        return (PRECISION_18 * PRECISION_18 / 
-                (Decimal('2') ** integer_part * 
-                 (approx / Decimal('1000') * Decimal('1e15'))) / 
+        return (PRECISION_18 * PRECISION_18 /
+                (Decimal('2') ** integer_part *
+                 (approx / Decimal('1000') * Decimal('1e15'))) /
                 Decimal('1e15') * Decimal('1e15'))
+
 
 def get_funding_rate(
     acc_per_oi_long: str,
@@ -412,6 +423,7 @@ def get_funding_rate(
     spring_factor: str,
     s_factor_up_scale_p: str,
     s_factor_down_scale_p: str,
+    verbose: bool = False
 ) -> Dict[str, str]:
     # Convert string inputs to Decimal
     acc_per_oi_long_dec = Decimal(acc_per_oi_long)
@@ -435,6 +447,17 @@ def get_funding_rate(
     denominator = max(oi_cap_dec, open_interest_max)
     oi_delta = (oi_long_dec - oi_short_dec) * PRECISION_6 / denominator
 
+    if verbose:
+        print(f"open_interest_max: {open_interest_max}")
+        print(f"denominator: {denominator}")
+
+        print(
+            f"oi_long_dec: {oi_long_dec} (make sure this is in notional aka usd)")
+        print(
+            f"oi_short_dec: {oi_short_dec} (make sure this is in notional aka usd)")
+        print(f"oi_cap_dec: {oi_cap_dec}")
+        print(f"oi_delta: {oi_delta}")
+
     # Get target funding rate
     target_fr = get_target_funding_rate(
         oi_delta,
@@ -444,36 +467,42 @@ def get_funding_rate(
         hill_neg_scale_dec,
     )
 
+    if verbose:
+        print(f"target_fr: {target_fr}")
+
     # Calculate spring factor
     s_factor = Decimal('0')
     if last_funding_rate_dec * target_fr >= 0:
         if abs(target_fr) > abs(last_funding_rate_dec):
             s_factor = spring_factor_dec
         else:
-            s_factor = s_factor_down_scale_p_dec * spring_factor_dec / Decimal('10000')
+            s_factor = s_factor_down_scale_p_dec * \
+                spring_factor_dec / Decimal('10000')
     else:
-        s_factor = s_factor_up_scale_p_dec * spring_factor_dec / Decimal('10000')
+        s_factor = s_factor_up_scale_p_dec * \
+            spring_factor_dec / Decimal('10000')
 
     # Calculate blocks to charge and exponential
     num_blocks_to_charge = latest_block_dec - last_update_block_dec
-    exp = exponential_approximation(s_factor * num_blocks_to_charge * Decimal('-1'))
+    exp = exponential_approximation(
+        s_factor * num_blocks_to_charge * Decimal('-1'))
 
     # Calculate funding rates
-    acc_funding_rate = (target_fr * num_blocks_to_charge + 
-                       (PRECISION_18 - exp) * (last_funding_rate_dec - target_fr) / s_factor)
+    acc_funding_rate = (target_fr * num_blocks_to_charge +
+                        (PRECISION_18 - exp) * (last_funding_rate_dec - target_fr) / s_factor)
     fr = target_fr + (last_funding_rate_dec - target_fr) * exp / PRECISION_18
 
     # Update accumulations
     if acc_funding_rate > 0:
         if oi_long_dec > 0:
             acc_per_oi_long_dec += acc_funding_rate
-            acc_per_oi_short_dec -= (acc_funding_rate * oi_long_dec / oi_short_dec 
-                                   if oi_short_dec > 0 else Decimal('0'))
+            acc_per_oi_short_dec -= (acc_funding_rate * oi_long_dec / oi_short_dec
+                                     if oi_short_dec > 0 else Decimal('0'))
     else:
         if oi_short_dec > 0:
             acc_per_oi_short_dec -= acc_funding_rate
-            acc_per_oi_long_dec += (acc_funding_rate * oi_short_dec / oi_long_dec 
-                                  if oi_long_dec > 0 else Decimal('0'))
+            acc_per_oi_long_dec += (acc_funding_rate * oi_short_dec / oi_long_dec
+                                    if oi_long_dec > 0 else Decimal('0'))
 
     return {
         'accFundingLong': str(acc_per_oi_long_dec),

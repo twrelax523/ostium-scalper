@@ -143,6 +143,21 @@ class OstiumSDK:
         self.log(f"Pair details: {pair_details}")
         self.log(f"Block number: {block_number}")
 
+        # Get current price
+        price, _ = await self.price.get_price(
+            pair_details['from'],
+            pair_details['to']
+        )
+        self.log(f"Price: {price}")
+
+        notional_long_oi = int(
+            (Decimal(pair_details['longOI']) / PRECISION_18) * Decimal(price) * PRECISION_6)
+        notional_short_oi = int(
+            (Decimal(pair_details['shortOI']) / PRECISION_18) * Decimal(price) * PRECISION_6)
+
+        self.log(f"notional_long_oi: {notional_long_oi}")
+        self.log(f"notional_short_oi: {notional_short_oi}")
+
         ret = get_funding_rate(
             pair_details['curFundingLong'],
             pair_details['curFundingShort'],
@@ -151,8 +166,8 @@ class OstiumSDK:
             pair_details['maxFundingFeePerBlock'],
             pair_details['lastFundingBlock'],
             block_number,
-            pair_details['longOI'],
-            pair_details['shortOI'],
+            notional_long_oi,  # Needs to be in notional aka usd
+            notional_short_oi,  # Needs to be in notional aka usd
             pair_details['maxOI'],
             pair_details['hillInflectionPoint'],
             pair_details['hillPosScale'],
@@ -160,6 +175,7 @@ class OstiumSDK:
             pair_details['springFactor'],
             pair_details['sFactorUpScaleP'],
             pair_details['sFactorDownScaleP'],
+            self.verbose
         )
 
         self.log(f"Funding rate: {ret}")

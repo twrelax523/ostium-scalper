@@ -6,6 +6,8 @@ from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRollove
 from typing import Dict, Union
 
 # TBD - Not used by SDK
+
+
 def get_liq_price(trade_details, pair_info, block_number):
     current_funding_fee = GetTradeFundingFee(trade_details['funding'], pair_info['accFundingLong'] if trade_details['isBuy']
                                              else pair_info['accFundingShort'], trade_details['collateral'], trade_details['leverage'])
@@ -22,6 +24,8 @@ def get_liq_price(trade_details, pair_info, block_number):
     return liq_price / PRECISION_18
 
 # TBD - used by SDK
+
+
 def get_funding_fee_long_short(pair_info, block_number):
     funding_rate_raw = GetFundingRate(
         pair_info['accFundingLong'],
@@ -60,6 +64,8 @@ def get_funding_fee_long_short(pair_info, block_number):
 
 # TBD - used by SDK
 # Gets an open trade metrics: such as the open pnl, rollover, funding, liquidation price, price impact, etc.
+
+
 def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     """
     Calculate PNL and related metrics for a trade.
@@ -139,7 +145,8 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     liquidation_price = Decimal(liquidation_price) / PRECISION_18
 
     if verbose:
-        print(f"Liquidation price: {liquidation_price} with rollover {rollover_raw} and funding {funding_raw}")
+        print(
+            f"Liquidation price: {liquidation_price} with rollover {rollover_raw} and funding {funding_raw}")
 
     # Calculate price impact
     is_open = False  # Get the price assuming a close

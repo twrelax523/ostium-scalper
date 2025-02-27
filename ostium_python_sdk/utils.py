@@ -6,7 +6,6 @@ from ast import literal_eval
 from .constants import MAX_PROFIT_P, MAX_STOP_LOSS_P
 
 
-
 def format_with_precision(number, precision):
     """
     Formats a number to a specified decimal precision, removing trailing zeros.
