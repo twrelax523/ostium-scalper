@@ -144,30 +144,30 @@ class OstiumSDK:
         self.log(f"Block number: {block_number}")
 
         # Get current price
-        price, _ = await self.price.get_price(
-            pair_details['from'],
-            pair_details['to']
-        )
+        price = pair_details['lastTradePrice']
         self.log(f"Price: {price}")
 
-        notional_long_oi = int(
-            (Decimal(pair_details['longOI']) / PRECISION_18) * Decimal(price) * PRECISION_6)
-        notional_short_oi = int(
-            (Decimal(pair_details['shortOI']) / PRECISION_18) * Decimal(price) * PRECISION_6)
+        long_oi = int(
+            (Decimal(pair_details['longOI']) *
+             Decimal(price) / PRECISION_18 / PRECISION_12)
+        )
+        short_oi = int(
+            (Decimal(pair_details['shortOI']) *
+             Decimal(price) / PRECISION_18 / PRECISION_12)
+        )
 
-        self.log(f"notional_long_oi: {notional_long_oi}")
-        self.log(f"notional_short_oi: {notional_short_oi}")
+        self.log(f"notional_long_oi: {long_oi}")
+        self.log(f"notional_short_oi: {short_oi}")
 
         ret = get_funding_rate(
             pair_details['curFundingLong'],
             pair_details['curFundingShort'],
             pair_details['lastFundingRate'],
-            # pair_details['lastFundingVelocity'],
             pair_details['maxFundingFeePerBlock'],
             pair_details['lastFundingBlock'],
             block_number,
-            notional_long_oi,  # Needs to be in notional aka usd
-            notional_short_oi,  # Needs to be in notional aka usd
+            long_oi,  # Needs to be in USD
+            short_oi,  # Needs to be in USD
             pair_details['maxOI'],
             pair_details['hillInflectionPoint'],
             pair_details['hillPosScale'],

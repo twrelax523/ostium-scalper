@@ -50,8 +50,6 @@ class SubgraphClient:
               maxOI
               makerFeeP
               takerFeeP
-              usageFeeP
-              utilizationThresholdP
               makerMaxLeverage    
               curFundingLong  
               curFundingShort
@@ -70,7 +68,6 @@ class SubgraphClient:
               hillInflectionPoint
               hillPosScale
               hillNegScale
-              lastOiDelta
               springFactor
               sFactorUpScaleP
               sFactorDownScaleP
