@@ -218,10 +218,10 @@ class OstiumSDK:
                 - longOI: Total long open interest in notional value
                 - shortOI: Total short open interest in notional value
                 - maxOI: Maximum allowed open interest
-                
+
                 - makerFeeP: Maker fee percentage
                 - takerFeeP: Taker fee percentage
-                
+
                 - maxLeverage: Maximum allowed leverage
                 - minLeverage: Minimum allowed leverage
                 - makerMaxLeverage: Maximum leverage for makers
@@ -258,10 +258,10 @@ class OstiumSDK:
                 'isMarketOpen': is_market_open,
                 'longOI': Decimal(pair_details['longOI']) / PRECISION_18,
                 'shortOI': Decimal(pair_details['shortOI']) / PRECISION_18,
-                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_6,                
+                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_6,
                 'makerFeeP': Decimal(pair_details['makerFeeP']) / PRECISION_6,
                 'takerFeeP': Decimal(pair_details['takerFeeP']) / PRECISION_6,
-                
+
                 'maxLeverage': Decimal(pair_details['group']['maxLeverage']) / PRECISION_2,
                 'minLeverage': Decimal(pair_details['group']['minLeverage']) / PRECISION_2,
                 'makerMaxLeverage': Decimal(pair_details['makerMaxLeverage']) / PRECISION_2,

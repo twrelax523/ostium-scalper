@@ -366,7 +366,7 @@ def get_funding_rate(
     s_factor_up_scale_p: str,
     s_factor_down_scale_p: str,
     verbose: bool = False
-) -> tuple[int, int, int, int]:
+) -> dict:
     """
     Calculate funding rates and return as integers multiplied by PRECISION_18
     Returns: (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)
@@ -441,11 +441,9 @@ def get_funding_rate(
     log(f"Latest Funding Rate: {latest_funding_rate}")
     log(f"Target Funding Rate: {target_fr}")
 
-    return (
-        acc_funding_long_int,
-        acc_funding_short_int,
-        ((latest_funding_rate * 10 / 3 * 60) * 60 * 24 * 365 *
-         100).quantize(quantization_6, rounding=ROUND_DOWN),
-        ((target_fr * 10 / 3 * 60) * 60 * 24 * 365 *
-         100).quantize(quantization_6, rounding=ROUND_DOWN),
-    )
+    return {
+        'accFundingLong': acc_funding_long_int,
+        'accFundingShort': acc_funding_short_int,
+        'latestFr1Year': int((latest_funding_rate * 10 / 3 * 60 * 60 * 24 * 365 * 100).quantize(quantization_6, rounding=ROUND_DOWN)),
+        'targetFr1Year': int((target_fr * 10 / 3 * 60 * 60 * 24 * 365 * 100).quantize(quantization_6, rounding=ROUND_DOWN))
+    }
