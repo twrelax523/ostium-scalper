@@ -12,7 +12,7 @@ quantization_6 = Decimal('0.000001')
 quantization_12 = Decimal('0.000000000001')
 quantization_18 = Decimal('0.000000000000000001')
 
-def getTargetFundingRate(normalizedOiDelta, hillInflectionPoint, maxFr, hillPosScale, hillNegScale):
+def getTargetFundingRate(normalizedOiDelta, hillInflectionPoint, maxFundingFeePerBlock, hillPosScale, hillNegScale):
     a = Decimal('1.84')
     n = 2
     K = Decimal('0.16')
