@@ -3,6 +3,8 @@ from .constants import MAX_PROFIT_P, MAX_STOP_LOSS_P, PRECISION_16, PRECISION_2,
 from typing import Dict
 from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 
+quantization_6 = Decimal('0.000001')
+quantization_18 = Decimal('0.000000000000000001')
 #
 # This is a copy-cat of formulae repo originally written in TypeScript
 #
@@ -345,6 +347,8 @@ def CurrentTotalProfitP(total_profit: str, collateral: str) -> str:
             f"Unable to compute Current Total Profit Percentage: {error}")
 
 
+# returns (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)
+# latest_funding_rate and target_fr are in % per year - how much long pay per year
 def get_funding_rate(
     acc_per_oi_long: str,
     acc_per_oi_short: str,
@@ -398,7 +402,7 @@ def get_funding_rate(
     log(f"Normalized OI Delta: {normalized_oi_delta}")
 
     # Get funding values
-    acc_funding_long, acc_funding_short, latest_funding_rate = getPendingAccFundingFees(
+    acc_funding_long, acc_funding_short, latest_funding_rate, target_fr = getPendingAccFundingFees(
         blockNumber=Decimal(latest_block),
         lastUpdateBlock=Decimal(last_update_block),
         valueLong=Decimal(acc_per_oi_long),
@@ -420,33 +424,28 @@ def get_funding_rate(
     log(f"Acc Funding Long (pre-conversion): {acc_funding_long}")
     log(f"Acc Funding Short (pre-conversion): {acc_funding_short}")
     log(f"Latest Funding Rate (pre-conversion): {latest_funding_rate}")
-
-    # Calculate target funding rate
-    target_fr = getTargetFundingRate(
-        normalized_oi_delta,
-        Decimal(hill_inflection_point),
-        Decimal(max_funding_fee_per_block),
-        Decimal(hill_pos_scale),
-        Decimal(hill_neg_scale)
-    )
-
     log(f"Target Funding Rate (pre-conversion): {target_fr}")
 
-    # Convert all values to integers (multiplied by PRECISION_18)
-    acc_funding_long_int = int(acc_funding_long * PRECISION_18)
-    acc_funding_short_int = int(acc_funding_short * PRECISION_18)
-    latest_funding_rate_int = int(latest_funding_rate * PRECISION_18)
-    target_fr_int = int(target_fr * PRECISION_18)
+    acc_funding_long_int = (
+        acc_funding_long / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
+    acc_funding_short_int = (
+        acc_funding_short / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
+    latest_funding_rate = (
+        latest_funding_rate / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
+    target_fr = (target_fr / PRECISION_18).quantize(quantization_18,
+                                                    rounding=ROUND_DOWN)
 
     log(f"\nFinal results (multiplied by 10^18):")
     log(f"Acc Funding Long: {acc_funding_long_int}")
     log(f"Acc Funding Short: {acc_funding_short_int}")
-    log(f"Latest Funding Rate: {latest_funding_rate_int}")
-    log(f"Target Funding Rate: {target_fr_int}")
+    log(f"Latest Funding Rate: {latest_funding_rate}")
+    log(f"Target Funding Rate: {target_fr}")
 
     return (
         acc_funding_long_int,
         acc_funding_short_int,
-        latest_funding_rate_int,
-        target_fr_int
+        ((latest_funding_rate * 10 / 3 * 60) * 60 * 24 * 365 *
+         100).quantize(quantization_6, rounding=ROUND_DOWN),
+        ((target_fr * 10 / 3 * 60) * 60 * 24 * 365 *
+         100).quantize(quantization_6, rounding=ROUND_DOWN),
     )

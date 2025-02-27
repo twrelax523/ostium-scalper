@@ -78,7 +78,7 @@ def getPendingAccFundingFees(
             valueShort -= accFundingRate
             valueLong += (accFundingRate * openInterestUsdcShort / openInterestUsdcLong).quantize(quantization_18, rounding=ROUND_DOWN) if openInterestUsdcLong > 0 else 0
 
-    return (valueLong.quantize(quantization_18, rounding=ROUND_DOWN), valueShort.quantize(quantization_18, rounding=ROUND_DOWN), fr.quantize(quantization_18, rounding=ROUND_DOWN))
+    return (valueLong.quantize(quantization_18, rounding=ROUND_DOWN), valueShort.quantize(quantization_18, rounding=ROUND_DOWN), fr.quantize(quantization_18, rounding=ROUND_DOWN), targetFr.quantize(quantization_18, rounding=ROUND_DOWN))
 
 
 def exponentialApproximation(value):
