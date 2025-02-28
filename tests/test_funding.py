@@ -37,13 +37,13 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts():
     expected_latest_funding_rate = Decimal('0.000000024999937501')
     expected_acc_funding_long = Decimal('0.000000012499979000')
     expected_acc_funding_short = Decimal('-0.000000012499979000')
-
+    expected_target_fr = Decimal('0.005')
     # -----------------------------------------------------------
     # 3. Call getPendingAccFundingFees
     #    (Note that this function typically returns a tuple of:
     #     (accFundingLong, accFundingShort, latestFundingRate[, targetFr?])
     # -----------------------------------------------------------
-    results = getPendingAccFundingFees(
+    acc_funding_long, acc_funding_short, latest_funding_rate_out, target_fr_out = getPendingAccFundingFees(
         blockNumber=latest_block,
         lastUpdateBlock=last_update_block,
         valueLong=acc_per_oi_long,
@@ -61,8 +61,6 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts():
         sFactorDownScaleP=s_factor_down_scale_p
     )
 
-    acc_funding_long, acc_funding_short, latest_funding_rate_out, _ = results
-
     # -----------------------------------------------------------
     # 5. Verify output matches expected (approximately)
     # -----------------------------------------------------------
@@ -74,3 +72,6 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts():
 
     assert latest_funding_rate_out == pytest.approx(expected_latest_funding_rate, rel=Decimal('1e-12')), \
         f"latest_funding_rate is {latest_funding_rate_out}, expected {expected_latest_funding_rate}"
+    
+    assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12')), \
+        f"target_fr is {target_fr_out}, expected {expected_target_fr}"
