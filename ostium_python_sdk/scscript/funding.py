@@ -48,7 +48,7 @@ def getPendingAccFundingFees(
         sFactorUpScale: Decimal,
         sFactorDownScaleP: Decimal,
     ):
-
+    print(f"********* getPendingAccFundingFees *********")
     numBlocks = blockNumber - lastUpdateBlock
     openInterestMax = max(openInterestUsdcLong, openInterestUsdcShort)
     normalizedOiDelta = ((openInterestUsdcLong - openInterestUsdcShort).quantize(quantization_6, rounding=ROUND_DOWN) / max(OiCap, openInterestMax).quantize(quantization_6, rounding=ROUND_DOWN)).quantize(quantization_6, rounding=ROUND_DOWN)

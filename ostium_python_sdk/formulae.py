@@ -426,9 +426,9 @@ def get_funding_rate(
     log(f"Latest Funding Rate (pre-conversion): {latest_funding_rate}")
     log(f"Target Funding Rate (pre-conversion): {target_fr}")
 
-    acc_funding_long_int = (
+    acc_funding_long = (
         acc_funding_long / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
-    acc_funding_short_int = (
+    acc_funding_short = (
         acc_funding_short / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
     latest_funding_rate = (
         latest_funding_rate / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
@@ -436,14 +436,14 @@ def get_funding_rate(
                                                     rounding=ROUND_DOWN)
 
     log(f"\nFinal results (multiplied by 10^18):")
-    log(f"Acc Funding Long: {acc_funding_long_int}")
-    log(f"Acc Funding Short: {acc_funding_short_int}")
+    log(f"Acc Funding Long: {acc_funding_long}")
+    log(f"Acc Funding Short: {acc_funding_short}")
     log(f"Latest Funding Rate: {latest_funding_rate}")
     log(f"Target Funding Rate: {target_fr}")
 
     return {
-        'accFundingLong': acc_funding_long_int,
-        'accFundingShort': acc_funding_short_int,
-        'latestFr1Year': int((latest_funding_rate * 10 / 3 * 60 * 60 * 24 * 365 * 100).quantize(quantization_6, rounding=ROUND_DOWN)),
-        'targetFr1Year': int((target_fr * 10 / 3 * 60 * 60 * 24 * 365 * 100).quantize(quantization_6, rounding=ROUND_DOWN))
+        'accFundingLong': acc_funding_long,
+        'accFundingShort': acc_funding_short,
+        'latestFr1Year': ((latest_funding_rate * 10 / 3 * 60 * 60 * 24 * 365 * 100).quantize(quantization_6, rounding=ROUND_DOWN)),
+        'targetFr1Year': ((target_fr * 10 / 3 * 60 * 60 * 24 * 365 * 100).quantize(quantization_6, rounding=ROUND_DOWN))
     }
