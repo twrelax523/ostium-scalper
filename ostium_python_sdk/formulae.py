@@ -5,43 +5,21 @@ from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 
 quantization_6 = Decimal('0.000001')
 quantization_18 = Decimal('0.000000000000000001')
-#
-# This is a copy-cat of formulae repo originally written in TypeScript
-#
-
-#
-# GetStopLossPrice and GetTakeProfitPrice are consolidated into one function.
-# bool is_tp is True if we want to calculate the take profit price, False if we want to calculate the stop loss price
-#
 
 
-def GetTakeProfitPrice(is_tp: bool, open_price: Decimal, leverage: Decimal, long: bool, profit_p: Decimal) -> Decimal:
-    """
-    Calculate the take profit / stop loss price based on desired profit percentage (aka: MAX_PROFIT_P=900 or MAX_STOP_LOSS_P=85).
-
-    Args:
-        open_price (Decimal): The opening price of the trade
-        profit_p (Decimal): The desired profit percentage
-        leverage (Decimal): The leverage amount
-        long (bool): Whether this is a long position
-        profit_p (Decimal): The desired profit percentage - 900% for Tp or 85% for SL
-
-    Returns:
-        str: The Tp / SL price as a string
-    """
-
+def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     profit_p = Decimal(profit_p)
     leverage = Decimal(leverage)
 
     price_diff = (open_price * profit_p) / (leverage * Decimal('100'))
 
-    if (is_tp):
-        price = open_price + price_diff if long else open_price - price_diff
+    if (is_long):
+        tp_price = open_price + price_diff 
     else:
-        price = open_price - price_diff if long else open_price + price_diff
+        tp_price = open_price - price_diff 
 
-    return Decimal(price if price > 0 else '0')
+    return Decimal(tp_price if tp_price > 0 else '0')
 
 
 def CurrentTradeProfitP(open_price: str, current_price: str, long: bool, leverage: str) -> str:
