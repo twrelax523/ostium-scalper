@@ -21,6 +21,17 @@ def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal
 
     return Decimal(tp_price if tp_price > 0 else '0')
 
+def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
+    open_price = Decimal(open_price)
+    loss_p = Decimal(loss_p)
+    leverage = Decimal(leverage)
+
+    # price_diff matches your existing TP logic style, except using 'loss_p'
+    price_diff = (open_price * loss_p) / (leverage * Decimal('100'))
+
+    sl_price = open_price - price_diff if is_long else open_price + price_diff
+    return sl_price if sl_price > 0 else Decimal('0')
+
 
 def CurrentTradeProfitP(open_price: str, current_price: str, long: bool, leverage: str) -> str:
     """
