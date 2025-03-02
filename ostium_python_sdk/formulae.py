@@ -181,59 +181,6 @@ def GetTradeFundingFee(
         raise Exception(f"Unable to compute Trade Funding Fee: {error}")
 
 
-def GetFundingRate(
-    acc_funding_long: str,
-    acc_funding_short: str,
-    last_funding_rate: str,
-    last_funding_velocity: str,
-    max_funding_fee_per_block: str,
-    last_funding_block: str,
-    latest_block: str,
-    long_oi: str,
-    short_oi: str
-) -> dict:
-    try:
-        acc_funding_long = Decimal(acc_funding_long)
-        acc_funding_short = Decimal(acc_funding_short)
-        last_funding_rate = Decimal(last_funding_rate)
-        last_funding_velocity = Decimal(last_funding_velocity)
-        max_funding_fee_per_block = Decimal(max_funding_fee_per_block)
-        last_funding_block = Decimal(last_funding_block)
-        latest_block = Decimal(latest_block)
-        long_oi = Decimal(long_oi)
-        short_oi = Decimal(short_oi)
-
-        block_diff = latest_block - last_funding_block
-
-        # Calculate skew
-        total_oi = long_oi + short_oi
-        skew = Decimal('0')
-        if total_oi > 0:
-            skew = (long_oi - short_oi) / total_oi
-
-        # Calculate funding rate
-        funding_rate = last_funding_rate + last_funding_velocity * block_diff
-
-        # Cap funding rate
-        if funding_rate > max_funding_fee_per_block:
-            funding_rate = max_funding_fee_per_block
-        elif funding_rate < -max_funding_fee_per_block:
-            funding_rate = -max_funding_fee_per_block
-
-        # Calculate accumulated funding
-        funding_long = acc_funding_long + funding_rate * block_diff
-        funding_short = acc_funding_short - funding_rate * block_diff
-
-        return {
-            'accFundingLong': str(funding_long),
-            'accFundingShort': str(funding_short),
-            'skew': str(skew)
-        }
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Funding Rate: {error}")
-
-
 def GetPriceImpact(
     mid_price: str,
     bid_price: str,

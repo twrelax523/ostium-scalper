@@ -2,6 +2,7 @@ import pytest
 from decimal import Decimal, getcontext
 from ostium_python_sdk.scscript.funding import getPendingAccFundingFees
 
+
 @pytest.mark.asyncio
 async def test_get_pending_acc_funding_fees_longs_pay_shorts():
     """
@@ -16,7 +17,7 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts():
     # 1. Define input parameters (matching TypeScript parseUnits())
     # -----------------------------------------------------------
     acc_per_oi_long = Decimal('0')  # parseUnits('0', 18)
-    acc_per_oi_short = Decimal('0') # parseUnits('0', 18)
+    acc_per_oi_short = Decimal('0')  # parseUnits('0', 18)
     last_funding_rate = Decimal('0')
     max_funding_fee_per_block = Decimal('0.05')
     last_update_block = Decimal('0')
@@ -72,9 +73,10 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts():
 
     assert latest_funding_rate_out == pytest.approx(expected_latest_funding_rate, rel=Decimal('1e-12')), \
         f"latest_funding_rate is {latest_funding_rate_out}, expected {expected_latest_funding_rate}"
-    
+
     assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12')), \
         f"target_fr is {target_fr_out}, expected {expected_target_fr}"
+
 
 @pytest.mark.asyncio
 async def test_get_pending_acc_funding_fees_longs_pay_shorts_block_1_oi_delta_positive_normal_spring_factor():
@@ -138,6 +140,7 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts_block_1_oi_delta_po
     assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12')), \
         f"target_fr {target_fr_out} != {expected_target_fr}"
 
+
 @pytest.mark.asyncio
 async def test_get_pending_acc_funding_fees_longs_pay_shorts_block_1_oi_delta_positive_sign_switched_spring_factor_scaled_up():
     """
@@ -151,7 +154,8 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts_block_1_oi_delta_po
     # 1. Define input parameters
     acc_per_oi_long = Decimal('0')
     acc_per_oi_short = Decimal('0')
-    last_funding_rate = Decimal('-0.000000000000000001')  # parseUnits('-0.000000000000000001', 18)
+    # parseUnits('-0.000000000000000001', 18)
+    last_funding_rate = Decimal('-0.000000000000000001')
     max_funding_fee_per_block = Decimal('0.05')
     last_update_block = Decimal('0')
     latest_block = Decimal('1')
@@ -199,6 +203,7 @@ async def test_get_pending_acc_funding_fees_longs_pay_shorts_block_1_oi_delta_po
         f"latest_funding_rate {latest_funding_rate_out} != {expected_latest_funding_rate}"
     assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12')), \
         f"target_fr {target_fr_out} != {expected_target_fr}"
+
 
 @pytest.mark.asyncio
 async def test_oi_delta_positive_scaled_down_spring_factor_longs_pay_shorts():
@@ -252,10 +257,15 @@ async def test_oi_delta_positive_scaled_down_spring_factor_longs_pay_shorts():
     )
 
     # 4. Assertions
-    assert latest_funding_rate_out == pytest.approx(expected_latest_funding_rate, rel=Decimal('1e-12'))
-    assert acc_funding_long == pytest.approx(expected_acc_funding_long, rel=Decimal('1e-12'))
-    assert acc_funding_short == pytest.approx(expected_acc_funding_short, rel=Decimal('1e-12'))
-    assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12'))
+    assert latest_funding_rate_out == pytest.approx(
+        expected_latest_funding_rate, rel=Decimal('1e-12'))
+    assert acc_funding_long == pytest.approx(
+        expected_acc_funding_long, rel=Decimal('1e-12'))
+    assert acc_funding_short == pytest.approx(
+        expected_acc_funding_short, rel=Decimal('1e-12'))
+    assert target_fr_out == pytest.approx(
+        expected_target_fr, rel=Decimal('1e-12'))
+
 
 @pytest.mark.asyncio
 async def test_oi_delta_negative_normal_spring_factor_shorts_pay_longs():
@@ -274,7 +284,8 @@ async def test_oi_delta_negative_normal_spring_factor_shorts_pay_longs():
     last_update_block = Decimal('0')
     latest_block = Decimal('1')
     oi_long = Decimal('1000') * Decimal('1000000')    # parseUnits('1000', 6)
-    oi_short = Decimal('100000') * Decimal('1000000') # parseUnits('100000', 6)
+    # parseUnits('100000', 6)
+    oi_short = Decimal('100000') * Decimal('1000000')
     oi_cap = Decimal('100000') * Decimal('1000000')
     hill_inflection_point = Decimal('0.1')
     hill_pos_scale = Decimal('0.94')
@@ -309,10 +320,15 @@ async def test_oi_delta_negative_normal_spring_factor_shorts_pay_longs():
     )
 
     # 4. Assertions
-    assert latest_funding_rate_out == pytest.approx(expected_latest_funding_rate, rel=Decimal('1e-12'))
-    assert acc_funding_long == pytest.approx(expected_acc_funding_long, rel=Decimal('1e-12'))
-    assert acc_funding_short == pytest.approx(expected_acc_funding_short, rel=Decimal('1e-12'))
-    assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12'))
+    assert latest_funding_rate_out == pytest.approx(
+        expected_latest_funding_rate, rel=Decimal('1e-12'))
+    assert acc_funding_long == pytest.approx(
+        expected_acc_funding_long, rel=Decimal('1e-12'))
+    assert acc_funding_short == pytest.approx(
+        expected_acc_funding_short, rel=Decimal('1e-12'))
+    assert target_fr_out == pytest.approx(
+        expected_target_fr, rel=Decimal('1e-12'))
+
 
 @pytest.mark.asyncio
 async def test_oi_delta_negative_sign_switched_scaled_up_spring_factor_shorts_pay_longs():
@@ -331,7 +347,7 @@ async def test_oi_delta_negative_sign_switched_scaled_up_spring_factor_shorts_pa
     last_update_block = Decimal('0')
     latest_block = Decimal('1')
     oi_long = Decimal('1000') * Decimal('1000000')   # parseUnits('1000', 6)
-    oi_short = Decimal('10000') * Decimal('1000000') # parseUnits('10000', 6)
+    oi_short = Decimal('10000') * Decimal('1000000')  # parseUnits('10000', 6)
     oi_cap = Decimal('100000') * Decimal('1000000')
     hill_inflection_point = Decimal('0.1')
     hill_pos_scale = Decimal('0.94')
@@ -366,10 +382,15 @@ async def test_oi_delta_negative_sign_switched_scaled_up_spring_factor_shorts_pa
     )
 
     # 4. Assertions
-    assert latest_funding_rate_out == pytest.approx(expected_latest_funding_rate, rel=Decimal('1e-12'))
-    assert acc_funding_long == pytest.approx(expected_acc_funding_long, rel=Decimal('1e-12'))
-    assert acc_funding_short == pytest.approx(expected_acc_funding_short, rel=Decimal('1e-12'))
-    assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12'))
+    assert latest_funding_rate_out == pytest.approx(
+        expected_latest_funding_rate, rel=Decimal('1e-12'))
+    assert acc_funding_long == pytest.approx(
+        expected_acc_funding_long, rel=Decimal('1e-12'))
+    assert acc_funding_short == pytest.approx(
+        expected_acc_funding_short, rel=Decimal('1e-12'))
+    assert target_fr_out == pytest.approx(
+        expected_target_fr, rel=Decimal('1e-12'))
+
 
 @pytest.mark.asyncio
 async def test_oi_delta_negative_scaled_down_spring_factor_shorts_pay_longs():
@@ -388,7 +409,7 @@ async def test_oi_delta_negative_scaled_down_spring_factor_shorts_pay_longs():
     last_update_block = Decimal('0')
     latest_block = Decimal('1')
     oi_long = Decimal('100') * Decimal('1000000')   # parseUnits('100', 6)
-    oi_short = Decimal('10000') * Decimal('1000000')# parseUnits('10000', 6)
+    oi_short = Decimal('10000') * Decimal('1000000')  # parseUnits('10000', 6)
     oi_cap = Decimal('100000') * Decimal('1000000')
     hill_inflection_point = Decimal('0.1')
     hill_pos_scale = Decimal('0.94')
@@ -398,8 +419,10 @@ async def test_oi_delta_negative_scaled_down_spring_factor_shorts_pay_longs():
     s_factor_down_scale_p = Decimal('90')
 
     # 2. Expected outputs
-    expected_latest_funding_rate = Decimal('-0.004999999382905974')
-    expected_acc_funding_long = Decimal('-0.4999999691452734')
+    expected_latest_funding_rate = Decimal(
+        '-0.004999999382905974')  # 004999999444615238
+    expected_acc_funding_long = Decimal(
+        '-0.4999999691452734')  # 499999972230743300
     expected_acc_funding_short = Decimal('0.004999999691452734')
     expected_target_fr = Decimal('-0.004876580886315063')
 
@@ -423,10 +446,15 @@ async def test_oi_delta_negative_scaled_down_spring_factor_shorts_pay_longs():
     )
 
     # 4. Assertions
-    assert latest_funding_rate_out == pytest.approx(expected_latest_funding_rate, rel=Decimal('1e-12'))
-    assert acc_funding_long == pytest.approx(expected_acc_funding_long, rel=Decimal('1e-12'))
-    assert acc_funding_short == pytest.approx(expected_acc_funding_short, rel=Decimal('1e-12'))
-    assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12'))
+    assert latest_funding_rate_out == pytest.approx(
+        expected_latest_funding_rate, rel=Decimal('1e-12'))
+    assert acc_funding_long == pytest.approx(
+        expected_acc_funding_long, rel=Decimal('1e-12'))
+    assert acc_funding_short == pytest.approx(
+        expected_acc_funding_short, rel=Decimal('1e-12'))
+    assert target_fr_out == pytest.approx(
+        expected_target_fr, rel=Decimal('1e-12'))
+
 
 @pytest.mark.asyncio
 async def test_blocks_10000000_oi_delta_null_longs_pay_shorts():
@@ -480,7 +508,11 @@ async def test_blocks_10000000_oi_delta_null_longs_pay_shorts():
     )
 
     # 4. Assertions
-    assert target_fr_out == pytest.approx(expected_target_fr, rel=Decimal('1e-12'))
-    assert acc_funding_long == pytest.approx(expected_acc_funding_long, rel=Decimal('1e-12'))
-    assert acc_funding_short == pytest.approx(expected_acc_funding_short, rel=Decimal('1e-12'))
-    assert latest_funding_rate_out == pytest.approx(expected_latest_funding_rate, rel=Decimal('1e-12'))
+    assert target_fr_out == pytest.approx(
+        expected_target_fr, rel=Decimal('1e-12'))
+    assert acc_funding_long == pytest.approx(
+        expected_acc_funding_long, rel=Decimal('1e-12'))
+    assert acc_funding_short == pytest.approx(
+        expected_acc_funding_short, rel=Decimal('1e-12'))
+    assert latest_funding_rate_out == pytest.approx(
+        expected_latest_funding_rate, rel=Decimal('1e-12'))

@@ -30,7 +30,9 @@ def getTargetFundingRate(normalizedOiDelta, hillInflectionPoint, maxFundingFeePe
     
     return (maxFundingFeePerBlock * targetFr).quantize(quantization_18, rounding=ROUND_DOWN)
 
-
+#
+# returns the accFundingLong, accFundingShort, latestFundingRate (per block), targetFr (per block)
+#
 def getPendingAccFundingFees(
         blockNumber: Decimal,
         lastUpdateBlock: Decimal,

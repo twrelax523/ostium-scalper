@@ -1,7 +1,7 @@
 from decimal import Decimal
 from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRolloverFee,
                        GetTradeFundingFee, GetTradeLiquidationPrice, GetTradeRolloverFee,
-                       GetFundingRate, GetPriceImpact, CurrentTradeProfitRaw,
+                       GetPriceImpact, CurrentTradeProfitRaw,
                        CurrentTotalProfitRaw, CurrentTotalProfitP)
 from typing import Dict, Union
 
@@ -24,6 +24,7 @@ def get_liq_price(trade_details, pair_info, block_number):
     return liq_price / PRECISION_18
 
 # TBD - used by SDK
+# returns the funding_fee_long_per_block, funding_fee_short_per_block
 
 
 def get_funding_fee_long_short(pair_info, block_number):
