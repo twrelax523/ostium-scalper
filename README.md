@@ -47,8 +47,16 @@ First, install the package with development dependencies:
 pip install -e ".[dev]"
 ```
 
-Then run the tests:
+## Running tests
 
+### Run specific tests
+
+```bash
+pytest -v tests/test_trade_liquidation_price.py
+pytest -v tests/test_funding.py
+```
+
+### Run ALL tests
 ```bash
 pytest
 ```
