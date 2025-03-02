@@ -6,7 +6,7 @@ from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 quantization_6 = Decimal('0.000001')
 quantization_18 = Decimal('0.000000000000000001')
 
-# v2
+# v2 (formulae v1.3.3)
 def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     profit_p = Decimal(profit_p)
@@ -21,7 +21,7 @@ def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal
 
     return Decimal(tp_price if tp_price > 0 else '0')
 
-# v2
+# v2 (formulae v1.3.3)
 def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     loss_p = Decimal(loss_p)
@@ -33,7 +33,7 @@ def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is
     sl_price = open_price - price_diff if is_long else open_price + price_diff
     return sl_price if sl_price > 0 else Decimal('0')
 
-# v2
+# v2 (formulae v1.3.3)
 def CurrentTradeProfitP(
     open_price: Decimal,
     current_price: Decimal,
@@ -56,6 +56,14 @@ def CurrentTradeProfitP(
 
     return profit_p
 
+# v2 (formulae v1.3.3)
+def TopUpWithCollateral(
+    leverage: Decimal,
+    collateral: Decimal,
+    added_collateral: Decimal
+) -> Decimal:
+    new_leverage = (collateral * leverage) / (collateral + added_collateral)
+    return new_leverage
 # tbd - used by SDK
 
 
