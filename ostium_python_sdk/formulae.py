@@ -64,6 +64,15 @@ def TopUpWithCollateral(
 ) -> Decimal:
     new_leverage = (collateral * leverage) / (collateral + added_collateral)
     return new_leverage
+
+# v2 (formulae v1.3.3)
+def TopUpWithLeverage(
+    leverage: Decimal,
+    desired_leverage: Decimal,
+    collateral: Decimal
+) -> Decimal:
+    added_c = (collateral * leverage) / desired_leverage - collateral
+    return added_c
 # tbd - used by SDK
 
 
