@@ -60,6 +60,9 @@ pytest -v tests/test_current_trade_profit_p.py
 pytest -v tests/test_top_up_with_collateral.py
 pytest -v tests/test_top_up_with_leverage.py
 pytest -v tests/test_remove_collateral_with_collateral.py
+pytest -v tests/test_remove_collateral_from_leverage.py
+
+
 
 
 ```
