@@ -113,6 +113,9 @@ class OstiumSDK:
         return get_trade_metrics(trade_details, price_data, block_number, verbose=self.verbose)
 
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
+        raise RuntimeError(
+            f"Old version of function. Use get_funding_rate_for_pair_id(pair_id, period_hours=24).")
+
         pair_details = await self.subgraph.get_pair_details(pair_id)
         block_number = self.ostium.get_block_number()
 
@@ -135,7 +138,7 @@ class OstiumSDK:
             ff_short-rollover_value, precision=4)
         return net_long_percent, net_short_percent
 
-    async def get_funding_rate_for_pair_id(self, pair_id):
+    async def get_funding_rate_for_pair_id(self, pair_id, period_hours=24):
         pair_details = await self.subgraph.get_pair_details(pair_id)
         # get the block number
         block_number = self.ostium.get_block_number()
@@ -178,8 +181,14 @@ class OstiumSDK:
             self.verbose
         )
 
-        self.log(f"Funding rate: {ret}")
-        return ret
+        accFundingLong = ret['accFundingLong']
+        accFundingShort = ret['accFundingShort']
+        fundingRate = ret['latestFundingRate'] * \
+            (10 / 3) * 60 * 60 * 100 * period_hours
+        targetFundingRate = ret['targetFundingRate'] * \
+            (10 / 3) * 60 * 60 * 100 * period_hours
+
+        return accFundingLong, accFundingShort, fundingRate, targetFundingRate
 
     async def get_formatted_pairs_details(self) -> list:
         """
