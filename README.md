@@ -54,6 +54,7 @@ pip install -e ".[dev]"
 ```bash
 pytest -v tests/test_trade_liquidation_price.py
 pytest -v tests/test_funding.py
+pytest -v tests/test_trade_get_tp_price.py
 ```
 
 ### Run ALL tests
