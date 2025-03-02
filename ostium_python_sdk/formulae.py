@@ -296,7 +296,7 @@ def CurrentTotalProfitP(total_profit: str, collateral: str) -> str:
 
 # returns (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)
 # latest_funding_rate and target_fr are in % per year - how much long pay per year
-def get_funding_rate(
+def GetFundingRateV2(
     acc_per_oi_long: str,
     acc_per_oi_short: str,
     last_funding_rate: str,

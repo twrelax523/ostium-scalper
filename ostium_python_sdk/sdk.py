@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 from decimal import Decimal
 
-from ostium_python_sdk.formulae import get_funding_rate
+from ostium_python_sdk.formulae import GetFundingRateV2
 from ostium_python_sdk.utils import calculate_fee_per_hours, format_with_precision
 
 from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
@@ -159,7 +159,7 @@ class OstiumSDK:
         self.log(f"notional_long_oi: {long_oi}")
         self.log(f"notional_short_oi: {short_oi}")
 
-        ret = get_funding_rate(
+        ret = GetFundingRateV2(
             pair_details['curFundingLong'],
             pair_details['curFundingShort'],
             pair_details['lastFundingRate'],
