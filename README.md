@@ -56,6 +56,7 @@ pytest -v tests/test_trade_liquidation_price.py
 pytest -v tests/test_funding.py
 pytest -v tests/test_trade_get_tp_price.py
 pytest -v tests/test_trade_get_sl_price.py
+pytest -v tests/test_current_trade_profit_p.py
 ```
 
 ### Run ALL tests

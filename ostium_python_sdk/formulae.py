@@ -33,39 +33,28 @@ def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is
     sl_price = open_price - price_diff if is_long else open_price + price_diff
     return sl_price if sl_price > 0 else Decimal('0')
 
+# v2
+def CurrentTradeProfitP(
+    open_price: Decimal,
+    current_price: Decimal,
+    long: bool,
+    leverage: Decimal,
+    highest_leverage: Decimal
+) -> Decimal:
+    leverage_to_use = leverage if leverage > highest_leverage else highest_leverage
+    if long:
+        price_diff = current_price - open_price
+    else:
+        price_diff = open_price - current_price
 
-def CurrentTradeProfitP(open_price: str, current_price: str, long: bool, leverage: str) -> str:
-    """
-    Calculate the current trade profit percentage.
+    profit_p = (price_diff / open_price) * leverage_to_use * Decimal("100")
 
-    Args:
-        open_price (str): The opening price of the trade
-        current_price (str): The current price
-        long (bool): Whether this is a long position
-        leverage (str): The leverage amount
+    if profit_p >= MAX_PROFIT_P:
+        profit_p = MAX_PROFIT_P
+    
+    profit_p *= (leverage / leverage_to_use)
 
-    Returns:
-        str: The profit percentage as a string
-    """
-    try:
-
-        open_price_d = Decimal(open_price)
-        current_price_d = Decimal(current_price)
-        leverage_d = Decimal(leverage)
-
-        if long:
-            price_diff = current_price_d - open_price_d
-        else:
-            price_diff = open_price_d - current_price_d
-
-        profit_p = (price_diff / open_price_d) * (leverage_d)
-
-        if profit_p > MAX_PROFIT_P:
-            return (MAX_PROFIT_P)
-        else:
-            return (profit_p)
-    except Exception as e:
-        return str(e)
+    return profit_p
 
 # tbd - used by SDK
 
