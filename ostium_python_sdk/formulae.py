@@ -82,6 +82,16 @@ def RemoveCollateralWithCollateral(
 ) -> Decimal:
     new_leverage = (collateral * leverage) / (collateral - removed_collateral)
     return new_leverage
+
+# v2 (formulae v1.3.3)
+def RemoveCollateralFromLeverage(
+    leverage: Decimal,
+    desired_leverage: Decimal,
+    collateral: Decimal
+) -> Decimal:
+    added_c = collateral - (collateral * leverage / desired_leverage)
+    return added_c
+
 # tbd - used by SDK
 
 
