@@ -6,7 +6,7 @@ from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 quantization_6 = Decimal('0.000001')
 quantization_18 = Decimal('0.000000000000000001')
 
-
+# v2
 def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     profit_p = Decimal(profit_p)
@@ -21,6 +21,7 @@ def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal
 
     return Decimal(tp_price if tp_price > 0 else '0')
 
+# v2
 def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     loss_p = Decimal(loss_p)
