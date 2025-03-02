@@ -183,11 +183,11 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
 
     # Calculate PNL percentage
     pnl_percent_raw = CurrentTotalProfitP(
-        str(total_profit_raw), trade_details['collateral'])
-
+        Decimal(total_profit_raw) / PRECISION_6, Decimal(trade_details['collateral']) / PRECISION_6)
+    print(f"pnl_percent_raw: {pnl_percent_raw} = CurrentTotalProfitP({total_profit_raw}, {trade_details['collateral']})")
     # Convert values to proper decimals
     pnl = Decimal(pnl_raw) / PRECISION_6
-    pnl_percent = Decimal(pnl_percent_raw) / PRECISION_6
+    pnl_percent = Decimal(pnl_percent_raw)
     net_pnl = Decimal(total_profit_raw) / PRECISION_6
     total_profit = Decimal(total_profit_raw) / PRECISION_6
     funding = Decimal(funding_raw) / PRECISION_6

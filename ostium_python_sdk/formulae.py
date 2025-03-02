@@ -1,5 +1,5 @@
 from decimal import Decimal, getcontext, ROUND_DOWN
-from .constants import MAX_PROFIT_P, MAX_STOP_LOSS_P, PRECISION_16, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, LIQ_THRESHOLD_P
+from .constants import MAX_PROFIT_P, MIN_LOSS_P, MAX_STOP_LOSS_P, PRECISION_16, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, LIQ_THRESHOLD_P
 from typing import Dict
 from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 
@@ -288,25 +288,15 @@ def CurrentTotalProfitRaw(
         raise Exception(f"Unable to compute Current Total Profit Raw: {error}")
 
 
-# TBD- used by sdk. calculates the net profit percentage of an open trade
-# What's the diff between this and CurrentTradeProfitP?
-def CurrentTotalProfitP(total_profit: str, collateral: str) -> str:
-    try:
-        total_profit = Decimal(total_profit)
-        collateral = Decimal(collateral)
 
-        # Calculate profit percentage
-        profit_percentage = (total_profit * PRECISION_6) / collateral
 
-        # Cap at MAX_PROFIT_P if needed
-        if profit_percentage > MAX_PROFIT_P:
-            return str(MAX_PROFIT_P)
+# v2 (formulae v1.3.3)
+def CurrentTotalProfitP(total_profit: Decimal, collateral: Decimal) -> Decimal:
+    profit_p = (total_profit * Decimal("100")) / collateral
+    if profit_p <= MIN_LOSS_P:
+        profit_p = MIN_LOSS_P
+    return profit_p
 
-        return str(profit_percentage)
-
-    except Exception as error:
-        raise Exception(
-            f"Unable to compute Current Total Profit Percentage: {error}")
 
 
 # returns (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)

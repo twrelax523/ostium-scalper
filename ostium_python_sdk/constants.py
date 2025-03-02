@@ -5,6 +5,7 @@ from decimal import Decimal
 
 MAX_PROFIT_P = Decimal('900')  # 900% * PRECISION_6
 MAX_STOP_LOSS_P = Decimal('85')
+MIN_LOSS_P = Decimal("-100")  # Adjust if you need a different minimum
 
 PRECISION_2 = Decimal('100')
 PRECISION_6 = Decimal('1000000')
