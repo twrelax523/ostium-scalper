@@ -136,18 +136,18 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
 
     # Calculate liquidation price
     liquidation_price = GetTradeLiquidationPrice(
-        trade_details['openPrice'],
+        Decimal(trade_details['openPrice']) / PRECISION_18,
         trade_details['isBuy'],
-        trade_details['collateral'],
-        trade_details['leverage'],
+        Decimal(trade_details['collateral'] )/ PRECISION_6,
+        Decimal(trade_details['leverage']) / PRECISION_2,
         str(rollover_raw),
         str(funding_raw)
     )
-    liquidation_price = Decimal(liquidation_price) / PRECISION_18
+    liquidation_price = Decimal(liquidation_price) 
 
     if verbose:
         print(
-            f"Liquidation price: {liquidation_price} with rollover {rollover_raw} and funding {funding_raw}")
+            f"******\nLiquidation price: {liquidation_price} with rollover {rollover_raw} and funding {funding_raw}; Open price: {trade_details['openPrice']}; Is Long: {trade_details['isBuy']}; Leverage: {trade_details['leverage']}; Collateral: {trade_details['collateral']}\n******")
 
     # Calculate price impact
     is_open = False  # Get the price assuming a close

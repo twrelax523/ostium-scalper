@@ -201,7 +201,7 @@ def GetPriceImpact(
     bid_price: str,
     ask_price: str,
     is_open: bool,
-    is_long: bool,  # aka is_long
+    is_long: bool,  
 ) -> dict:
     try:
         mid_price = Decimal(mid_price)

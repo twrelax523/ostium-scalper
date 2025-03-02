@@ -54,6 +54,15 @@ test_cases = [
         "current_funding_fee": Decimal("1"),
         "expected_liq_price": Decimal("1.3634768"),
     },
+    {
+        "openPrice":  Decimal("8704.50"),
+        "isLong": True,
+        "collateral": Decimal("99"),
+        "leverage":   Decimal("20"),
+        "rollover_fee": Decimal("0"),
+        "current_funding_fee": Decimal("0"),
+        "expected_liq_price": Decimal("8312.7975"),
+    },
 ]
 
 
