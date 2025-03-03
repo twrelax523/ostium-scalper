@@ -109,7 +109,8 @@ class OstiumSDK:
         self.log(f"\nTrade details: {trade_details}")
         # get the price for this trade's asset/feed
         price_data = await self.price.get_latest_price_json(trade_details['pair']['from'], trade_details['pair']['to'])
-        self.log(f"\nPrice data: {price_data} (need here bid, mid, ask prices)")
+        self.log(
+            f"\nPrice data: {price_data} (need here bid, mid, ask prices)")
         # get the block number
         block_number = self.ostium.get_block_number()
         self.log(f"\nBlock number: {block_number}")
@@ -145,7 +146,7 @@ class OstiumSDK:
         pair_details = await self.subgraph.get_pair_details(pair_id)
         # get the block number
         block_number = self.ostium.get_block_number()
-        
+
         # Get current price
         last_trade_price = pair_details['lastTradePrice']
 
@@ -157,7 +158,6 @@ class OstiumSDK:
             (Decimal(pair_details['shortOI']) *
              Decimal(last_trade_price) / PRECISION_18 / PRECISION_12)
         )
-
 
         ret = GetFundingRate(
             pair_details['accFundingLong'],
@@ -177,7 +177,6 @@ class OstiumSDK:
             pair_details['sFactorDownScaleP'],
             self.verbose
         )
-
 
         accFundingLong = ret['accFundingLong']
         accFundingShort = ret['accFundingShort']
