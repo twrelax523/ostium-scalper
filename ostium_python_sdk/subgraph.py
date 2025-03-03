@@ -63,8 +63,7 @@ class SubgraphClient:
               accFundingShort
               lastFundingBlock
               maxFundingFeePerBlock
-              lastFundingRate
-              maxOI
+              lastFundingRate              
               hillInflectionPoint
               hillPosScale
               hillNegScale
@@ -72,8 +71,7 @@ class SubgraphClient:
               sFactorUpScaleP
               sFactorDownScaleP
               lastTradePrice
-              maxLeverage
-              lastFundingVelocity
+              maxLeverage              
               group {
                 id
                 name
@@ -135,13 +133,18 @@ class SubgraphClient:
             rolloverFeePerBlock
             accFundingLong
             spreadP
-            tradeSizeRef
             accFundingShort
             longOI
             shortOI
+            maxOI
+            hillInflectionPoint
+            hillPosScale
+            hillNegScale
+            springFactor
+            sFactorUpScaleP
+            sFactorDownScaleP
             lastFundingBlock
             maxFundingFeePerBlock
-            lastFundingVelocity
             lastFundingRate
           }
         }
@@ -181,13 +184,11 @@ class SubgraphClient:
                 rolloverFeePerBlock
                 accFundingLong
                 spreadP
-                tradeSizeRef
                 accFundingShort
                 longOI
                 shortOI
                 lastFundingBlock
                 maxFundingFeePerBlock
-                lastFundingVelocity
                 lastFundingRate
               }
             }

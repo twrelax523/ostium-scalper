@@ -22,7 +22,6 @@ def mock_pair_details():
         'curFundingLong': '-44780202510',
         'curFundingShort': '12384245602',
         'lastFundingBlock': '114601602',
-        'lastFundingVelocity': '-3300',
         'group': {
             'name': 'crypto',
             'minLeverage': '100',
@@ -76,7 +75,6 @@ async def test_get_formatted_pairs_details(sdk):
     assert pair['curFundingLong'] == Decimal('-0.044780202510')
     assert pair['curFundingShort'] == Decimal('0.012384245602')
     assert pair['lastFundingBlock'] == 114601602
-    assert pair['lastFundingVelocity'] == -3300
 
 @pytest.mark.asyncio
 async def test_get_formatted_pairs_details_price_error(sdk):
