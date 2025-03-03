@@ -87,6 +87,7 @@ TEST_CASES = [
     },
 ]
 
+
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_current_trade_profit_p(case):
     """
@@ -107,4 +108,4 @@ def test_current_trade_profit_p(case):
     assert actual_profit_p == pytest.approx(case["expected_profit_p"], abs=1e-6), (
         f"{case['case_name']} failed: got {actual_profit_p}, "
         f"expected {case['expected_profit_p']}"
-    ) 
+    )

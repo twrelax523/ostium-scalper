@@ -25,6 +25,7 @@ TEST_CASES = [
     # You can add more cases here if desired
 ]
 
+
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_get_trade_sl_price(case):
     """
@@ -43,4 +44,4 @@ def test_get_trade_sl_price(case):
     # Similar to unittest's assertAlmostEqual(..., places=7)
     assert sl_price == pytest.approx(case["expected_sl_price"], abs=1e-7), (
         f"{case['case_name']} failed: got {sl_price}, expected {case['expected_sl_price']}"
-    ) 
+    )

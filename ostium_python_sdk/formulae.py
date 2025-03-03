@@ -7,6 +7,8 @@ quantization_6 = Decimal('0.000001')
 quantization_18 = Decimal('0.000000000000000001')
 
 # v2 (formulae v1.3.3)
+
+
 def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     profit_p = Decimal(profit_p)
@@ -15,13 +17,15 @@ def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal
     price_diff = (open_price * profit_p) / (leverage * Decimal('100'))
 
     if (is_long):
-        tp_price = open_price + price_diff 
+        tp_price = open_price + price_diff
     else:
-        tp_price = open_price - price_diff 
+        tp_price = open_price - price_diff
 
     return Decimal(tp_price if tp_price > 0 else '0')
 
 # v2 (formulae v1.3.3)
+
+
 def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     loss_p = Decimal(loss_p)
@@ -34,6 +38,8 @@ def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is
     return sl_price if sl_price > 0 else Decimal('0')
 
 # v2 (formulae v1.3.3)
+
+
 def CurrentTradeProfitP(
     open_price: Decimal,
     current_price: Decimal,
@@ -51,12 +57,14 @@ def CurrentTradeProfitP(
 
     if profit_p >= MAX_PROFIT_P:
         profit_p = MAX_PROFIT_P
-    
+
     profit_p *= (leverage / leverage_to_use)
 
     return profit_p
 
 # v2 (formulae v1.3.3)
+
+
 def TopUpWithCollateral(
     leverage: Decimal,
     collateral: Decimal,
@@ -66,6 +74,8 @@ def TopUpWithCollateral(
     return new_leverage
 
 # v2 (formulae v1.3.3)
+
+
 def TopUpWithLeverage(
     leverage: Decimal,
     desired_leverage: Decimal,
@@ -75,6 +85,8 @@ def TopUpWithLeverage(
     return added_c
 
 # v2 (formulae v1.3.3)
+
+
 def RemoveCollateralWithCollateral(
     leverage: Decimal,
     collateral: Decimal,
@@ -84,6 +96,8 @@ def RemoveCollateralWithCollateral(
     return new_leverage
 
 # v2 (formulae v1.3.3)
+
+
 def RemoveCollateralFromLeverage(
     leverage: Decimal,
     desired_leverage: Decimal,
@@ -201,7 +215,7 @@ def GetPriceImpact(
     bid_price: str,
     ask_price: str,
     is_open: bool,
-    is_long: bool,  
+    is_long: bool,
 ) -> dict:
     try:
         mid_price = Decimal(mid_price)
@@ -228,66 +242,53 @@ def GetPriceImpact(
 
 
 # calculates the gross (without fees) profit (abs) of an open trade
-def CurrentTradeProfitRaw(
-    open_price: str,
-    current_price: str,
-    is_buy: bool,
-    leverage: str,
-    collateral: str
-) -> str:
-    try:
-        open_price = Decimal(open_price)
-        current_price = Decimal(current_price)
-        leverage = Decimal(leverage)
-        collateral = Decimal(collateral)
-
-        # Calculate price difference based on position direction
-        if is_buy:
-            price_diff = current_price - open_price
-        else:
-            price_diff = open_price - current_price
-
-        # Calculate profit
-        profit = (price_diff * collateral * leverage) / \
-            (open_price * PRECISION_2)
-
-        return str(profit)
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Current Trade Profit Raw: {error}")
 
 # calculates the net profit (after fees) of an open trade (abs)
+# v2 (formulae v1.3.3)
+def CurrentTradeProfitRaw(
+    open_price: Decimal,
+    current_price: Decimal,
+    long: bool,
+    leverage: Decimal,
+    highest_leverage: Decimal,
+    collateral: Decimal
+) -> Decimal:
+    profit_p = CurrentTradeProfitP(
+        open_price,
+        current_price,
+        long,
+        leverage,
+        highest_leverage
+    )
+    profit = (collateral * profit_p) / Decimal("100")
+    return profit
 
-
+# v2 (formulae v1.3.3)
 def CurrentTotalProfitRaw(
-    open_price: str,
-    current_price: str,
-    is_buy: bool,
-    leverage: str,
-    collateral: str,
-    rollover_fee: str,
-    funding_fee: str
-) -> str:
-    try:
-        # Get trade profit
-        trade_profit = Decimal(CurrentTradeProfitRaw(
-            open_price,
-            current_price,
-            is_buy,
-            leverage,
-            collateral
-        ))
+    open_price: Decimal,
+    current_price: Decimal,
+    long: bool,
+    leverage: Decimal,
+    highest_leverage: Decimal,
+    collateral: Decimal,
+    rollover_fee: Decimal,
+    funding_fee: Decimal
+) -> Decimal:
+    # Get trade profit
+    trade_profit = CurrentTradeProfitRaw(
+        open_price,
+        current_price,
+        long,
+        leverage,
+        highest_leverage,
+        collateral
+    )
 
-        # Subtract fees
-        total_profit = trade_profit - \
-            Decimal(rollover_fee) - Decimal(funding_fee)
+    # Subtract fees
+    total_profit = trade_profit - \
+        rollover_fee - funding_fee
 
-        return str(total_profit)
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Current Total Profit Raw: {error}")
-
-
+    return total_profit
 
 
 # v2 (formulae v1.3.3)
@@ -296,7 +297,6 @@ def CurrentTotalProfitP(total_profit: Decimal, collateral: Decimal) -> Decimal:
     if profit_p <= MIN_LOSS_P:
         profit_p = MIN_LOSS_P
     return profit_p
-
 
 
 # returns (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)
@@ -396,6 +396,7 @@ def GetFundingRateV2(
     return {
         'accFundingLong': acc_funding_long,
         'accFundingShort': acc_funding_short,
-        'latestFundingRate': ((latest_funding_rate).quantize(quantization_6, rounding=ROUND_DOWN)),
-        'targetFundingRate': ((target_fr).quantize(quantization_6, rounding=ROUND_DOWN))
+        'latestFundingRate': latest_funding_rate, #((latest_funding_rate).quantize(quantization_6, rounding=ROUND_DOWN)),
+        'targetFundingRate': target_fr #((target_fr).quantize(quantization_6, rounding=ROUND_DOWN))
     }
+

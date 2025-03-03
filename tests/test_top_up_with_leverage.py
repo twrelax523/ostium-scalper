@@ -33,6 +33,7 @@ TEST_CASES = [
     },
 ]
 
+
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_top_up_with_leverage(case):
     actual = TopUpWithLeverage(
@@ -41,4 +42,4 @@ def test_top_up_with_leverage(case):
         collateral=case["collateral"],
     )
 
-    assert actual == pytest.approx(case["expected_added_collateral"], abs=1e-6) 
+    assert actual == pytest.approx(case["expected_added_collateral"], abs=1e-6)

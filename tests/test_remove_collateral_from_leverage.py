@@ -33,6 +33,7 @@ TEST_CASES = [
     },
 ]
 
+
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_remove_collateral_from_leverage(case):
     actual = RemoveCollateralFromLeverage(
@@ -40,4 +41,4 @@ def test_remove_collateral_from_leverage(case):
         desired_leverage=case["desired_leverage"],
         collateral=case["collateral"],
     )
-    assert actual == pytest.approx(case["expected_collateral"], abs=1e-6) 
+    assert actual == pytest.approx(case["expected_collateral"], abs=1e-6)

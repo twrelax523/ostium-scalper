@@ -138,12 +138,12 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     liquidation_price = GetTradeLiquidationPrice(
         Decimal(trade_details['openPrice']) / PRECISION_18,
         trade_details['isBuy'],
-        Decimal(trade_details['collateral'] )/ PRECISION_6,
+        Decimal(trade_details['collateral']) / PRECISION_6,
         Decimal(trade_details['leverage']) / PRECISION_2,
         str(rollover_raw),
         str(funding_raw)
     )
-    liquidation_price = Decimal(liquidation_price) 
+    liquidation_price = Decimal(liquidation_price)
 
     if verbose:
         print(
@@ -163,35 +163,41 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
 
     # Calculate PNL (abs)
     pnl_raw = CurrentTradeProfitRaw(
-        trade_details['openPrice'],
-        price_after_impact,
-        trade_details['isBuy'],
-        trade_details['leverage'],
-        trade_details['collateral']
+        Decimal(trade_details['openPrice']) / PRECISION_18,
+        Decimal(price_after_impact) / PRECISION_18,
+        Decimal(trade_details['isBuy']),
+        Decimal(trade_details['leverage']) / PRECISION_2,
+        Decimal(trade_details['highestLeverage']) / PRECISION_2,
+        Decimal(trade_details['collateral']) / PRECISION_6
     )
+
+    print(
+        f"Parameters for CurrentTradeProfitRaw: {trade_details['openPrice']}, {price_after_impact}, {trade_details['isBuy']}, {trade_details['leverage']}, {trade_details['collateral']} ==> Result is: {pnl_raw}")
 
     # Calculate total profit (abs)
     total_profit_raw = CurrentTotalProfitRaw(
-        trade_details['openPrice'],
-        price_after_impact,
-        trade_details['isBuy'],
-        trade_details['leverage'],
-        trade_details['collateral'],
-        str(rollover_raw),
-        str(funding_raw)
+        Decimal(trade_details['openPrice']) / PRECISION_18,
+        Decimal(price_after_impact) / PRECISION_18,
+        Decimal(trade_details['isBuy']),
+        Decimal(trade_details['leverage']) / PRECISION_2,
+        Decimal(trade_details['highestLeverage']) / PRECISION_2,
+        Decimal(trade_details['collateral']) / PRECISION_6,
+        Decimal(rollover_raw),
+        Decimal(funding_raw)
     )
 
     # Calculate PNL percentage
     pnl_percent_raw = CurrentTotalProfitP(
-        Decimal(total_profit_raw) / PRECISION_6, Decimal(trade_details['collateral']) / PRECISION_6)
-    print(f"pnl_percent_raw: {pnl_percent_raw} = CurrentTotalProfitP({total_profit_raw}, {trade_details['collateral']})")
+        Decimal(total_profit_raw), Decimal(trade_details['collateral']) / PRECISION_6)
+    print(
+        f"pnl_percent_raw: {pnl_percent_raw} = CurrentTotalProfitP({Decimal(total_profit_raw)}, {Decimal(trade_details['collateral']) / PRECISION_6})")
     # Convert values to proper decimals
-    pnl = Decimal(pnl_raw) / PRECISION_6
+    pnl = Decimal(pnl_raw)
     pnl_percent = Decimal(pnl_percent_raw)
-    net_pnl = Decimal(total_profit_raw) / PRECISION_6
-    total_profit = Decimal(total_profit_raw) / PRECISION_6
-    funding = Decimal(funding_raw) / PRECISION_6
-    rollover = Decimal(rollover_raw) / PRECISION_6
+    net_pnl = Decimal(total_profit_raw)
+    total_profit = Decimal(total_profit_raw)
+    funding = Decimal(funding_raw)
+    rollover = Decimal(rollover_raw)
     net_value = net_pnl + (Decimal(trade_details['collateral']) / PRECISION_6)
     price_impact = Decimal(price_after_impact) / PRECISION_18
 

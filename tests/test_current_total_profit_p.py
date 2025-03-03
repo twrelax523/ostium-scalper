@@ -29,8 +29,9 @@ TEST_CASES = [
     },
 ]
 
+
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_current_total_profit_p(case):
     result_dec = CurrentTotalProfitP(case["total_profit"], case["collateral"])
     expected_dec = case["expected_total_profit_p"]
-    assert result_dec == pytest.approx(expected_dec, abs=1e-6) 
+    assert result_dec == pytest.approx(expected_dec, abs=1e-6)
