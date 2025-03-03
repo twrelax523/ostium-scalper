@@ -223,7 +223,3 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         'price_impact': float(price_impact)
     }
 
-
-def ceil_div(a: int, b: int) -> int:
-    """Implements ceiling division for integers"""
-    return -((-a) // b)
