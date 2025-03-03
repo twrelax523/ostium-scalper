@@ -101,7 +101,7 @@ class SubgraphClient:
             raise ValueError(f"No pair details found for pair ID: {pair_id}")
 
     async def get_open_trades(self, address):
-        self.log(f"Fetching open trades for address: {address}")
+        # self.log(f"Fetching open trades for address: {address}")
         query = gql(
             """
           query trades($trader: Bytes!) {

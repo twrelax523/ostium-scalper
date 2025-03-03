@@ -106,13 +106,13 @@ class OstiumSDK:
             raise ValueError(
                 f"Trade not found for {trader_public_address} pair {pair_id} and index {trade_index}")
 
-        self.log(f"Trade details: {trade_details}")
+        self.log(f"\nTrade details: {trade_details}")
         # get the price for this trade's asset/feed
         price_data = await self.price.get_latest_price_json(trade_details['pair']['from'], trade_details['pair']['to'])
-        self.log(f"Price data: {price_data} (need here bid, mid, ask prices)")
+        self.log(f"\nPrice data: {price_data} (need here bid, mid, ask prices)")
         # get the block number
         block_number = self.ostium.get_block_number()
-        self.log(f"Block number: {block_number}")
+        self.log(f"\nBlock number: {block_number}")
         return get_trade_metrics(trade_details, price_data, block_number, verbose=self.verbose)
 
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
@@ -145,14 +145,9 @@ class OstiumSDK:
         pair_details = await self.subgraph.get_pair_details(pair_id)
         # get the block number
         block_number = self.ostium.get_block_number()
-
-        # self.log(f"{pair_details['from']}{pair_details['to']} Pair details: {pair_details}")
-        self.log(f"Block number: {block_number}")
-
+        
         # Get current price
         last_trade_price = pair_details['lastTradePrice']
-        self.log(
-            f"{pair_details['from']}{pair_details['to']} lastTradePrice: {last_trade_price}")
 
         long_oi = int(
             (Decimal(pair_details['longOI']) *
@@ -163,18 +158,7 @@ class OstiumSDK:
              Decimal(last_trade_price) / PRECISION_18 / PRECISION_12)
         )
 
-        self.log(
-            f"{pair_details['from']}{pair_details['to']} usd_long_oi: {long_oi}")
-        self.log(
-            f"{pair_details['from']}{pair_details['to']} usd_short_oi: {short_oi}")
-        self.log(
-            f"{pair_details['from']}{pair_details['to']} maxOI: {pair_details['maxOI']}")
 
-        # self.log(f"compare curFundingLong: {pair_details['curFundingLong']} vs accFundingLong: {pair_details['accFundingLong']}")
-
-        # self.log(f"str(long_oi): {str(long_oi)}")
-        # self.log(f"str(short_oi): {str(short_oi)}")
-        block_number = 129107449
         ret = GetFundingRate(
             pair_details['accFundingLong'],
             pair_details['accFundingShort'],
@@ -194,24 +178,6 @@ class OstiumSDK:
             self.verbose
         )
 
-        self.log(f"This is what I pass to GetFundingRate:\n")
-        self.log(f"accFundingLong: {pair_details['accFundingLong']}")
-        self.log(f"accFundingShort: {pair_details['accFundingShort']}")
-        self.log(f"lastFundingRate: {pair_details['lastFundingRate']}")
-        self.log(
-            f"maxFundingFeePerBlock: {pair_details['maxFundingFeePerBlock']}")
-        self.log(f"lastFundingBlock: {pair_details['lastFundingBlock']}")
-        self.log(f"block_number: {block_number}")
-        self.log(f"long_oi: {str(long_oi)}")
-        self.log(f"short_oi: {str(short_oi)}")
-        self.log(f"maxOI: {str(pair_details['maxOI'])}")
-        self.log(f"hillInflectionPoint: {pair_details['hillInflectionPoint']}")
-        self.log(f"hillPosScale: {pair_details['hillPosScale']}")
-        self.log(f"hillNegScale: {pair_details['hillNegScale']}")
-        self.log(f"springFactor: {pair_details['springFactor']}")
-        self.log(f"sFactorUpScaleP: {pair_details['sFactorUpScaleP']}")
-        self.log(f"sFactorDownScaleP: {pair_details['sFactorDownScaleP']}")
-        self.log(f"result: {ret}")
 
         accFundingLong = ret['accFundingLong']
         accFundingShort = ret['accFundingShort']

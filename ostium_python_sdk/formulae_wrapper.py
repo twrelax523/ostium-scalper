@@ -28,7 +28,7 @@ def get_liq_price(trade_details, pair_info, block_number):
 
 
 def get_funding_fee_long_short(pair_info, block_number, verbose=False):
-    print(f"*********\nget_funding_fee_long_short\n*********")
+    # print(f"*********\nget_funding_fee_long_short\n*********")
     funding_rate_raw = GetFundingRate(
         pair_info['accFundingLong'],
         pair_info['accFundingShort'],
@@ -82,7 +82,6 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     if not trade_details or not price_data or not block_number:
         return {
             'pnl': 0,
-            # 'pnl_raw': '0',
             'pnl_percent': 0,
             'rollover': 0,
             'funding': 0,
@@ -133,16 +132,6 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         pair_info['sFactorUpScaleP'],
         pair_info['sFactorDownScaleP'],
         verbose
-
-        # pair_info['accFundingLong'],
-        # pair_info['accFundingShort'],
-        # pair_info['lastFundingRate'],
-        # pair_info['maxF'],
-        # pair_info['maxFundingFeePerBlock'],
-        # pair_info['lastFundingBlock'],
-        # str(block_number),
-        # pair_info['longOI'],
-        # pair_info['shortOI']
     )
 
     if verbose:
@@ -196,9 +185,6 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         Decimal(trade_details['collateral']) / PRECISION_6
     )
 
-    print(
-        f"Parameters for CurrentTradeProfitRaw: {trade_details['openPrice']}, {price_after_impact}, {trade_details['isBuy']}, {trade_details['leverage']}, {trade_details['collateral']} ==> Result is: {pnl_raw}")
-
     # Calculate total profit (abs)
     total_profit_raw = CurrentTotalProfitRaw(
         Decimal(trade_details['openPrice']) / PRECISION_18,
@@ -214,8 +200,7 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     # Calculate PNL percentage
     pnl_percent_raw = CurrentTotalProfitP(
         Decimal(total_profit_raw), Decimal(trade_details['collateral']) / PRECISION_6)
-    print(
-        f"pnl_percent_raw: {pnl_percent_raw} = CurrentTotalProfitP({Decimal(total_profit_raw)}, {Decimal(trade_details['collateral']) / PRECISION_6})")
+
     # Convert values to proper decimals
     pnl = Decimal(pnl_raw)
     pnl_percent = Decimal(pnl_percent_raw)
@@ -228,14 +213,10 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
 
     return {
         'pnl': float(pnl),
-        # 'pnl_raw': str(pnl_raw),
         'pnl_percent': float(pnl_percent),
         'rollover': float(rollover),
         'funding': float(funding),
-        # 'funding_raw': str(funding_raw),
-        # 'rollover_raw': str(rollover_raw),
         'total_profit': float(total_profit),
-        # 'total_profit_percent': float(total_profit_percent),
         'net_pnl': float(net_pnl),
         'net_value': float(net_value),
         'liquidation_price': float(liquidation_price),
