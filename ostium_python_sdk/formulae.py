@@ -264,6 +264,8 @@ def CurrentTradeProfitRaw(
     return profit
 
 # v2 (formulae v1.3.3)
+
+
 def CurrentTotalProfitRaw(
     open_price: Decimal,
     current_price: Decimal,
@@ -301,102 +303,122 @@ def CurrentTotalProfitP(total_profit: Decimal, collateral: Decimal) -> Decimal:
 
 # returns (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)
 # latest_funding_rate and target_fr are per block
-def GetFundingRateV2(
-    acc_per_oi_long: str,
-    acc_per_oi_short: str,
-    last_funding_rate: str,
-    max_funding_fee_per_block: str,
-    last_update_block: str,
-    latest_block: str,
-    oi_long: str,
-    oi_short: str,
-    oi_cap: str,
-    hill_inflection_point: str,
-    hill_pos_scale: str,
-    hill_neg_scale: str,
-    spring_factor: str,
-    s_factor_up_scale_p: str,
-    s_factor_down_scale_p: str,
+# v2 (formulae v1.3.3)
+# def GetFundingRate(
+#     acc_per_oi_long: str,
+#     acc_per_oi_short: str,
+#     last_funding_rate: str,
+#     max_funding_fee_per_block: str,
+#     last_update_block: str,
+#     latest_block: str,
+#     oi_long: str,
+#     oi_short: str,
+#     oi_cap: str,
+#     hill_inflection_point: str,
+#     hill_pos_scale: str,
+#     hill_neg_scale: str,
+#     spring_factor: str,
+#     s_factor_up_scale_p: str,
+#     s_factor_down_scale_p: str,
+#     verbose: bool = False
+# ) -> dict:
+#     # Set decimal precision
+#     getcontext().prec = 128
+#     getcontext().rounding = ROUND_DOWN
+
+#     # Convert all inputs to Decimal
+#     oi_long_dec = Decimal(oi_long)
+#     oi_short_dec = Decimal(oi_short)
+#     oi_cap_dec = Decimal(oi_cap)
+
+#     # # Calculate normalized OI delta
+#     # open_interest_max = max(oi_long_dec, oi_short_dec)
+#     # normalized_oi_delta = ((oi_long_dec - oi_short_dec)
+#     #                        * PRECISION_6) / max(oi_cap_dec, open_interest_max)
+#     # log(f"\nCalculated values:")
+#     # log(f"Open Interest Max: {open_interest_max}")
+#     # log(f"Normalized OI Delta: {normalized_oi_delta}")
+
+#     # Get funding values
+#     acc_funding_long, acc_funding_short, latest_funding_rate, target_fr = getPendingAccFundingFees(
+#         blockNumber=Decimal(latest_block),
+#         lastUpdateBlock=Decimal(last_update_block),
+#         valueLong=Decimal(acc_per_oi_long),
+#         valueShort=Decimal(acc_per_oi_short),
+#         openInterestUsdcLong=oi_long_dec,
+#         openInterestUsdcShort=oi_short_dec,
+#         OiCap=oi_cap_dec,
+#         maxFundingFeePerBlock=Decimal(max_funding_fee_per_block),
+#         lastFundingRate=Decimal(last_funding_rate),
+#         hillInflectionPoint=Decimal(hill_inflection_point),
+#         hillPosScale=Decimal(hill_pos_scale),
+#         hillNegScale=Decimal(hill_neg_scale),
+#         springFactor=Decimal(spring_factor),
+#         sFactorUpScale=Decimal(s_factor_up_scale_p),
+#         sFactorDownScaleP=Decimal(s_factor_down_scale_p),
+#     )
+
+#     acc_funding_long = acc_funding_long.quantize(Decimal('1'), rounding=ROUND_DOWN)
+#     acc_funding_short = acc_funding_short.quantize(Decimal('1'), rounding=ROUND_DOWN)
+
+#     # acc_funding_long = (
+#     #     acc_funding_long / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
+#     # acc_funding_short = (
+#     #     acc_funding_short / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
+#     # latest_funding_rate = (
+#     #     latest_funding_rate / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
+#     # target_fr = (target_fr / PRECISION_18).quantize(quantization_18,
+#     #                                                 rounding=ROUND_DOWN)
+
+#     return {
+#         'accFundingLong': acc_funding_long,
+#         'accFundingShort': acc_funding_short,
+#         # ((latest_funding_rate).quantize(quantization_6, rounding=ROUND_DOWN)),
+#         'latestFundingRate': latest_funding_rate,
+#         # ((target_fr).quantize(quantization_6, rounding=ROUND_DOWN))
+#         'targetFundingRate': target_fr
+#     }
+
+
+def GetFundingRate(
+    accPerOiLong: str,
+    accPerOiShort: str,
+    lastFundingRate: str,
+    maxFundingFeePerBlock: str,
+    lastUpdateBlock: str,
+    latestBlock: str,
+    oiLong: str,
+    oiShort: str,
+    oiCap: str,
+    hillInflectionPoint: str,
+    hillPosScale: str,
+    hillNegScale: str,
+    springFactor: str,
+    sFactorUpScaleP: str,
+    sFactorDownScaleP: str,
     verbose: bool = False
-) -> dict:
-    """
-    Calculate funding rates and return as integers multiplied by PRECISION_18
-    Returns: (acc_funding_long, acc_funding_short, latest_funding_rate, target_fr)
-    """
-    def log(message):
-        if verbose:
-            print(message)
-
-    # Set decimal precision
-    getcontext().prec = 128
-    getcontext().rounding = ROUND_DOWN
-
-    # Convert all inputs to Decimal
-    oi_long_dec = Decimal(oi_long)
-    oi_short_dec = Decimal(oi_short)
-    oi_cap_dec = Decimal(oi_cap)
-
-    log(f"Input values:")
-    log(f"OI Long: {oi_long_dec}")
-    log(f"OI Short: {oi_short_dec}")
-    log(f"OI Cap: {oi_cap_dec}")
-    log(f"Last Funding Rate: {last_funding_rate}")
-    log(f"Last Update Block: {last_update_block}")
-    log(f"Latest Block: {latest_block}")
-
-    # Calculate normalized OI delta
-    open_interest_max = max(oi_long_dec, oi_short_dec)
-    normalized_oi_delta = ((oi_long_dec - oi_short_dec)
-                           * PRECISION_6) / max(oi_cap_dec, open_interest_max)
-
-    log(f"\nCalculated values:")
-    log(f"Open Interest Max: {open_interest_max}")
-    log(f"Normalized OI Delta: {normalized_oi_delta}")
-
-    # Get funding values
+):
     acc_funding_long, acc_funding_short, latest_funding_rate, target_fr = getPendingAccFundingFees(
-        blockNumber=Decimal(latest_block),
-        lastUpdateBlock=Decimal(last_update_block),
-        valueLong=Decimal(acc_per_oi_long),
-        valueShort=Decimal(acc_per_oi_short),
-        openInterestUsdcLong=oi_long_dec,
-        openInterestUsdcShort=oi_short_dec,
-        OiCap=oi_cap_dec,
-        maxFundingFeePerBlock=Decimal(max_funding_fee_per_block),
-        lastFundingRate=Decimal(last_funding_rate),
-        hillInflectionPoint=Decimal(hill_inflection_point),
-        hillPosScale=Decimal(hill_pos_scale),
-        hillNegScale=Decimal(hill_neg_scale),
-        springFactor=Decimal(spring_factor),
-        sFactorUpScale=Decimal(s_factor_up_scale_p),
-        sFactorDownScaleP=Decimal(s_factor_down_scale_p),
+        blockNumber=Decimal(latestBlock),
+        lastUpdateBlock=Decimal(lastUpdateBlock),
+        valueLong=Decimal(accPerOiLong) / PRECISION_18,
+        valueShort=Decimal(accPerOiShort) / PRECISION_18,
+        openInterestUsdcLong=Decimal(oiLong) / PRECISION_6,
+        openInterestUsdcShort=Decimal(oiShort) / PRECISION_6,
+        OiCap=Decimal(oiCap) / PRECISION_6,
+        maxFundingFeePerBlock=Decimal(maxFundingFeePerBlock) / PRECISION_18,
+        lastFundingRate=Decimal(lastFundingRate) / PRECISION_18,
+        hillInflectionPoint=Decimal(hillInflectionPoint) / PRECISION_18,
+        hillPosScale=Decimal(hillPosScale) / PRECISION_2,
+        hillNegScale=Decimal(hillNegScale) / PRECISION_2,
+        springFactor=Decimal(springFactor) / PRECISION_18,
+        sFactorUpScale=Decimal(sFactorUpScaleP) / PRECISION_2,
+        sFactorDownScaleP=Decimal(sFactorDownScaleP) / PRECISION_2
     )
-
-    # log(f"\nIntermediate results:")
-    # log(f"Acc Funding Long (pre-conversion): {acc_funding_long}")
-    # log(f"Acc Funding Short (pre-conversion): {acc_funding_short}")
-    # log(f"Latest Funding Rate (pre-conversion): {latest_funding_rate}")
-    # log(f"Target Funding Rate (pre-conversion): {target_fr}")
-
-    acc_funding_long = (
-        acc_funding_long / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
-    acc_funding_short = (
-        acc_funding_short / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
-    latest_funding_rate = (
-        latest_funding_rate / PRECISION_18).quantize(quantization_18, rounding=ROUND_DOWN)
-    target_fr = (target_fr / PRECISION_18).quantize(quantization_18,
-                                                    rounding=ROUND_DOWN)
-
-    # log(f"\nFinal results (multiplied by 10^18):")
-    # log(f"Acc Funding Long: {acc_funding_long}")
-    # log(f"Acc Funding Short: {acc_funding_short}")
-    # log(f"Latest Funding Rate: {latest_funding_rate}")
-    # log(f"Target Funding Rate: {target_fr}")
 
     return {
         'accFundingLong': acc_funding_long,
         'accFundingShort': acc_funding_short,
-        'latestFundingRate': latest_funding_rate, #((latest_funding_rate).quantize(quantization_6, rounding=ROUND_DOWN)),
-        'targetFundingRate': target_fr #((target_fr).quantize(quantization_6, rounding=ROUND_DOWN))
+        'latestFundingRate': latest_funding_rate,
+        'targetFundingRate': target_fr
     }
-

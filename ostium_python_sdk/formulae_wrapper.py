@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRolloverFee,
+from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRolloverFee, GetFundingRate,
                        GetTradeFundingFee, GetTradeLiquidationPrice, GetTradeRolloverFee,
                        GetPriceImpact, CurrentTradeProfitRaw,
                        CurrentTotalProfitRaw, CurrentTotalProfitP)
@@ -27,17 +27,25 @@ def get_liq_price(trade_details, pair_info, block_number):
 # returns the funding_fee_long_per_block, funding_fee_short_per_block
 
 
-def get_funding_fee_long_short(pair_info, block_number):
+def get_funding_fee_long_short(pair_info, block_number, verbose=False):
+    print(f"*********\nget_funding_fee_long_short\n*********")
     funding_rate_raw = GetFundingRate(
         pair_info['accFundingLong'],
         pair_info['accFundingShort'],
         pair_info['lastFundingRate'],
-        pair_info['lastFundingVelocity'],
         pair_info['maxFundingFeePerBlock'],
         pair_info['lastFundingBlock'],
         str(block_number),
         pair_info['longOI'],
-        pair_info['shortOI']
+        pair_info['shortOI'],
+        pair_info['maxOI'],
+        pair_info['hillInflectionPoint'],
+        pair_info['hillPosScale'],
+        pair_info['hillNegScale'],
+        pair_info['springFactor'],
+        pair_info['sFactorUpScaleP'],
+        pair_info['sFactorDownScaleP'],
+        verbose
     )
 
     # Convert latest funding rate to decimal
@@ -112,12 +120,29 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         pair_info['accFundingLong'],
         pair_info['accFundingShort'],
         pair_info['lastFundingRate'],
-        pair_info['lastFundingVelocity'],
         pair_info['maxFundingFeePerBlock'],
         pair_info['lastFundingBlock'],
         str(block_number),
         pair_info['longOI'],
-        pair_info['shortOI']
+        pair_info['shortOI'],
+        pair_info['maxOI'],
+        pair_info['hillInflectionPoint'],
+        pair_info['hillPosScale'],
+        pair_info['hillNegScale'],
+        pair_info['springFactor'],
+        pair_info['sFactorUpScaleP'],
+        pair_info['sFactorDownScaleP'],
+        verbose
+
+        # pair_info['accFundingLong'],
+        # pair_info['accFundingShort'],
+        # pair_info['lastFundingRate'],
+        # pair_info['maxF'],
+        # pair_info['maxFundingFeePerBlock'],
+        # pair_info['lastFundingBlock'],
+        # str(block_number),
+        # pair_info['longOI'],
+        # pair_info['shortOI']
     )
 
     if verbose:
@@ -221,103 +246,3 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
 def ceil_div(a: int, b: int) -> int:
     """Implements ceiling division for integers"""
     return -((-a) // b)
-
-
-def GetFundingRate(
-    acc_per_oi_long: str,
-    acc_per_oi_short: str,
-    last_funding_rate: str,
-    last_velocity: str,
-    max_funding_fee_per_block: str,
-    last_update_block: str,
-    latest_block: str,
-    oi_long: str,
-    oi_short: str,
-) -> Dict[str, Union[str, bool]]:
-    # Convert string inputs to integers (similar to BigNumber.from)
-    acc_per_oi_long_bn = int(acc_per_oi_long)
-    acc_per_oi_short_bn = int(acc_per_oi_short)
-    last_funding_rate_bn = int(last_funding_rate)
-    last_velocity_bn = int(last_velocity)
-    max_funding_fee_per_block_bn = int(max_funding_fee_per_block)
-    last_update_block_bn = int(last_update_block)
-    latest_block_bn = int(latest_block)
-    oi_long_bn = int(oi_long)
-    oi_short_bn = int(oi_short)
-
-    value_long = acc_per_oi_long_bn
-    value_short = acc_per_oi_short_bn
-    fr = 0
-
-    abs_last_funding_rate = abs(last_funding_rate_bn)
-    abs_last_velocity = abs(last_velocity_bn)
-
-    num_blocks = latest_block_bn - last_update_block_bn
-    new_funding_rate = last_funding_rate_bn + (last_velocity_bn * num_blocks)
-    abs_new_funding_rate = abs(new_funding_rate)
-
-    num_blocks_to_charge = num_blocks
-
-    accumulated_funding_rate_change = 0
-    longs_pay = False
-    funding_rate_to_use = 0
-
-    if abs_new_funding_rate > max_funding_fee_per_block_bn:
-        num_blocks_to_limit = (
-            max_funding_fee_per_block_bn - abs_last_funding_rate) // abs_last_velocity
-
-        if (new_funding_rate * last_funding_rate_bn) < 0:
-            num_blocks_to_charge = num_blocks_to_charge + \
-                (2 * last_funding_rate_bn) // last_velocity_bn
-
-        accumulated_funding_rate_change = (
-            abs_last_funding_rate +
-            (ceil_div(num_blocks_to_limit, 2) * abs_last_velocity)
-        ) * num_blocks_to_limit + (
-            (num_blocks_to_charge - num_blocks_to_limit) *
-            max_funding_fee_per_block_bn
-        )
-
-        if new_funding_rate > 0:
-            longs_pay = True
-            fr = max_funding_fee_per_block_bn
-        else:
-            longs_pay = False
-            fr = -max_funding_fee_per_block_bn
-    else:
-        funding_rate_to_use = abs_new_funding_rate if abs_new_funding_rate > abs_last_funding_rate else abs_last_funding_rate
-
-        if (last_funding_rate_bn * new_funding_rate) < 0:
-            num_blocks_to_charge = num_blocks_to_charge - \
-                (2 * funding_rate_to_use) // abs_last_velocity
-
-        longs_pay = (new_funding_rate + last_funding_rate_bn) >= 0
-
-        accumulated_funding_rate_change = (
-            funding_rate_to_use +
-            (ceil_div(num_blocks_to_charge, 2) * abs_last_velocity)
-        ) * num_blocks_to_charge
-
-        fr = new_funding_rate
-
-    if longs_pay:
-        value_long = value_long + \
-            (accumulated_funding_rate_change if oi_long_bn > 0 else 0)
-
-        if oi_short_bn != 0:
-            value_short = value_short - \
-                (accumulated_funding_rate_change * oi_long_bn) // oi_short_bn
-    else:
-        value_short = value_short + \
-            (accumulated_funding_rate_change if oi_short_bn > 0 else 0)
-
-        if oi_long_bn != 0:
-            value_long = value_long - \
-                (accumulated_funding_rate_change * oi_short_bn) // oi_long_bn
-
-    return {
-        'accFundingLong': str(value_long),
-        'accFundingShort': str(value_short),
-        'latestFundingRate': str(fr),
-        'longsPay': longs_pay,
-    }

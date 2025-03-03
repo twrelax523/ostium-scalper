@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 from decimal import Decimal
 
-from ostium_python_sdk.formulae import GetFundingRateV2
+from ostium_python_sdk.formulae import GetFundingRate
 from ostium_python_sdk.utils import calculate_fee_per_hours, format_with_precision
 
 from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
@@ -97,6 +97,9 @@ class OstiumSDK:
         for t in open_trades:
             if int(t['pair']['id']) == int(pair_id) and int(t['index']) == int(trade_index):
                 trade_details = t
+                if not 'highestLeverage' in t:
+                    trade_details['highestLeverage'] = trade_details['leverage']
+
                 break
 
         if trade_details is None:
@@ -143,12 +146,13 @@ class OstiumSDK:
         # get the block number
         block_number = self.ostium.get_block_number()
 
-        self.log(f"Pair details: {pair_details}")
+        # self.log(f"{pair_details['from']}{pair_details['to']} Pair details: {pair_details}")
         self.log(f"Block number: {block_number}")
 
         # Get current price
         last_trade_price = pair_details['lastTradePrice']
-        self.log(f"lastTradePrice: {last_trade_price}")
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} lastTradePrice: {last_trade_price}")
 
         long_oi = int(
             (Decimal(pair_details['longOI']) *
@@ -159,19 +163,28 @@ class OstiumSDK:
              Decimal(last_trade_price) / PRECISION_18 / PRECISION_12)
         )
 
-        self.log(f"notional_long_oi: {long_oi}")
-        self.log(f"notional_short_oi: {short_oi}")
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} usd_long_oi: {long_oi}")
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} usd_short_oi: {short_oi}")
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} maxOI: {pair_details['maxOI']}")
 
-        ret = GetFundingRateV2(
-            pair_details['curFundingLong'],
-            pair_details['curFundingShort'],
+        # self.log(f"compare curFundingLong: {pair_details['curFundingLong']} vs accFundingLong: {pair_details['accFundingLong']}")
+
+        # self.log(f"str(long_oi): {str(long_oi)}")
+        # self.log(f"str(short_oi): {str(short_oi)}")
+        block_number = 129107449
+        ret = GetFundingRate(
+            pair_details['accFundingLong'],
+            pair_details['accFundingShort'],
             pair_details['lastFundingRate'],
             pair_details['maxFundingFeePerBlock'],
             pair_details['lastFundingBlock'],
             block_number,
-            long_oi,  # Needs to be in USD
-            short_oi,  # Needs to be in USD
-            pair_details['maxOI'],
+            str(long_oi),  # Needs to be in USD
+            str(short_oi),  # Needs to be in USD
+            str(pair_details['maxOI']),
             pair_details['hillInflectionPoint'],
             pair_details['hillPosScale'],
             pair_details['hillNegScale'],
@@ -181,68 +194,40 @@ class OstiumSDK:
             self.verbose
         )
 
+        self.log(f"This is what I pass to GetFundingRate:\n")
+        self.log(f"accFundingLong: {pair_details['accFundingLong']}")
+        self.log(f"accFundingShort: {pair_details['accFundingShort']}")
+        self.log(f"lastFundingRate: {pair_details['lastFundingRate']}")
+        self.log(
+            f"maxFundingFeePerBlock: {pair_details['maxFundingFeePerBlock']}")
+        self.log(f"lastFundingBlock: {pair_details['lastFundingBlock']}")
+        self.log(f"block_number: {block_number}")
+        self.log(f"long_oi: {str(long_oi)}")
+        self.log(f"short_oi: {str(short_oi)}")
+        self.log(f"maxOI: {str(pair_details['maxOI'])}")
+        self.log(f"hillInflectionPoint: {pair_details['hillInflectionPoint']}")
+        self.log(f"hillPosScale: {pair_details['hillPosScale']}")
+        self.log(f"hillNegScale: {pair_details['hillNegScale']}")
+        self.log(f"springFactor: {pair_details['springFactor']}")
+        self.log(f"sFactorUpScaleP: {pair_details['sFactorUpScaleP']}")
+        self.log(f"sFactorDownScaleP: {pair_details['sFactorDownScaleP']}")
+        self.log(f"result: {ret}")
+
         accFundingLong = ret['accFundingLong']
         accFundingShort = ret['accFundingShort']
-        fundingRate = ret['latestFundingRate'] * \
+        fundingRate = float(ret['latestFundingRate']) * \
             (10 / 3) * 60 * 60 * 100 * period_hours
-        targetFundingRate = ret['targetFundingRate'] * \
+        targetFundingRate = float(ret['targetFundingRate']) * \
             (10 / 3) * 60 * 60 * 100 * period_hours
+
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} Funding rate ({period_hours} hours): {fundingRate}%")
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} Traget Funding rate ({period_hours} hours): {targetFundingRate}%")
 
         return accFundingLong, accFundingShort, fundingRate, targetFundingRate
 
     async def get_formatted_pairs_details(self) -> list:
-        """
-        Get formatted details for all trading pairs, with proper decimal conversion.
-
-        Crypto pairs example:
-        BTC-USD:
-            - price: 65432.50
-            - longOI: 0.41008148 (410.08148 BTC)
-            - shortOI: 2.59812309 (2,598.12309 BTC)
-            - maxOI: 1000.00000000
-            - utilizationP: 80.00%
-            - makerFeeP: 0.01%
-            - takerFeeP: 0.10%
-            - maxLeverage: 50x
-            - group: crypto
-
-        ETH-USD:
-            - price: 3050.50
-            - longOI: 5.90560023 (5,905.60023 ETH)
-            - shortOI: 0.00000000
-            - maxOI: 1000.00000000
-            - utilizationP: 80.00%
-            - makerFeeP: 0.01%
-            - takerFeeP: 0.10%
-            - maxLeverage: 50x
-            - group: crypto
-
-        Returns:
-            list: List of dictionaries containing formatted pair details including:
-                - id: Pair ID
-                - from: Base asset (e.g., 'BTC')
-                - to: Quote asset (e.g., 'USD')
-                - price: Current market price
-                - isMarketOpen: Market open status
-                - longOI: Total long open interest in notional value
-                - shortOI: Total short open interest in notional value
-                - maxOI: Maximum allowed open interest
-
-                - makerFeeP: Maker fee percentage
-                - takerFeeP: Taker fee percentage
-
-                - maxLeverage: Maximum allowed leverage
-                - minLeverage: Minimum allowed leverage
-                - makerMaxLeverage: Maximum leverage for makers
-                - group: Trading group name
-                - groupMaxCollateralP: Maximum collateral percentage for the group
-                - minLevPos: Minimum leverage position size
-                - lastFundingRate: Latest funding rate
-                - curFundingLong: Current funding for longs
-                - curFundingShort: Current funding for shorts
-                - lastFundingBlock: Block number of last funding update
-                - lastFundingVelocity: Velocity of last funding rate change
-        """
         pairs = await self.subgraph.get_pairs()
         formatted_pairs = []
 
@@ -270,7 +255,6 @@ class OstiumSDK:
                 'maxOI': Decimal(pair_details['maxOI']) / PRECISION_6,
                 'makerFeeP': Decimal(pair_details['makerFeeP']) / PRECISION_6,
                 'takerFeeP': Decimal(pair_details['takerFeeP']) / PRECISION_6,
-
                 'maxLeverage': Decimal(pair_details['group']['maxLeverage']) / PRECISION_2,
                 'minLeverage': Decimal(pair_details['group']['minLeverage']) / PRECISION_2,
                 'makerMaxLeverage': Decimal(pair_details['makerMaxLeverage']) / PRECISION_2,
@@ -280,8 +264,7 @@ class OstiumSDK:
                 'lastFundingRate': Decimal(pair_details['lastFundingRate']) / PRECISION_9,
                 'curFundingLong': Decimal(pair_details['curFundingLong']) / PRECISION_9,
                 'curFundingShort': Decimal(pair_details['curFundingShort']) / PRECISION_9,
-                'lastFundingBlock': int(pair_details['lastFundingBlock']),
-                'lastFundingVelocity': int(pair_details['lastFundingVelocity'])
+                'lastFundingBlock': int(pair_details['lastFundingBlock'])
             }
             formatted_pairs.append(formatted_pair)
 
