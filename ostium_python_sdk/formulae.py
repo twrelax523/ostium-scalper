@@ -1,109 +1,139 @@
-from decimal import Decimal
-from .constants import MAX_PROFIT_P, MAX_STOP_LOSS_P, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, LIQ_THRESHOLD_P
+from decimal import Decimal, getcontext, ROUND_DOWN
+from .constants import MAX_PROFIT_P, MIN_LOSS_P, MAX_STOP_LOSS_P, PRECISION_16, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, LIQ_THRESHOLD_P
+from typing import Dict
+from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 
-#
-# This is a copy-cat of formulae repo originally written in TypeScript
-#
+quantization_6 = Decimal('0.000001')
+quantization_18 = Decimal('0.000000000000000001')
 
-#
-# GetStopLossPrice and GetTakeProfitPrice are consolidated into one function.
-# bool is_tp is True if we want to calculate the take profit price, False if we want to calculate the stop loss price
-#
+# v2 (formulae v1.3.3)
 
 
-def GetTakeProfitPrice(is_tp: bool, open_price: Decimal, leverage: Decimal, long: bool, profit_p: Decimal) -> Decimal:
-    """
-    Calculate the take profit / stop loss price based on desired profit percentage (aka: MAX_PROFIT_P=900 or MAX_STOP_LOSS_P=85).
-
-    Args:
-        open_price (Decimal): The opening price of the trade
-        profit_p (Decimal): The desired profit percentage
-        leverage (Decimal): The leverage amount
-        long (bool): Whether this is a long position
-        profit_p (Decimal): The desired profit percentage - 900% for Tp or 85% for SL
-
-    Returns:
-        str: The Tp / SL price as a string
-    """
-
+def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
     profit_p = Decimal(profit_p)
     leverage = Decimal(leverage)
 
     price_diff = (open_price * profit_p) / (leverage * Decimal('100'))
 
-    if (is_tp):
-        price = open_price + price_diff if long else open_price - price_diff
+    if (is_long):
+        tp_price = open_price + price_diff
     else:
-        price = open_price - price_diff if long else open_price + price_diff
+        tp_price = open_price - price_diff
 
-    return Decimal(price if price > 0 else '0')
+    return Decimal(tp_price if tp_price > 0 else '0')
+
+# v2 (formulae v1.3.3)
 
 
-def CurrentTradeProfitP(open_price: str, current_price: str, long: bool, leverage: str) -> str:
-    """
-    Calculate the current trade profit percentage.
+def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
+    open_price = Decimal(open_price)
+    loss_p = Decimal(loss_p)
+    leverage = Decimal(leverage)
 
-    Args:
-        open_price (str): The opening price of the trade
-        current_price (str): The current price
-        long (bool): Whether this is a long position
-        leverage (str): The leverage amount
+    # price_diff matches your existing TP logic style, except using 'loss_p'
+    price_diff = (open_price * loss_p) / (leverage * Decimal('100'))
 
-    Returns:
-        str: The profit percentage as a string
-    """
-    try:
+    sl_price = open_price - price_diff if is_long else open_price + price_diff
+    return sl_price if sl_price > 0 else Decimal('0')
 
-        open_price_d = Decimal(open_price)
-        current_price_d = Decimal(current_price)
-        leverage_d = Decimal(leverage)
+# v2 (formulae v1.3.3)
 
-        if long:
-            price_diff = current_price_d - open_price_d
-        else:
-            price_diff = open_price_d - current_price_d
 
-        profit_p = (price_diff / open_price_d) * (leverage_d)
+def CurrentTradeProfitP(
+    open_price: Decimal,
+    current_price: Decimal,
+    long: bool,
+    leverage: Decimal,
+    highest_leverage: Decimal
+) -> Decimal:
+    leverage_to_use = leverage if leverage > highest_leverage else highest_leverage
+    if long:
+        price_diff = current_price - open_price
+    else:
+        price_diff = open_price - current_price
 
-        if profit_p > MAX_PROFIT_P:
-            return (MAX_PROFIT_P)
-        else:
-            return (profit_p)
-    except Exception as e:
-        return str(e)
+    profit_p = (price_diff / open_price) * leverage_to_use * Decimal("100")
+
+    if profit_p >= MAX_PROFIT_P:
+        profit_p = MAX_PROFIT_P
+
+    profit_p *= (leverage / leverage_to_use)
+
+    return profit_p
+
+# v2 (formulae v1.3.3)
+
+
+def TopUpWithCollateral(
+    leverage: Decimal,
+    collateral: Decimal,
+    added_collateral: Decimal
+) -> Decimal:
+    new_leverage = (collateral * leverage) / (collateral + added_collateral)
+    return new_leverage
+
+# v2 (formulae v1.3.3)
+
+
+def TopUpWithLeverage(
+    leverage: Decimal,
+    desired_leverage: Decimal,
+    collateral: Decimal
+) -> Decimal:
+    added_c = (collateral * leverage) / desired_leverage - collateral
+    return added_c
+
+# v2 (formulae v1.3.3)
+
+
+def RemoveCollateralWithCollateral(
+    leverage: Decimal,
+    collateral: Decimal,
+    removed_collateral: Decimal
+) -> Decimal:
+    new_leverage = (collateral * leverage) / (collateral - removed_collateral)
+    return new_leverage
+
+# v2 (formulae v1.3.3)
+
+
+def RemoveCollateralFromLeverage(
+    leverage: Decimal,
+    desired_leverage: Decimal,
+    collateral: Decimal
+) -> Decimal:
+    added_c = collateral - (collateral * leverage / desired_leverage)
+    return added_c
+
+# tbd - used by SDK
+# v2 (formulae v1.3.3)
 
 
 def GetTradeLiquidationPrice(
-    open_price: str,
+    open_price: Decimal,
     long: bool,
-    collateral: str,
-    leverage: str,
-    rollover_fee: str,
-    funding_fee: str
+    collateral: Decimal,
+    leverage: Decimal,
+    rollover_fee: Decimal,
+    funding_fee: Decimal
 ) -> Decimal:
-    try:
-        open_price = Decimal(open_price)
-        collateral = Decimal(collateral)
-        rollover_fee = Decimal(rollover_fee)
-        funding_fee = Decimal(funding_fee)
-        leverage = Decimal(leverage)
+    print(
+        f"***** GetTradeLiquidationPrice: open_price: {open_price}, long: {long}, collateral: {collateral}, leverage: {leverage}, rollover_fee: {rollover_fee}, funding_fee: {funding_fee}")
 
-        liq_price_distance = (
-            open_price *
-            (collateral * Decimal(LIQ_THRESHOLD_P) / Decimal(100) - rollover_fee - funding_fee) /
-            collateral /
-            leverage
-        )
+    liq_price_distance = (
+        open_price *
+        (collateral * (LIQ_THRESHOLD_P) / Decimal(100) - rollover_fee - funding_fee) /
+        collateral /
+        leverage
+    )
 
-        liq_price = open_price - liq_price_distance if long else open_price + liq_price_distance
-        liq_price = liq_price if liq_price > 0 else 0
-        return liq_price
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Liquidation Price: {error}")
+    liq_price = open_price - liq_price_distance if long else open_price + liq_price_distance
+    liq_price = liq_price if liq_price > 0 else 0
+    return liq_price
 
 
+# ???
 def GetCurrentRolloverFee(
     acc_rollover: str,
     last_rollover_block: str,
@@ -123,227 +153,161 @@ def GetCurrentRolloverFee(
         raise Exception(f"Unable to compute Current Rollover Fee: {error}")
 
 
+# v2 (formulae v1.3.3)
 def GetTradeRolloverFee(
-    trade_rollover: str,
-    current_rollover: str,
-    collateral: str,
-    leverage: str
+    trade_rollover: Decimal,
+    current_rollover: Decimal,
+    collateral: Decimal,
+    leverage: Decimal
 ) -> Decimal:
-    try:
-        current_rollover = Decimal(current_rollover)
-        trade_rollover = Decimal(trade_rollover)
-        collateral = Decimal(collateral)
-        leverage = Decimal(leverage)
-
-        rollover_fee = (
-            (current_rollover - trade_rollover) *
-            collateral *
-            leverage /
-            PRECISION_18 /
-            PRECISION_2
-        )
-        return rollover_fee
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Trade Rollover Fee: {error}")
+    rollover_fee = (current_rollover - trade_rollover) * collateral * leverage
+    return rollover_fee
 
 
+# Gets the funding fee (abs) for an open trade (up to this block, aka based on current_funding up till this block)
+# v2 (formulae v1.3.3)
 def GetTradeFundingFee(
-    trade_funding: str,
-    current_funding: str,
-    collateral: str,
-    leverage: str
+    trade_funding: Decimal,
+    current_funding: Decimal,
+    collateral: Decimal,
+    leverage: Decimal
 ) -> Decimal:
-    try:
-        current_funding = Decimal(current_funding)
-        trade_funding = Decimal(trade_funding)
-        collateral = Decimal(collateral)
-        leverage = Decimal(leverage)
-
-        funding_fee = (
-            (current_funding - trade_funding) *
-            collateral *
-            leverage /
-            PRECISION_18 /
-            PRECISION_2
-        )
-        return funding_fee
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Trade Funding Fee: {error}")
-
-
-def GetFundingRate(
-    acc_funding_long: str,
-    acc_funding_short: str,
-    last_funding_rate: str,
-    last_funding_velocity: str,
-    max_funding_fee_per_block: str,
-    last_funding_block: str,
-    latest_block: str,
-    long_oi: str,
-    short_oi: str
-) -> dict:
-    try:
-        acc_funding_long = Decimal(acc_funding_long)
-        acc_funding_short = Decimal(acc_funding_short)
-        last_funding_rate = Decimal(last_funding_rate)
-        last_funding_velocity = Decimal(last_funding_velocity)
-        max_funding_fee_per_block = Decimal(max_funding_fee_per_block)
-        last_funding_block = Decimal(last_funding_block)
-        latest_block = Decimal(latest_block)
-        long_oi = Decimal(long_oi)
-        short_oi = Decimal(short_oi)
-
-        block_diff = latest_block - last_funding_block
-
-        # Calculate skew
-        total_oi = long_oi + short_oi
-        skew = Decimal('0')
-        if total_oi > 0:
-            skew = (long_oi - short_oi) / total_oi
-
-        # Calculate funding rate
-        funding_rate = last_funding_rate + last_funding_velocity * block_diff
-
-        # Cap funding rate
-        if funding_rate > max_funding_fee_per_block:
-            funding_rate = max_funding_fee_per_block
-        elif funding_rate < -max_funding_fee_per_block:
-            funding_rate = -max_funding_fee_per_block
-
-        # Calculate accumulated funding
-        funding_long = acc_funding_long + funding_rate * block_diff
-        funding_short = acc_funding_short - funding_rate * block_diff
-
-        return {
-            'accFundingLong': str(funding_long),
-            'accFundingShort': str(funding_short),
-            'skew': str(skew)
-        }
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Funding Rate: {error}")
+    print(
+        f"======> GetTradeFundingFee: trade_funding: {trade_funding}, current_funding: {current_funding}, collateral: {collateral}, leverage: {leverage}")
+    funding_fee = (current_funding - trade_funding) * collateral * leverage
+    return funding_fee
 
 
 def GetPriceImpact(
     mid_price: str,
     bid_price: str,
     ask_price: str,
-    spread_p: str,
-    is_limit: bool,
-    is_buy: bool,
-    is_close: bool,
-    trade_size: str,
-    trade_size_ref: str
+    is_open: bool,
+    is_long: bool,
 ) -> dict:
     try:
         mid_price = Decimal(mid_price)
         bid_price = Decimal(bid_price)
         ask_price = Decimal(ask_price)
-        spread_p = Decimal(spread_p)
-        trade_size = Decimal(trade_size)
-        trade_size_ref = Decimal(trade_size_ref)
 
-        # Calculate base spread
-        base_spread = (ask_price - bid_price) / mid_price
+        if (mid_price == 0):
+            return {
+                'priceImpactP': str(0),
+                'priceAfterImpact': str(0)
+            }
 
-        # Calculate impact spread
-        impact_spread = base_spread * (trade_size / trade_size_ref)
-
-        # Calculate price after impact
-        price_after_impact = mid_price
-        if not is_limit:
-            if is_buy:
-                price_after_impact = mid_price * \
-                    (Decimal('1') + impact_spread / Decimal('2'))
-            else:
-                price_after_impact = mid_price * \
-                    (Decimal('1') - impact_spread / Decimal('2'))
+        above_spot = is_open == is_long
+        used_price = ask_price if above_spot else bid_price
+        priceImpactP = 100 * (abs(mid_price - used_price) / mid_price)
 
         return {
-            'priceAfterImpact': str(price_after_impact),
-            'impactSpread': str(impact_spread)
+            'priceImpactP': str(priceImpactP),
+            'priceAfterImpact': str(used_price)
         }
 
     except Exception as error:
         raise Exception(f"Unable to compute Price Impact: {error}")
 
 
+# calculates the gross (without fees) profit (abs) of an open trade
+
+# calculates the net profit (after fees) of an open trade (abs)
+# v2 (formulae v1.3.3)
 def CurrentTradeProfitRaw(
-    open_price: str,
-    current_price: str,
-    is_buy: bool,
-    leverage: str,
-    collateral: str
-) -> str:
-    try:
-        open_price = Decimal(open_price)
-        current_price = Decimal(current_price)
-        leverage = Decimal(leverage)
-        collateral = Decimal(collateral)
+    open_price: Decimal,
+    current_price: Decimal,
+    long: bool,
+    leverage: Decimal,
+    highest_leverage: Decimal,
+    collateral: Decimal
+) -> Decimal:
+    profit_p = CurrentTradeProfitP(
+        open_price,
+        current_price,
+        long,
+        leverage,
+        highest_leverage
+    )
+    profit = (collateral * profit_p) / Decimal("100")
+    return profit
 
-        # Calculate price difference based on position direction
-        if is_buy:
-            price_diff = current_price - open_price
-        else:
-            price_diff = open_price - current_price
-
-        # Calculate profit
-        profit = (price_diff * collateral * leverage) / \
-            (open_price * PRECISION_2)
-
-        return str(profit)
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Current Trade Profit Raw: {error}")
+# v2 (formulae v1.3.3)
 
 
 def CurrentTotalProfitRaw(
-    open_price: str,
-    current_price: str,
-    is_buy: bool,
-    leverage: str,
-    collateral: str,
-    rollover_fee: str,
-    funding_fee: str
-) -> str:
-    try:
-        # Get trade profit
-        trade_profit = Decimal(CurrentTradeProfitRaw(
-            open_price,
-            current_price,
-            is_buy,
-            leverage,
-            collateral
-        ))
+    open_price: Decimal,
+    current_price: Decimal,
+    long: bool,
+    leverage: Decimal,
+    highest_leverage: Decimal,
+    collateral: Decimal,
+    rollover_fee: Decimal,
+    funding_fee: Decimal
+) -> Decimal:
+    # Get trade profit
+    trade_profit = CurrentTradeProfitRaw(
+        open_price,
+        current_price,
+        long,
+        leverage,
+        highest_leverage,
+        collateral
+    )
 
-        # Subtract fees
-        total_profit = trade_profit - \
-            Decimal(rollover_fee) - Decimal(funding_fee)
+    # Subtract fees
+    total_profit = trade_profit - \
+        rollover_fee - funding_fee
 
-        return str(total_profit)
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Current Total Profit Raw: {error}")
+    return total_profit
 
 
-def CurrentTotalProfitP(total_profit: str, collateral: str) -> str:
-    try:
-        total_profit = Decimal(total_profit)
-        collateral = Decimal(collateral)
+# v2 (formulae v1.3.3)
+def CurrentTotalProfitP(total_profit: Decimal, collateral: Decimal) -> Decimal:
+    profit_p = (total_profit * Decimal("100")) / collateral
+    if profit_p <= MIN_LOSS_P:
+        profit_p = MIN_LOSS_P
+    return profit_p
 
-        # Calculate profit percentage
-        profit_percentage = (total_profit * PRECISION_6) / collateral
 
-        # Cap at MAX_PROFIT_P if needed
-        if profit_percentage > MAX_PROFIT_P:
-            return str(MAX_PROFIT_P)
+def GetFundingRate(
+    accPerOiLong: str,
+    accPerOiShort: str,
+    lastFundingRate: str,
+    maxFundingFeePerBlock: str,
+    lastUpdateBlock: str,
+    latestBlock: str,
+    oiLong: str,
+    oiShort: str,
+    oiCap: str,
+    hillInflectionPoint: str,
+    hillPosScale: str,
+    hillNegScale: str,
+    springFactor: str,
+    sFactorUpScaleP: str,
+    sFactorDownScaleP: str,
+    verbose: bool = False
+):
+    acc_funding_long, acc_funding_short, latest_funding_rate, target_fr = getPendingAccFundingFees(
+        blockNumber=Decimal(latestBlock),
+        lastUpdateBlock=Decimal(lastUpdateBlock),
+        valueLong=Decimal(accPerOiLong) / PRECISION_18,
+        valueShort=Decimal(accPerOiShort) / PRECISION_18,
+        openInterestUsdcLong=Decimal(oiLong) / PRECISION_6,
+        openInterestUsdcShort=Decimal(oiShort) / PRECISION_6,
+        OiCap=Decimal(oiCap) / PRECISION_6,
+        maxFundingFeePerBlock=Decimal(maxFundingFeePerBlock) / PRECISION_18,
+        lastFundingRate=Decimal(lastFundingRate) / PRECISION_18,
+        hillInflectionPoint=Decimal(hillInflectionPoint) / PRECISION_18,
+        hillPosScale=Decimal(hillPosScale) / PRECISION_2,
+        hillNegScale=Decimal(hillNegScale) / PRECISION_2,
+        springFactor=Decimal(springFactor) / PRECISION_18,
+        sFactorUpScale=Decimal(sFactorUpScaleP) / PRECISION_2,
+        sFactorDownScaleP=Decimal(sFactorDownScaleP) / PRECISION_2
+    )
 
-        return str(profit_percentage)
-
-    except Exception as error:
-        raise Exception(
-            f"Unable to compute Current Total Profit Percentage: {error}")
-
-# given desired TP percentage, like 35, 50, 75, 100, 500 and 900 which is max: gives you the TP price
+    return {
+        'accFundingLong': acc_funding_long,
+        'accFundingShort': acc_funding_short,
+        'latestFundingRate': latest_funding_rate,
+        'targetFundingRate': target_fr
+    }

@@ -50,13 +50,12 @@ class SubgraphClient:
               maxOI
               makerFeeP
               takerFeeP
-              usageFeeP
-              utilizationThresholdP
               makerMaxLeverage    
               curFundingLong  
               curFundingShort
               curRollover
-              maxLeverage
+              totalOpenTrades
+              totalOpenLimitOrders
               accRollover
               lastRolloverBlock
               rolloverFeePerBlock
@@ -64,8 +63,15 @@ class SubgraphClient:
               accFundingShort
               lastFundingBlock
               maxFundingFeePerBlock
-              lastFundingVelocity
-              lastFundingRate
+              lastFundingRate              
+              hillInflectionPoint
+              hillPosScale
+              hillNegScale
+              springFactor
+              sFactorUpScaleP
+              sFactorDownScaleP
+              lastTradePrice
+              maxLeverage              
               group {
                 id
                 name
@@ -95,7 +101,7 @@ class SubgraphClient:
             raise ValueError(f"No pair details found for pair ID: {pair_id}")
 
     async def get_open_trades(self, address):
-        self.log(f"Fetching open trades for address: {address}")
+        # self.log(f"Fetching open trades for address: {address}")
         query = gql(
             """
           query trades($trader: Bytes!) {
@@ -105,6 +111,7 @@ class SubgraphClient:
           tradeID
           collateral
           leverage
+          highestLeverage
           openPrice
           stopLossPrice
           takeProfitPrice
@@ -127,13 +134,18 @@ class SubgraphClient:
             rolloverFeePerBlock
             accFundingLong
             spreadP
-            tradeSizeRef
             accFundingShort
             longOI
             shortOI
+            maxOI
+            hillInflectionPoint
+            hillPosScale
+            hillNegScale
+            springFactor
+            sFactorUpScaleP
+            sFactorDownScaleP
             lastFundingBlock
             maxFundingFeePerBlock
-            lastFundingVelocity
             lastFundingRate
           }
         }
@@ -173,13 +185,11 @@ class SubgraphClient:
                 rolloverFeePerBlock
                 accFundingLong
                 spreadP
-                tradeSizeRef
                 accFundingShort
                 longOI
                 shortOI
                 lastFundingBlock
                 maxFundingFeePerBlock
-                lastFundingVelocity
                 lastFundingRate
               }
             }

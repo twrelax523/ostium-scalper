@@ -47,8 +47,38 @@ First, install the package with development dependencies:
 pip install -e ".[dev]"
 ```
 
-Then run the tests:
+## Running tests
 
+### Run specific tests
+
+```bash
+pytest -v tests/test_trade_liquidation_price.py
+pytest -v tests/test_funding.py
+pytest -v tests/test_trade_get_tp_price.py
+pytest -v tests/test_trade_get_sl_price.py
+pytest -v tests/test_current_trade_profit_p.py
+pytest -v tests/test_top_up_with_collateral.py
+pytest -v tests/test_top_up_with_leverage.py
+pytest -v tests/test_remove_collateral_with_collateral.py
+pytest -v tests/test_remove_collateral_from_leverage.py
+pytest -v tests/test_current_total_profit_p.py
+pytest -v tests/test_current_trade_profit_raw.py
+pytest -v tests/test_current_total_profit_raw.py
+pytest -v tests/test_get_trade_funding_fee.py
+pytest -v tests/test_get_trade_rollover_fee.py 
+
+
+
+
+
+
+
+
+
+
+```
+
+### Run ALL tests
 ```bash
 pytest
 ```
@@ -385,8 +415,17 @@ TBD
 TBD
 
 
-### Funding rate calculation - SDK to get breakdown of FF, RF, PnL, etc.
-TBD
+### Get a certain Pair Net Rate % (Funding Fees, Rollover)
+
+```bash 
+### Use sdk.get_pair_net_rate_percent_per_hours()
+```
+
+### Open Trade Fees calculation - SDK to get breakdown of FF, RF, PnL, etc.
+
+```bash
+## Use sdk.get_open_trade_metrics()
+```
 
 
 ## Example Usage Scripts
