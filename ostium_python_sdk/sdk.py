@@ -97,9 +97,6 @@ class OstiumSDK:
         for t in open_trades:
             if int(t['pair']['id']) == int(pair_id) and int(t['index']) == int(trade_index):
                 trade_details = t
-                if not 'highestLeverage' in t:
-                    trade_details['highestLeverage'] = trade_details['leverage']
-
                 break
 
         if trade_details is None:

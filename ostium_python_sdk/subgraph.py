@@ -111,6 +111,7 @@ class SubgraphClient:
           tradeID
           collateral
           leverage
+          highestLeverage
           openPrice
           stopLossPrice
           takeProfitPrice
