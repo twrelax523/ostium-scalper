@@ -3,32 +3,13 @@ from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRollove
                        GetTradeFundingFee, GetTradeLiquidationPrice, GetTradeRolloverFee,
                        GetPriceImpact, CurrentTradeProfitRaw,
                        CurrentTotalProfitRaw, CurrentTotalProfitP)
-from typing import Dict, Union
 
-# TBD - Not used by SDK
-
-
-def get_liq_price(trade_details, pair_info, block_number):
-    current_funding_fee = GetTradeFundingFee(trade_details['funding'], pair_info['accFundingLong'] if trade_details['isBuy']
-                                             else pair_info['accFundingShort'], trade_details['collateral'], trade_details['leverage'])
-
-    current_rollover_fee = GetCurrentRolloverFee(
-        pair_info['accRollover'], pair_info['lastRolloverBlock'], pair_info['rolloverFeePerBlock'], block_number)
-
-    trade_rollover_fee = GetTradeRolloverFee(
-        trade_details['rollover'], current_rollover_fee, trade_details['collateral'], trade_details['leverage'])
-
-    liq_price = GetTradeLiquidationPrice(trade_details['openPrice'], trade_details['isBuy'], Decimal(trade_details['collateral']) / PRECISION_6, Decimal(
-        trade_details['leverage']) / PRECISION_2, Decimal(trade_rollover_fee)/PRECISION_6, Decimal(current_funding_fee) / PRECISION_6)
-
-    return liq_price / PRECISION_18
 
 # TBD - used by SDK
 # returns the funding_fee_long_per_block, funding_fee_short_per_block
 
 
 def get_funding_fee_long_short(pair_info, block_number, verbose=False):
-    # print(f"*********\nget_funding_fee_long_short\n*********")
     funding_rate_raw = GetFundingRate(
         pair_info['accFundingLong'],
         pair_info['accFundingShort'],
@@ -103,17 +84,17 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     if verbose:
         print(f"Current rollover fee: {current_rollover_raw}")
 
-    # Calculate rollover for this trade
-    rollover_raw = GetTradeRolloverFee(
-        trade_details['rollover'],
-        current_rollover_raw,
-        trade_details['collateral'],
-        trade_details['leverage']
+    trade_rollover_fee = GetTradeRolloverFee(
+        Decimal(trade_details['rollover']) / PRECISION_18,
+        Decimal(current_rollover_raw) / PRECISION_18,
+        Decimal(trade_details['collateral']) / PRECISION_6,
+        Decimal(trade_details['leverage']) / PRECISION_2
     )
 
     if verbose:
-        print(f"Rollover fee: {rollover_raw}")
-
+        print(f"Trade Rollover fee: {trade_rollover_fee}")
+        if (trade_rollover_fee != 0):
+            print(f"***** Trade Rollover fee is not 0: {trade_rollover_fee}")
     # Get funding rate
     funding_rate_raw = GetFundingRate(
         pair_info['accFundingLong'],
@@ -138,30 +119,31 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         print(f"Funding rate: {funding_rate_raw}")
 
     # Calculate funding fee
-    funding_raw = GetTradeFundingFee(
-        trade_details['funding'],
-        funding_rate_raw['accFundingLong'] if trade_details['isBuy'] else funding_rate_raw['accFundingShort'],
-        trade_details['collateral'],
-        trade_details['leverage']
+    trade_funding_fee = GetTradeFundingFee(
+        Decimal(trade_details['funding']) / PRECISION_18,
+        Decimal(funding_rate_raw['accFundingLong']) if trade_details['isBuy'] else Decimal(
+            funding_rate_raw['accFundingShort']),
+        Decimal(trade_details['collateral']) / PRECISION_6,
+        Decimal(trade_details['leverage']) / PRECISION_2
     )
 
     if verbose:
-        print(f"Funding fee: {funding_raw}")
+        print(f"____{pair_info['from']}{pair_info['to']} Trade Funding fee: {trade_funding_fee} with collateral {Decimal(trade_details['collateral'])/PRECISION_6} and leverage {Decimal(trade_details['leverage'])/PRECISION_2} and funding: {Decimal(trade_details['funding']) / PRECISION_18} and current funding: {Decimal(funding_rate_raw['accFundingLong']) / PRECISION_18 if trade_details['isBuy'] else Decimal(funding_rate_raw['accFundingShort']) / PRECISION_18}")
+        print(f"trade_details: {trade_details}")
 
     # Calculate liquidation price
-    liquidation_price = GetTradeLiquidationPrice(
+    trade_liquidation_price = GetTradeLiquidationPrice(
         Decimal(trade_details['openPrice']) / PRECISION_18,
         trade_details['isBuy'],
         Decimal(trade_details['collateral']) / PRECISION_6,
         Decimal(trade_details['leverage']) / PRECISION_2,
-        str(rollover_raw),
-        str(funding_raw)
+        Decimal(trade_rollover_fee),
+        Decimal(trade_funding_fee)
     )
-    liquidation_price = Decimal(liquidation_price)
 
     if verbose:
         print(
-            f"******\nLiquidation price: {liquidation_price} with rollover {rollover_raw} and funding {funding_raw}; Open price: {trade_details['openPrice']}; Is Long: {trade_details['isBuy']}; Leverage: {trade_details['leverage']}; Collateral: {trade_details['collateral']}\n******")
+            f"******\nTrade Liquidation price: {trade_liquidation_price} with rollover {trade_rollover_fee} and funding {trade_funding_fee}; Open price: {trade_details['openPrice']}; Is Long: {trade_details['isBuy']}; Leverage: {trade_details['leverage']}; Collateral: {trade_details['collateral']}\n******")
 
     # Calculate price impact
     is_open = False  # Get the price assuming a close
@@ -193,8 +175,8 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         Decimal(trade_details['leverage']) / PRECISION_2,
         Decimal(trade_details['highestLeverage']) / PRECISION_2,
         Decimal(trade_details['collateral']) / PRECISION_6,
-        Decimal(rollover_raw),
-        Decimal(funding_raw)
+        Decimal(trade_rollover_fee),
+        Decimal(trade_funding_fee)
     )
 
     # Calculate PNL percentage
@@ -206,8 +188,8 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     pnl_percent = Decimal(pnl_percent_raw)
     net_pnl = Decimal(total_profit_raw)
     total_profit = Decimal(total_profit_raw)
-    funding = Decimal(funding_raw)
-    rollover = Decimal(rollover_raw)
+    funding = Decimal(trade_funding_fee)
+    rollover = Decimal(trade_rollover_fee)
     net_value = net_pnl + (Decimal(trade_details['collateral']) / PRECISION_6)
     price_impact = Decimal(price_after_impact) / PRECISION_18
 
@@ -216,10 +198,9 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         'pnl_percent': float(pnl_percent),
         'rollover': float(rollover),
         'funding': float(funding),
-        'total_profit': float(total_profit),
-        'net_pnl': float(net_pnl),
+        'total_profit': float(total_profit),  # same as net_pnl
+        'net_pnl': float(net_pnl),  # same as total_profit
         'net_value': float(net_value),
-        'liquidation_price': float(liquidation_price),
+        'liquidation_price': float(trade_liquidation_price),
         'price_impact': float(price_impact)
     }
-

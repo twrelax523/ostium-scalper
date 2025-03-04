@@ -107,38 +107,33 @@ def RemoveCollateralFromLeverage(
     return added_c
 
 # tbd - used by SDK
+# v2 (formulae v1.3.3)
 
 
 def GetTradeLiquidationPrice(
-    open_price: str,
+    open_price: Decimal,
     long: bool,
-    collateral: str,
-    leverage: str,
-    rollover_fee: str,
-    funding_fee: str
+    collateral: Decimal,
+    leverage: Decimal,
+    rollover_fee: Decimal,
+    funding_fee: Decimal
 ) -> Decimal:
-    try:
-        open_price = Decimal(open_price)
-        collateral = Decimal(collateral)
-        rollover_fee = Decimal(rollover_fee)
-        funding_fee = Decimal(funding_fee)
-        leverage = Decimal(leverage)
+    print(
+        f"***** GetTradeLiquidationPrice: open_price: {open_price}, long: {long}, collateral: {collateral}, leverage: {leverage}, rollover_fee: {rollover_fee}, funding_fee: {funding_fee}")
 
-        liq_price_distance = (
-            open_price *
-            (collateral * Decimal(LIQ_THRESHOLD_P) / Decimal(100) - rollover_fee - funding_fee) /
-            collateral /
-            leverage
-        )
+    liq_price_distance = (
+        open_price *
+        (collateral * (LIQ_THRESHOLD_P) / Decimal(100) - rollover_fee - funding_fee) /
+        collateral /
+        leverage
+    )
 
-        liq_price = open_price - liq_price_distance if long else open_price + liq_price_distance
-        liq_price = liq_price if liq_price > 0 else 0
-        return liq_price
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Liquidation Price: {error}")
+    liq_price = open_price - liq_price_distance if long else open_price + liq_price_distance
+    liq_price = liq_price if liq_price > 0 else 0
+    return liq_price
 
 
+# ???
 def GetCurrentRolloverFee(
     acc_rollover: str,
     last_rollover_block: str,
@@ -158,56 +153,29 @@ def GetCurrentRolloverFee(
         raise Exception(f"Unable to compute Current Rollover Fee: {error}")
 
 
+# v2 (formulae v1.3.3)
 def GetTradeRolloverFee(
-    trade_rollover: str,
-    current_rollover: str,
-    collateral: str,
-    leverage: str
+    trade_rollover: Decimal,
+    current_rollover: Decimal,
+    collateral: Decimal,
+    leverage: Decimal
 ) -> Decimal:
-    try:
-        current_rollover = Decimal(current_rollover)
-        trade_rollover = Decimal(trade_rollover)
-        collateral = Decimal(collateral)
-        leverage = Decimal(leverage)
+    rollover_fee = (current_rollover - trade_rollover) * collateral * leverage
+    return rollover_fee
 
-        rollover_fee = (
-            (current_rollover - trade_rollover) *
-            collateral *
-            leverage /
-            PRECISION_18 /
-            PRECISION_2
-        )
-        return rollover_fee
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Trade Rollover Fee: {error}")
 
 # Gets the funding fee (abs) for an open trade (up to this block, aka based on current_funding up till this block)
-
-
+# v2 (formulae v1.3.3)
 def GetTradeFundingFee(
-    trade_funding: str,
-    current_funding: str,
-    collateral: str,
-    leverage: str
+    trade_funding: Decimal,
+    current_funding: Decimal,
+    collateral: Decimal,
+    leverage: Decimal
 ) -> Decimal:
-    try:
-        current_funding = Decimal(current_funding)
-        trade_funding = Decimal(trade_funding)
-        collateral = Decimal(collateral)
-        leverage = Decimal(leverage)
-
-        funding_fee = (
-            (current_funding - trade_funding) *
-            collateral *
-            leverage /
-            PRECISION_18 /
-            PRECISION_2
-        )
-        return funding_fee
-
-    except Exception as error:
-        raise Exception(f"Unable to compute Trade Funding Fee: {error}")
+    print(
+        f"======> GetTradeFundingFee: trade_funding: {trade_funding}, current_funding: {current_funding}, collateral: {collateral}, leverage: {leverage}")
+    funding_fee = (current_funding - trade_funding) * collateral * leverage
+    return funding_fee
 
 
 def GetPriceImpact(

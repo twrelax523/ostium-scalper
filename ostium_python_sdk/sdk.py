@@ -90,7 +90,7 @@ class OstiumSDK:
     # such as: funding fee, roll over fee, Unrealized Pnl, Profit Percent, etc.
     #
     # Will thorw in case SDK instantiated with no private key
-    async def get_open_trade_metrics(self, pair_id, trade_index):        
+    async def get_open_trade_metrics(self, pair_id, trade_index):
         open_trades, trader_public_address = await self.get_open_trades()
 
         trade_details = None
