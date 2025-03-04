@@ -80,14 +80,18 @@ class OstiumSDK:
         if self.verbose:
             print(message)
 
+    async def get_open_trades(self):
+        trader_public_address = self.ostium.get_public_address()
+        self.log(f"Trader public address: {trader_public_address}")
+        open_trades = await self.subgraph.get_open_trades(trader_public_address)
+        return open_trades, trader_public_address
+
     # if SDK instantiated with a private key, this function will return a given open trade metrics,
     # such as: funding fee, roll over fee, Unrealized Pnl, Profit Percent, etc.
     #
     # Will thorw in case SDK instantiated with no private key
-    async def get_open_trade_metrics(self, pair_id, trade_index):
-        trader_public_address = self.ostium.get_public_address()
-        self.log(f"Trader public address: {trader_public_address}")
-        open_trades = await self.subgraph.get_open_trades(trader_public_address)
+    async def get_open_trade_metrics(self, pair_id, trade_index):        
+        open_trades, trader_public_address = await self.get_open_trades()
 
         trade_details = None
 
