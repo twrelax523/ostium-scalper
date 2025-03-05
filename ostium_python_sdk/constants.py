@@ -2,6 +2,8 @@
 # Constants
 from decimal import Decimal
 
+CHAIN_ID_ARBITRUM_MAINNET = 42161   # Arbitrum One
+CHAIN_ID_ARBITRUM_TESTNET = 421614  # Arbitrum Sepolia
 
 MAX_PROFIT_P = Decimal('900')  # 900% * PRECISION_6
 MAX_STOP_LOSS_P = Decimal('85')

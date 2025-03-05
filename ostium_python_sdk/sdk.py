@@ -6,7 +6,7 @@ from ostium_python_sdk.formulae import GetFundingRate
 from ostium_python_sdk.utils import calculate_fee_per_hours, format_with_precision
 
 from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
-from .constants import PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
+from .constants import CHAIN_ID_ARBITRUM_MAINNET, CHAIN_ID_ARBITRUM_TESTNET, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
 
 from ostium_python_sdk.faucet import Faucet
 from .balance import Balance
@@ -23,16 +23,13 @@ class OstiumSDK:
         self.verbose = verbose
         load_dotenv()
         self.private_key = private_key or os.getenv('PRIVATE_KEY')
-        # if not self.private_key:
-        #     raise ValueError(
-        #         "No private key provided. Please provide via constructor or PRIVATE_KEY environment variable")
 
         self.rpc_url = rpc_url or os.getenv('RPC_URL')
         if not self.rpc_url:
             network_name = "mainnet" if isinstance(
                 network, str) and network == "mainnet" else "testnet"
             raise ValueError(
-                f"No RPC URL provided for {network_name}. Please provide via constructor or RPC_URL environment variable")
+                f"No RPC_URL provided for {network_name}. Please provide via constructor or RPC_URL environment variable")
 
         # Initialize Web3
         self.w3 = Web3(Web3.HTTPProvider(self.rpc_url))
@@ -51,6 +48,15 @@ class OstiumSDK:
         else:
             raise ValueError(
                 "Network must be either a NetworkConfig instance or a string ('mainnet' or 'testnet')")
+
+        # Validate chain ID
+        expected_chain_id = CHAIN_ID_ARBITRUM_MAINNET if not self.network_config.is_testnet else CHAIN_ID_ARBITRUM_TESTNET
+        actual_chain_id = self.w3.eth.chain_id
+        if actual_chain_id != expected_chain_id:
+            raise ValueError(
+                f"Chain ID mismatch. Expected {expected_chain_id} for {'testnet' if self.network_config.is_testnet else 'mainnet'}, "
+                f"but RPC is connected to chain ID {actual_chain_id}. Please check your RPC_URL."
+            )
 
         # Initialize Ostium instance
         self.ostium = Ostium(
