@@ -2,11 +2,17 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 
-@dataclass
 class NetworkConfig:
-    graph_url: str
-    contracts: Dict[str, str]
-    is_testnet: bool = False
+    def __init__(
+        self,
+        graph_url: str,
+        contracts: Dict[str, str],
+        is_testnet: bool
+    ):
+        self.graph_url = graph_url
+        self.contracts = contracts
+        self.is_testnet = is_testnet
+        self.network = "testnet" if is_testnet else "mainnet"
 
     @classmethod
     def mainnet(cls) -> 'NetworkConfig':
@@ -22,9 +28,7 @@ class NetworkConfig:
 
     @classmethod
     def testnet(cls) -> 'NetworkConfig':
-        return cls(  # tbd
-
-
+        return cls(
             graph_url="https://subgraph.satsuma-prod.com/391a61815d32/ostium/ost-sep-final/api",
             contracts={
                 "usdc": "0xe73B11Fb1e3eeEe8AF2a23079A4410Fe1B370548",
