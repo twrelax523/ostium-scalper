@@ -154,6 +154,27 @@ class Ostium:
         self.log(f"Trade Receipt: {trade_receipt}")
         return trade_receipt
 
+    def remove_collateral(self, pair_id, trade_index, remove_amount):
+        self.log(f"Remove collateral for trade for pair {pair_id}, index {trade_index}: {remove_amount} USDC")
+        account = self._get_account()
+
+        amount = to_base_units(remove_amount, decimals=6)
+
+        trade_tx = self.ostium_trading_contract.functions.removeCollateral(
+            int(pair_id), int(trade_index), int(amount)).build_transaction({'from': account.address})
+        trade_tx['nonce'] = self.get_nonce(account.address)
+
+        signed_tx = self.web3.eth.account.sign_transaction(
+            trade_tx, private_key=self.private_key)
+        trade_tx_hash = self.web3.eth.send_raw_transaction(
+            signed_tx.raw_transaction)
+        self.log(f"Remove Collateral TX Hash: {trade_tx_hash.hex()}")
+
+        remove_receipt = self.web3.eth.wait_for_transaction_receipt(
+            trade_tx_hash)
+        self.log(f"Remove Collateral Receipt: {remove_receipt}")
+        return remove_receipt
+
     def add_collateral(self, pairID, index, collateral):
         account = self._get_account()
         try:
