@@ -322,6 +322,38 @@ ostium_trading_storage_abi = [
         "inputs": [
             {
                 "internalType": "address",
+                "name": "target",
+                "type": "address"
+            }
+        ],
+        "name": "AddressEmptyCode",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "AddressInsufficientBalance",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FailedInnerCall",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidInitialization",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "_trader",
                 "type": "address"
             },
@@ -367,6 +399,22 @@ ostium_trading_storage_abi = [
         "type": "error"
     },
     {
+        "inputs": [],
+        "name": "NotInitializing",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "a",
+                "type": "address"
+            }
+        ],
+        "name": "NotManager",
+        "type": "error"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -394,6 +442,44 @@ ostium_trading_storage_abi = [
         "type": "error"
     },
     {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "bits",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "SafeCastOverflowedUintDowncast",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "SafeCastOverflowedUintToInt",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            }
+        ],
+        "name": "SafeERC20FailedOperation",
+        "type": "error"
+    },
+    {
         "inputs": [],
         "name": "WrongParams",
         "type": "error"
@@ -403,9 +489,9 @@ ostium_trading_storage_abi = [
         "inputs": [
             {
                 "indexed": False,
-                "internalType": "uint8",
+                "internalType": "uint64",
                 "name": "version",
-                "type": "uint8"
+                "type": "uint64"
             }
         ],
         "name": "Initialized",
@@ -457,58 +543,6 @@ ostium_trading_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "internalType": "address",
-                "name": "a",
-                "type": "address"
-            }
-        ],
-        "name": "SupportedTokenAdded",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "internalType": "address",
-                "name": "a",
-                "type": "address"
-            }
-        ],
-        "name": "TradingContractAdded",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "internalType": "address",
-                "name": "a",
-                "type": "address"
-            }
-        ],
-        "name": "TradingContractRemoved",
-        "type": "event"
-    },
-    {
-        "inputs": [],
-        "name": "canExecuteTimeout",
-        "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [],
         "name": "claimFees",
         "outputs": [],
@@ -519,11 +553,11 @@ ostium_trading_storage_abi = [
         "inputs": [],
         "name": "devFees",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -543,11 +577,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "firstEmptyOpenLimitIndex",
         "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -567,11 +601,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "firstEmptyTradeIndex",
         "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -596,73 +630,73 @@ ostium_trading_storage_abi = [
         ],
         "name": "getOpenLimitOrder",
         "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "uint256",
-                            "name": "collateral",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "targetPrice",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "tp",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "sl",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "address",
-                            "name": "trader",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "leverage",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "createdAt",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "lastUpdated",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint16",
-                            "name": "pairIndex",
-                            "type": "uint16"
-                        },
-                        {
-                            "internalType": "enum IOstiumTradingStorage.OpenOrderType",
-                            "name": "orderType",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "index",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "bool",
-                            "name": "buy",
-                            "type": "bool"
-                        }
-                    ],
-                    "internalType": "struct IOstiumTradingStorage.OpenLimitOrder",
-                    "name": "",
-                    "type": "tuple"
-                }
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "collateral",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "targetPrice",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "tp",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "sl",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "trader",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "leverage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "createdAt",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "lastUpdated",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "pairIndex",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "enum IOstiumTradingStorage.OpenOrderType",
+                        "name": "orderType",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "index",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "buy",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.OpenLimitOrder",
+                "name": "",
+                "type": "tuple"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -682,73 +716,73 @@ ostium_trading_storage_abi = [
         ],
         "name": "getOpenLimitOrderByIndex",
         "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "uint256",
-                            "name": "collateral",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "targetPrice",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "tp",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "sl",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "address",
-                            "name": "trader",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "leverage",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "createdAt",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "lastUpdated",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint16",
-                            "name": "pairIndex",
-                            "type": "uint16"
-                        },
-                        {
-                            "internalType": "enum IOstiumTradingStorage.OpenOrderType",
-                            "name": "orderType",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "index",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "bool",
-                            "name": "buy",
-                            "type": "bool"
-                        }
-                    ],
-                    "internalType": "struct IOstiumTradingStorage.OpenLimitOrder",
-                    "name": "",
-                    "type": "tuple"
-                }
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "collateral",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "targetPrice",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "tp",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "sl",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "trader",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "leverage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "createdAt",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "lastUpdated",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "pairIndex",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "enum IOstiumTradingStorage.OpenOrderType",
+                        "name": "orderType",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "index",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "buy",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.OpenLimitOrder",
+                "name": "",
+                "type": "tuple"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -763,73 +797,73 @@ ostium_trading_storage_abi = [
         ],
         "name": "getOpenLimitOrders",
         "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "uint256",
-                            "name": "collateral",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "targetPrice",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "tp",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "sl",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "address",
-                            "name": "trader",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "leverage",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "createdAt",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "lastUpdated",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint16",
-                            "name": "pairIndex",
-                            "type": "uint16"
-                        },
-                        {
-                            "internalType": "enum IOstiumTradingStorage.OpenOrderType",
-                            "name": "orderType",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "index",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "bool",
-                            "name": "buy",
-                            "type": "bool"
-                        }
-                    ],
-                    "internalType": "struct IOstiumTradingStorage.OpenLimitOrder[]",
-                    "name": "",
-                    "type": "tuple[]"
-                }
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "collateral",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "targetPrice",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "tp",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "sl",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "trader",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "leverage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "createdAt",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "lastUpdated",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "pairIndex",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "enum IOstiumTradingStorage.OpenOrderType",
+                        "name": "orderType",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "index",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "buy",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.OpenLimitOrder[]",
+                "name": "",
+                "type": "tuple[]"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -854,58 +888,58 @@ ostium_trading_storage_abi = [
         ],
         "name": "getOpenTrade",
         "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "uint256",
-                            "name": "collateral",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "openPrice",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "tp",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "sl",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "address",
-                            "name": "trader",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "leverage",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint16",
-                            "name": "pairIndex",
-                            "type": "uint16"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "index",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "bool",
-                            "name": "buy",
-                            "type": "bool"
-                        }
-                    ],
-                    "internalType": "struct IOstiumTradingStorage.Trade",
-                    "name": "",
-                    "type": "tuple"
-                }
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "collateral",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "openPrice",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "tp",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "sl",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "trader",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "leverage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "pairIndex",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "index",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "buy",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.Trade",
+                "name": "",
+                "type": "tuple"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -930,48 +964,48 @@ ostium_trading_storage_abi = [
         ],
         "name": "getOpenTradeInfo",
         "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "uint256",
-                            "name": "tradeId",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "oiNotional",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "initialLeverage",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "tpLastUpdated",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "slLastUpdated",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "createdAt",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "bool",
-                            "name": "beingMarketClosed",
-                            "type": "bool"
-                        }
-                    ],
-                    "internalType": "struct IOstiumTradingStorage.TradeInfo",
-                    "name": "",
-                    "type": "tuple"
-                }
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tradeId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "oiNotional",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "initialLeverage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "tpLastUpdated",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "slLastUpdated",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "createdAt",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "beingMarketClosed",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.TradeInfo",
+                "name": "",
+                "type": "tuple"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -986,20 +1020,20 @@ ostium_trading_storage_abi = [
         ],
         "name": "getPairOpeningInterestInfo",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                },
             {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             },
             {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -1015,11 +1049,52 @@ ostium_trading_storage_abi = [
         ],
         "name": "getPendingOrderIds",
         "outputs": [
-                {
-                    "internalType": "uint256[]",
-                    "name": "",
-                    "type": "uint256[]"
-                }
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getPendingRemoveCollateral",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "removeAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "trader",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "pairIndex",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "index",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.PendingRemoveCollateral",
+                "name": "",
+                "type": "tuple"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1054,40 +1129,16 @@ ostium_trading_storage_abi = [
         ],
         "name": "handleOpeningFees",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "devFee",
-                    "type": "uint256"
-                },
             {
-                    "internalType": "uint256",
-                    "name": "vaultFee",
-                    "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint16",
-                "name": "_pairIndex",
-                "type": "uint16"
+                "internalType": "uint256",
+                "name": "devFee",
+                "type": "uint256"
             },
             {
-                "internalType": "bool",
-                "name": "_fullFee",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "vaultFee",
+                "type": "uint256"
             }
-        ],
-        "name": "handleOracleFees",
-        "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "fee",
-                    "type": "uint256"
-                }
         ],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1112,11 +1163,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "hasOpenLimitOrder",
         "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1143,11 +1194,11 @@ ostium_trading_storage_abi = [
         "inputs": [],
         "name": "maxPendingMarketOrders",
         "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1156,11 +1207,11 @@ ostium_trading_storage_abi = [
         "inputs": [],
         "name": "maxTradesPerPair",
         "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1180,11 +1231,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "openInterest",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1209,11 +1260,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "openLimitOrderIds",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1233,11 +1284,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "openLimitOrdersCount",
         "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1262,50 +1313,50 @@ ostium_trading_storage_abi = [
         ],
         "name": "openTrades",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "collateral",
-                    "type": "uint256"
-                },
             {
-                    "internalType": "uint192",
-                    "name": "openPrice",
-                    "type": "uint192"
+                "internalType": "uint256",
+                "name": "collateral",
+                "type": "uint256"
             },
             {
-                    "internalType": "uint192",
-                    "name": "tp",
-                    "type": "uint192"
+                "internalType": "uint192",
+                "name": "openPrice",
+                "type": "uint192"
             },
             {
-                    "internalType": "uint192",
-                    "name": "sl",
-                    "type": "uint192"
+                "internalType": "uint192",
+                "name": "tp",
+                "type": "uint192"
             },
             {
-                    "internalType": "address",
-                    "name": "trader",
-                    "type": "address"
+                "internalType": "uint192",
+                "name": "sl",
+                "type": "uint192"
             },
             {
-                    "internalType": "uint32",
-                    "name": "leverage",
-                    "type": "uint32"
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
             },
             {
-                    "internalType": "uint16",
-                    "name": "pairIndex",
-                    "type": "uint16"
+                "internalType": "uint32",
+                "name": "leverage",
+                "type": "uint32"
             },
             {
-                    "internalType": "uint8",
-                    "name": "index",
-                    "type": "uint8"
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
             },
             {
-                    "internalType": "bool",
-                    "name": "buy",
-                    "type": "bool"
+                "internalType": "uint8",
+                "name": "index",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bool",
+                "name": "buy",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -1326,11 +1377,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "openTradesCount",
         "outputs": [
-                {
-                    "internalType": "uint32",
-                    "name": "",
-                    "type": "uint32"
-                }
+            {
+                "internalType": "uint32",
+                "name": "",
+                "type": "uint32"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1355,40 +1406,40 @@ ostium_trading_storage_abi = [
         ],
         "name": "openTradesInfo",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "tradeId",
-                    "type": "uint256"
-                },
             {
-                    "internalType": "uint256",
-                    "name": "oiNotional",
-                    "type": "uint256"
+                "internalType": "uint256",
+                "name": "tradeId",
+                "type": "uint256"
             },
             {
-                    "internalType": "uint32",
-                    "name": "initialLeverage",
-                    "type": "uint32"
+                "internalType": "uint256",
+                "name": "oiNotional",
+                "type": "uint256"
             },
             {
-                    "internalType": "uint32",
-                    "name": "tpLastUpdated",
-                    "type": "uint32"
+                "internalType": "uint32",
+                "name": "initialLeverage",
+                "type": "uint32"
             },
             {
-                    "internalType": "uint32",
-                    "name": "slLastUpdated",
-                    "type": "uint32"
+                "internalType": "uint32",
+                "name": "tpLastUpdated",
+                "type": "uint32"
             },
             {
-                    "internalType": "uint32",
-                    "name": "createdAt",
-                    "type": "uint32"
+                "internalType": "uint32",
+                "name": "slLastUpdated",
+                "type": "uint32"
             },
             {
-                    "internalType": "bool",
-                    "name": "beingMarketClosed",
-                    "type": "bool"
+                "internalType": "uint32",
+                "name": "createdAt",
+                "type": "uint32"
+            },
+            {
+                "internalType": "bool",
+                "name": "beingMarketClosed",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -1419,11 +1470,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "orderTriggerBlock",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1431,9 +1482,9 @@ ostium_trading_storage_abi = [
     {
         "inputs": [
             {
-                "internalType": "uint256",
+                "internalType": "uint16",
                 "name": "pairIndex",
-                "type": "uint256"
+                "type": "uint16"
             },
             {
                 "internalType": "uint256",
@@ -1443,65 +1494,65 @@ ostium_trading_storage_abi = [
         ],
         "name": "pairLimitOrders",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "collateral",
-                    "type": "uint256"
-                },
             {
-                    "internalType": "uint192",
-                    "name": "targetPrice",
-                    "type": "uint192"
+                "internalType": "uint256",
+                "name": "collateral",
+                "type": "uint256"
             },
             {
-                    "internalType": "uint192",
-                    "name": "tp",
-                    "type": "uint192"
+                "internalType": "uint192",
+                "name": "targetPrice",
+                "type": "uint192"
             },
             {
-                    "internalType": "uint192",
-                    "name": "sl",
-                    "type": "uint192"
+                "internalType": "uint192",
+                "name": "tp",
+                "type": "uint192"
             },
             {
-                    "internalType": "address",
-                    "name": "trader",
-                    "type": "address"
+                "internalType": "uint192",
+                "name": "sl",
+                "type": "uint192"
             },
             {
-                    "internalType": "uint32",
-                    "name": "leverage",
-                    "type": "uint32"
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
             },
             {
-                    "internalType": "uint32",
-                    "name": "createdAt",
-                    "type": "uint32"
+                "internalType": "uint32",
+                "name": "leverage",
+                "type": "uint32"
             },
             {
-                    "internalType": "uint32",
-                    "name": "lastUpdated",
-                    "type": "uint32"
+                "internalType": "uint32",
+                "name": "createdAt",
+                "type": "uint32"
             },
             {
-                    "internalType": "uint16",
-                    "name": "pairIndex",
-                    "type": "uint16"
+                "internalType": "uint32",
+                "name": "lastUpdated",
+                "type": "uint32"
             },
             {
-                    "internalType": "enum IOstiumTradingStorage.OpenOrderType",
-                    "name": "orderType",
-                    "type": "uint8"
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
             },
             {
-                    "internalType": "uint8",
-                    "name": "index",
-                    "type": "uint8"
+                "internalType": "enum IOstiumTradingStorage.OpenOrderType",
+                "name": "orderType",
+                "type": "uint8"
             },
             {
-                    "internalType": "bool",
-                    "name": "buy",
-                    "type": "bool"
+                "internalType": "uint8",
+                "name": "index",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bool",
+                "name": "buy",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -1522,11 +1573,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "pairTraders",
         "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1541,11 +1592,30 @@ ostium_trading_storage_abi = [
         ],
         "name": "pairTradersArray",
         "outputs": [
-                {
-                    "internalType": "address[]",
-                    "name": "",
-                    "type": "address[]"
-                }
+            {
+                "internalType": "address[]",
+                "name": "",
+                "type": "address[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint16",
+                "name": "_pairIndex",
+                "type": "uint16"
+            }
+        ],
+        "name": "pairTradersCount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1565,11 +1635,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "pairTradersId",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1589,11 +1659,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "pendingMarketCloseCount",
         "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1613,11 +1683,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "pendingMarketOpenCount",
         "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1637,11 +1707,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "pendingOrderIds",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1656,11 +1726,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "pendingOrderIdsCount",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1669,11 +1739,11 @@ ostium_trading_storage_abi = [
         "inputs": [],
         "name": "registry",
         "outputs": [
-                {
-                    "internalType": "contract IOstiumRegistry",
-                    "name": "",
-                    "type": "address"
-                }
+            {
+                "internalType": "contract IOstiumRegistry",
+                "name": "",
+                "type": "address"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -1688,25 +1758,25 @@ ostium_trading_storage_abi = [
         ],
         "name": "reqID_pendingAutomationOrder",
         "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "trader",
-                    "type": "address"
-                },
             {
-                    "internalType": "uint16",
-                    "name": "pairIndex",
-                    "type": "uint16"
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
             },
             {
-                    "internalType": "uint8",
-                    "name": "index",
-                    "type": "uint8"
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
             },
             {
-                    "internalType": "enum IOstiumTradingStorage.LimitOrder",
-                    "name": "orderType",
-                    "type": "uint8"
+                "internalType": "uint8",
+                "name": "index",
+                "type": "uint8"
+            },
+            {
+                "internalType": "enum IOstiumTradingStorage.LimitOrder",
+                "name": "orderType",
+                "type": "uint8"
             }
         ],
         "stateMutability": "view",
@@ -1722,72 +1792,111 @@ ostium_trading_storage_abi = [
         ],
         "name": "reqID_pendingMarketOrder",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "block",
-                    "type": "uint256"
-                },
             {
-                    "internalType": "uint192",
-                    "name": "wantedPrice",
-                    "type": "uint192"
+                "internalType": "uint256",
+                "name": "block",
+                "type": "uint256"
             },
             {
-                    "internalType": "uint32",
-                    "name": "slippageP",
-                    "type": "uint32"
+                "internalType": "uint192",
+                "name": "wantedPrice",
+                "type": "uint192"
             },
             {
-                    "components": [
-                        {
-                            "internalType": "uint256",
-                            "name": "collateral",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "openPrice",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "tp",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "uint192",
-                            "name": "sl",
-                            "type": "uint192"
-                        },
-                        {
-                            "internalType": "address",
-                            "name": "trader",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint32",
-                            "name": "leverage",
-                            "type": "uint32"
-                        },
-                        {
-                            "internalType": "uint16",
-                            "name": "pairIndex",
-                            "type": "uint16"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "index",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "bool",
-                            "name": "buy",
-                            "type": "bool"
-                        }
-                    ],
-                    "internalType": "struct IOstiumTradingStorage.Trade",
-                    "name": "trade",
-                    "type": "tuple"
+                "internalType": "uint32",
+                "name": "slippageP",
+                "type": "uint32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "collateral",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "openPrice",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "tp",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "sl",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "trader",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "leverage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "pairIndex",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "index",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "buy",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.Trade",
+                "name": "trade",
+                "type": "tuple"
+            },
+            {
+                "internalType": "uint16",
+                "name": "percentage",
+                "type": "uint16"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "reqID_pendingRemoveCollateral",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "removeAmount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
+            },
+            {
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
+            },
+            {
+                "internalType": "uint8",
+                "name": "index",
+                "type": "uint8"
             }
         ],
         "stateMutability": "view",
@@ -1807,6 +1916,24 @@ ostium_trading_storage_abi = [
             }
         ],
         "name": "setMaxOpenInterest",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint16[]",
+                "name": "_indices",
+                "type": "uint16[]"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "_newMaxOpenInterests",
+                "type": "uint256[]"
+            }
+        ],
+        "name": "setMaxOpenInterestArray",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -2050,9 +2177,14 @@ ostium_trading_storage_abi = [
                         "internalType": "struct IOstiumTradingStorage.Trade",
                         "name": "trade",
                         "type": "tuple"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "percentage",
+                        "type": "uint16"
                     }
                 ],
-                "internalType": "struct IOstiumTradingStorage.PendingMarketOrder",
+                "internalType": "struct IOstiumTradingStorage.PendingMarketOrderV2",
                 "name": "_order",
                 "type": "tuple"
             },
@@ -2068,6 +2200,46 @@ ostium_trading_storage_abi = [
             }
         ],
         "name": "storePendingMarketOrder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "removeAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "trader",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "pairIndex",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "index",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct IOstiumTradingStorage.PendingRemoveCollateral",
+                "name": "request",
+                "type": "tuple"
+            },
+            {
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            }
+        ],
+        "name": "storePendingRemoveCollateral",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -2184,11 +2356,11 @@ ostium_trading_storage_abi = [
         ],
         "name": "totalOpenLimitOrders",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -2197,11 +2369,11 @@ ostium_trading_storage_abi = [
         "inputs": [],
         "name": "totalOpenTradesCount",
         "outputs": [
-                {
-                    "internalType": "uint32",
-                    "name": "",
-                    "type": "uint32"
-                }
+            {
+                "internalType": "uint32",
+                "name": "",
+                "type": "uint32"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -2286,6 +2458,19 @@ ostium_trading_storage_abi = [
     {
         "inputs": [
             {
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            }
+        ],
+        "name": "unregisterPendingRemoveCollateral",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "_trader",
                 "type": "address"
@@ -2299,6 +2484,11 @@ ostium_trading_storage_abi = [
                 "internalType": "uint8",
                 "name": "_index",
                 "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_collateralToClose",
+                "type": "uint256"
             }
         ],
         "name": "unregisterTrade",
@@ -2529,11 +2719,11 @@ ostium_trading_storage_abi = [
         "inputs": [],
         "name": "usdc",
         "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -2585,6 +2775,11 @@ ostium_trading_abi = [
     {
         "inputs": [],
         "name": "ExposureLimits",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidInitialization",
         "type": "error"
     },
     {
@@ -2738,6 +2933,22 @@ ostium_trading_abi = [
         "type": "error"
     },
     {
+        "inputs": [],
+        "name": "NotInitializing",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "a",
+                "type": "address"
+            }
+        ],
+        "name": "NotManager",
+        "type": "error"
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint256",
@@ -2757,17 +2968,6 @@ ostium_trading_abi = [
             }
         ],
         "name": "NotTradesUpKeep",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "a",
-                "type": "address"
-            }
-        ],
-        "name": "NotWhitelisted",
         "type": "error"
     },
     {
@@ -2800,6 +3000,27 @@ ostium_trading_abi = [
             }
         ],
         "name": "PairNotListed",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "RemoveAmountTooHigh",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "bits",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "SafeCastOverflowedUintDowncast",
         "type": "error"
     },
     {
@@ -2917,6 +3138,12 @@ ostium_trading_abi = [
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint8",
+                "name": "index",
+                "type": "uint8"
             }
         ],
         "name": "AutomationOpenOrderInitiated",
@@ -2978,9 +3205,9 @@ ostium_trading_abi = [
         "inputs": [
             {
                 "indexed": False,
-                "internalType": "uint8",
+                "internalType": "uint64",
                 "name": "version",
-                "type": "uint8"
+                "type": "uint64"
             }
         ],
         "name": "Initialized",
@@ -3040,6 +3267,43 @@ ostium_trading_abi = [
             }
         ],
         "name": "MarketCloseOrderInitiated",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "tradeId",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint16",
+                "name": "closePercentage",
+                "type": "uint16"
+            }
+        ],
+        "name": "MarketCloseOrderInitiatedV2",
         "type": "event"
     },
     {
@@ -3134,6 +3398,105 @@ ostium_trading_abi = [
             }
         ],
         "name": "MarketCloseTimeoutExecuted",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "tradeId",
+                "type": "uint256"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "block",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "wantedPrice",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "slippageP",
+                        "type": "uint32"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "uint256",
+                                "name": "collateral",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint192",
+                                "name": "openPrice",
+                                "type": "uint192"
+                            },
+                            {
+                                "internalType": "uint192",
+                                "name": "tp",
+                                "type": "uint192"
+                            },
+                            {
+                                "internalType": "uint192",
+                                "name": "sl",
+                                "type": "uint192"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "trader",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint32",
+                                "name": "leverage",
+                                "type": "uint32"
+                            },
+                            {
+                                "internalType": "uint16",
+                                "name": "pairIndex",
+                                "type": "uint16"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "index",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "buy",
+                                "type": "bool"
+                            }
+                        ],
+                        "internalType": "struct IOstiumTradingStorage.Trade",
+                        "name": "trade",
+                        "type": "tuple"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "percentage",
+                        "type": "uint16"
+                    }
+                ],
+                "indexed": False,
+                "internalType": "struct IOstiumTradingStorage.PendingMarketOrderV2",
+                "name": "order",
+                "type": "tuple"
+            }
+        ],
+        "name": "MarketCloseTimeoutExecutedV2",
         "type": "event"
     },
     {
@@ -3247,6 +3610,99 @@ ostium_trading_abi = [
             }
         ],
         "name": "MarketOpenTimeoutExecuted",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "block",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint192",
+                        "name": "wantedPrice",
+                        "type": "uint192"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "slippageP",
+                        "type": "uint32"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "uint256",
+                                "name": "collateral",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint192",
+                                "name": "openPrice",
+                                "type": "uint192"
+                            },
+                            {
+                                "internalType": "uint192",
+                                "name": "tp",
+                                "type": "uint192"
+                            },
+                            {
+                                "internalType": "uint192",
+                                "name": "sl",
+                                "type": "uint192"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "trader",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint32",
+                                "name": "leverage",
+                                "type": "uint32"
+                            },
+                            {
+                                "internalType": "uint16",
+                                "name": "pairIndex",
+                                "type": "uint16"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "index",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "buy",
+                                "type": "bool"
+                            }
+                        ],
+                        "internalType": "struct IOstiumTradingStorage.Trade",
+                        "name": "trade",
+                        "type": "tuple"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "percentage",
+                        "type": "uint16"
+                    }
+                ],
+                "indexed": False,
+                "internalType": "struct IOstiumTradingStorage.PendingMarketOrderV2",
+                "name": "order",
+                "type": "tuple"
+            }
+        ],
+        "name": "MarketOpenTimeoutExecutedV2",
         "type": "event"
     },
     {
@@ -3392,6 +3848,86 @@ ostium_trading_abi = [
             },
             {
                 "indexed": True,
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "removeAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "RemoveCollateralInitiated",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "tradeId",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "removeAmount",
+                "type": "uint256"
+            },
+            {
+                "indexed": False,
+                "internalType": "string",
+                "name": "reason",
+                "type": "string"
+            }
+        ],
+        "name": "RemoveCollateralRejected",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "tradeId",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
@@ -3509,11 +4045,11 @@ ostium_trading_abi = [
         "inputs": [],
         "name": "_msgSender",
         "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3561,11 +4097,11 @@ ostium_trading_abi = [
         ],
         "name": "checkNoPendingTrigger",
         "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3590,11 +4126,11 @@ ostium_trading_abi = [
         ],
         "name": "checkNoPendingTriggers",
         "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3610,6 +4146,11 @@ ostium_trading_abi = [
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
+            },
+            {
+                "internalType": "uint16",
+                "name": "closePercentage",
+                "type": "uint16"
             }
         ],
         "name": "closeTradeMarket",
@@ -3650,11 +4191,11 @@ ostium_trading_abi = [
         ],
         "name": "delegatedAction",
         "outputs": [
-                {
-                    "internalType": "bytes",
-                    "name": "",
-                    "type": "bytes"
-                }
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
         ],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -3669,11 +4210,11 @@ ostium_trading_abi = [
         ],
         "name": "delegations",
         "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3715,11 +4256,11 @@ ostium_trading_abi = [
         ],
         "name": "executeAutomationOrder",
         "outputs": [
-                {
-                    "internalType": "enum IOstiumTrading.AutomationOrderStatus",
-                    "name": "",
-                    "type": "uint8"
-                }
+            {
+                "internalType": "enum IOstiumTrading.AutomationOrderStatus",
+                "name": "",
+                "type": "uint8"
+            }
         ],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -3756,11 +4297,11 @@ ostium_trading_abi = [
         "inputs": [],
         "name": "isDone",
         "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3769,11 +4310,11 @@ ostium_trading_abi = [
         "inputs": [],
         "name": "isPaused",
         "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3782,11 +4323,11 @@ ostium_trading_abi = [
         "inputs": [],
         "name": "marketOrdersTimeout",
         "outputs": [
-                {
-                    "internalType": "uint16",
-                    "name": "",
-                    "type": "uint16"
-                }
+            {
+                "internalType": "uint16",
+                "name": "",
+                "type": "uint16"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3795,11 +4336,11 @@ ostium_trading_abi = [
         "inputs": [],
         "name": "maxAllowedCollateral",
         "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -3896,6 +4437,42 @@ ostium_trading_abi = [
     },
     {
         "inputs": [],
+        "name": "registry",
+        "outputs": [
+            {
+                "internalType": "contract IOstiumRegistry",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint16",
+                "name": "pairIndex",
+                "type": "uint16"
+            },
+            {
+                "internalType": "uint8",
+                "name": "index",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "removeAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "removeCollateral",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "removeDelegate",
         "outputs": [],
         "stateMutability": "nonpayable",
@@ -3980,11 +4557,11 @@ ostium_trading_abi = [
         "inputs": [],
         "name": "triggerTimeout",
         "outputs": [
-                {
-                    "internalType": "uint16",
-                    "name": "",
-                    "type": "uint16"
-                }
+            {
+                "internalType": "uint16",
+                "name": "",
+                "type": "uint16"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
