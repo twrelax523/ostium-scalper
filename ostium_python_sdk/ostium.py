@@ -135,12 +135,14 @@ class Ostium:
         self.log(f"Cancel Limit Order Receipt: {trade_receipt}")
         return trade_receipt
 
-    def close_trade(self, pair_id, trade_index):
+    def close_trade(self, pair_id, trade_index, close_percentage = 100):
         self.log(f"Closing trade for pair {pair_id}, index {trade_index}")
         account = self._get_account()
 
+        close_percentage = to_base_units(close_percentage, decimals=2)
+
         trade_tx = self.ostium_trading_contract.functions.closeTradeMarket(
-            int(pair_id), int(trade_index)).build_transaction({'from': account.address})
+            int(pair_id), int(trade_index), int(close_percentage)).build_transaction({'from': account.address})
         trade_tx['nonce'] = self.get_nonce(account.address)
 
         signed_tx = self.web3.eth.account.sign_transaction(
