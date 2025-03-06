@@ -17,7 +17,8 @@ Basically you can perfrom any operation that is supported by the Ostium's web si
 
 - Get list of feeds and their details
 - Create a Trade/Order
-- Close a Trade, Set Take Profit, Set Stop Loss
+- Close a Trade, Partial Close a trade, Set Take Profit, Set Stop Loss
+- Add Colleteral, Remove Collateral
 - Cancel an Order, Set Take Profit, Set Stop Loss, Set Entry Price
 - Read Open Trades aka Positions
 - Read Open Orders (Limit, Stop)
