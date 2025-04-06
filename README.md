@@ -113,10 +113,10 @@ if not rpc_url:
 
 # Initialize SDK (default: verbose=False for quiet operation)
 configTestnet = NetworkConfig.testnet()
-sdk = OstiumSDK(configTestnet, private_key)
+sdk = OstiumSDK(configTestnet, private_key, rpc_url)
 
 # For verbose mode with detailed logging:
-sdk = OstiumSDK(configTestnet, private_key, verbose=True)
+sdk = OstiumSDK(configTestnet, private_key, rpc_url, verbose=True)
 ```
 
 <b>NOTE:</b> create a .env file with PRIVATE_KEY and RPC_URL to use the SDK. An RPC URL is required to use the SDK. You can get one by signing up for a free account at https://www.alchemy.com/ and creating an app. 
@@ -140,7 +140,7 @@ As you can see above, we show use case on testnet. In order to use Ostium on tes
 ```python
 # Get current token amount from faucet
 # On testnet
-sdk = OstiumSDK(NetworkConfig.testnet(), private_key)
+sdk = OstiumSDK(NetworkConfig.testnet(), private_key, rpc_url)
 
 # Check if tokens can be requested
 if sdk.faucet.can_request_tokens(address):
@@ -223,20 +223,20 @@ if not rpc_url:
 
 # Initialize SDK
 config = NetworkConfig.testnet()
-sdk = OstiumSDK(config, private_key)
+sdk = OstiumSDK(config, private_key, rpc_url)
 
 # Or, initialize:
 #
 # (1) mainnet:
 #
 # config = NetworkConfig.mainnet()
-# sdk = OstiumSDK(config, private_key)
+# sdk = OstiumSDK(config, private_key, rpc_url)
 # 
 # (2) with explicit private key & rpc url, i.e: not read from env variables
 # sdk = OstiumSDK(
 #     network="arbitrum",
 #     private_key="your_private_key_here",
-#     rpc_url="https://arb1.arbitrum.io/rpc"
+#     rpc_url="https://arb1.arbitrum.io/rpc...."
 # )
 
 # Get all available pairs
@@ -352,7 +352,7 @@ if not rpc_url:
 
 # Initialize SDK
 config = NetworkConfig.testnet()
-sdk = OstiumSDK(config, private_key)
+sdk = OstiumSDK(config, private_key, rpc_url)
 
 # Define trade parameters
 order_params = {
