@@ -383,6 +383,8 @@ try:
     open_orders = await sdk.subgraph.get_orders(trader_public_address)
     for order_index, order_data in enumerate(open_orders):
         print(f"Order {order_index + 1}: {order_data}\n")
+        limit_type, _, _, _, _, _, _, pairIndex, index, _, _ = get_order_details(order_data)
+        print(f"You can cancel_limit_order using pair_id: {pairIndex} and index: {index}\n")
 
     if len(open_orders) == 0:
         print(
