@@ -5,6 +5,27 @@ All notable changes to the Ostium Python SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2025-03-09
+
+### Added
+- Ability to not supply a private key on SDK instantiation and supply it alternatively when calling the following methods, so the SDK can be instantiated once and perform actions on multiple accounts:
+
+Ostium:
+--- perform_trade()
+--- close_trade()
+--- remove_collateral()
+
+SDK methods:
+--- get_open_trades()
+--- get_open_trade_metrics()
+
+cancel_limit_order
+add_collateral
+update_tp
+update_sl
+update_limit_order
+withdraw
+
 ## [2.0.3] - 2025-03-06
 
 ### Added

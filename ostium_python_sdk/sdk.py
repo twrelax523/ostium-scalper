@@ -86,8 +86,14 @@ class OstiumSDK:
         if self.verbose:
             print(message)
 
-    async def get_open_trades(self):
-        trader_public_address = self.ostium.get_public_address()
+    async def get_open_trades(self, public_address=None):
+        print(f"**** sdk given public_address: {public_address}")
+        try:
+            trader_public_address = public_address or self.ostium.get_public_address()
+        except ValueError:
+            raise ValueError(
+                "No Private key supplied on SDK instantiation nor public address supplied to get_open_trades()")
+
         self.log(f"Trader public address: {trader_public_address}")
         open_trades = await self.subgraph.get_open_trades(trader_public_address)
         return open_trades, trader_public_address
@@ -96,8 +102,8 @@ class OstiumSDK:
     # such as: funding fee, roll over fee, Unrealized Pnl, Profit Percent, etc.
     #
     # Will thorw in case SDK instantiated with no private key
-    async def get_open_trade_metrics(self, pair_id, trade_index):
-        open_trades, trader_public_address = await self.get_open_trades()
+    async def get_open_trade_metrics(self, pair_id, trade_index, public_address=None):
+        open_trades, trader_public_address = await self.get_open_trades(public_address)
 
         trade_details = None
 

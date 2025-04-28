@@ -14,10 +14,10 @@ class OpenOrderType(Enum):
 
 
 class Ostium:
-    def __init__(self, w3: Web3, usdc_address: str, ostium_trading_storage_address: str, ostium_trading_address: str, private_key: str, verbose=False) -> None:
+    def __init__(self, w3: Web3, usdc_address: str, ostium_trading_storage_address: str, ostium_trading_address: str, private_key: str = None, verbose=False) -> None:
         self.web3 = w3
         self.verbose = verbose
-        self.private_key = private_key
+        self.default_private_key = private_key
         self.usdc_address = usdc_address
         self.ostium_trading_storage_address = ostium_trading_storage_address
         self.ostium_trading_address = ostium_trading_address
@@ -42,14 +42,18 @@ class Ostium:
     def get_slippage_percentage(self):
         return self.slippage_percentage
 
-    def get_public_address(self):
-        public_address = self._get_account().address
-        return public_address
+    def _get_account(self, private_key=None):
+        if private_key and self.default_private_key:
+            raise ValueError("Cannot provide both private key and default private key")
 
-    def _get_account(self) -> Account:
-        self._check_private_key()
-        """Get account from stored private key"""
-        return self.web3.eth.account.from_key(self.private_key)
+        key_to_use = private_key or self.default_private_key
+        if not key_to_use:
+            raise ValueError("No private key provided")
+        
+        return self.web3.eth.account.from_key(key_to_use)
+
+    def get_public_address(self, private_key=None):
+        return self._get_account(private_key).address
 
     def get_block_number(self):
         return self.web3.eth.get_block('latest')['number']
@@ -57,16 +61,11 @@ class Ostium:
     def get_nonce(self, address):
         return self.web3.eth.get_transaction_count(address)
 
-    def _check_private_key(self):
-        if not self.private_key:
-            raise ValueError(
-                "Private key is required for Ostium platform write-operations")
-
-    def perform_trade(self, trade_params, at_price):
+    def perform_trade(self, trade_params, at_price, private_key=None):
         self.log(f"Performing trade with params: {trade_params}")
-        account = self._get_account()
+        account = self._get_account(private_key)
         amount = to_base_units(trade_params['collateral'], decimals=6)
-        self.__approve(account, amount)
+        self.__approve(account, amount, private_key)
 
         try:
             self.log(f"Final trade parameters being sent: {trade_params}")
@@ -101,7 +100,7 @@ class Ostium:
             trade_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
-                trade_tx, private_key=self.private_key)
+                trade_tx, private_key=private_key or self.default_private_key)
             trade_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             trade_receipt = self.web3.eth.wait_for_transaction_receipt(
@@ -117,15 +116,15 @@ class Ostium:
             raise Exception(
                 f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
-    def cancel_limit_order(self, pair_id, trade_index):
-        account = self._get_account()
+    def cancel_limit_order(self, pair_id, trade_index, private_key=None):
+        account = self._get_account(private_key)
 
         trade_tx = self.ostium_trading_contract.functions.cancelOpenLimitOrder(
             int(pair_id), int(trade_index)).build_transaction({'from': account.address})
         trade_tx['nonce'] = self.get_nonce(account.address)
 
         signed_tx = self.web3.eth.account.sign_transaction(
-            trade_tx, private_key=self.private_key)
+            trade_tx, private_key=private_key or self.default_private_key)
         trade_tx_hash = self.web3.eth.send_raw_transaction(
             signed_tx.raw_transaction)
         self.log(f"Cancel Limit Order TX Hash: {trade_tx_hash.hex()}")
@@ -135,18 +134,22 @@ class Ostium:
         self.log(f"Cancel Limit Order Receipt: {trade_receipt}")
         return trade_receipt
 
-    def close_trade(self, pair_id, trade_index, close_percentage = 100):
+    def close_trade(self, pair_id, trade_index, close_percentage=100, private_key=None):
         self.log(f"Closing trade for pair {pair_id}, index {trade_index}")
-        account = self._get_account()
+        account = self._get_account(private_key)
 
         close_percentage = to_base_units(close_percentage, decimals=2)
 
         trade_tx = self.ostium_trading_contract.functions.closeTradeMarket(
-            int(pair_id), int(trade_index), int(close_percentage)).build_transaction({'from': account.address})
+            int(pair_id),
+            int(trade_index),
+            int(close_percentage)
+        ).build_transaction({'from': account.address})
+
         trade_tx['nonce'] = self.get_nonce(account.address)
 
         signed_tx = self.web3.eth.account.sign_transaction(
-            trade_tx, private_key=self.private_key)
+            trade_tx, private_key=private_key or self.default_private_key)
         trade_tx_hash = self.web3.eth.send_raw_transaction(
             signed_tx.raw_transaction)
         self.log(f"Trade TX Hash: {trade_tx_hash.hex()}")
@@ -156,9 +159,9 @@ class Ostium:
         self.log(f"Trade Receipt: {trade_receipt}")
         return trade_receipt
 
-    def remove_collateral(self, pair_id, trade_index, remove_amount):
+    def remove_collateral(self, pair_id, trade_index, remove_amount, private_key=None):
         self.log(f"Remove collateral for trade for pair {pair_id}, index {trade_index}: {remove_amount} USDC")
-        account = self._get_account()
+        account = self._get_account(private_key)
 
         amount = to_base_units(remove_amount, decimals=6)
 
@@ -167,7 +170,7 @@ class Ostium:
         trade_tx['nonce'] = self.get_nonce(account.address)
 
         signed_tx = self.web3.eth.account.sign_transaction(
-            trade_tx, private_key=self.private_key)
+            trade_tx, private_key=private_key or self.default_private_key)
         trade_tx_hash = self.web3.eth.send_raw_transaction(
             signed_tx.raw_transaction)
         self.log(f"Remove Collateral TX Hash: {trade_tx_hash.hex()}")
@@ -177,18 +180,18 @@ class Ostium:
         self.log(f"Remove Collateral Receipt: {remove_receipt}")
         return remove_receipt
 
-    def add_collateral(self, pairID, index, collateral):
-        account = self._get_account()
+    def add_collateral(self, pair_id, trade_index, collateral_amount, private_key=None):
+        account = self._get_account(private_key)
         try:
-            amount = to_base_units(collateral, decimals=6)
-            self.__approve(account, amount)
+            amount = to_base_units(collateral_amount, decimals=6)
+            self.__approve(account, amount, private_key)
 
             add_collateral_tx = self.ostium_trading_contract.functions.topUpCollateral(
-                int(pairID), int(index), amount).build_transaction({'from': account.address})
+                int(pair_id), int(trade_index), amount).build_transaction({'from': account.address})
             add_collateral_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
-                add_collateral_tx, private_key=self.private_key)
+                add_collateral_tx, private_key=private_key or self.default_private_key)
             add_collateral_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Add Collateral TX Hash: {add_collateral_tx_hash.hex()}")
@@ -203,10 +206,10 @@ class Ostium:
             traceback.print_exc()
             raise e
 
-    def update_tp(self, pair_id, trade_index, tp_price):
+    def update_tp(self, pair_id, trade_index, tp_price, private_key=None):
         self.log(
             f"Updating TP for pair {pair_id}, index {trade_index} to {tp_price}")
-        account = self._get_account()
+        account = self._get_account(private_key)
         try:
             tp_value = to_base_units(tp_price, decimals=18)
 
@@ -215,7 +218,7 @@ class Ostium:
             update_tp_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
-                update_tp_tx, private_key=self.private_key)
+                update_tp_tx, private_key=private_key or self.default_private_key)
             update_tp_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Update TP TX Hash: {update_tp_tx_hash.hex()}")
@@ -225,17 +228,17 @@ class Ostium:
             traceback.print_exc()
             raise e
 
-    def update_sl(self, pairID, index, sl):
-        account = self._get_account()
+    def update_sl(self, pair_id, trade_index, sl_price, private_key=None):
+        account = self._get_account(private_key)
         try:
-            sl_value = to_base_units(sl, decimals=18)
+            sl_value = to_base_units(sl_price, decimals=18)
 
             update_sl_tx = self.ostium_trading_contract.functions.updateSl(
-                int(pairID), int(index), sl_value).build_transaction({'from': account.address})
+                int(pair_id), int(trade_index), sl_value).build_transaction({'from': account.address})
             update_sl_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
-                update_sl_tx, private_key=self.private_key)
+                update_sl_tx, private_key=private_key or self.default_private_key)
             update_sl_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Update SL TX Hash: {update_sl_tx_hash.hex()}")
@@ -248,7 +251,7 @@ class Ostium:
             raise Exception(
                 f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
-    def __approve(self, account, collateral):
+    def __approve(self, account, collateral, private_key=None):
         allowance = self.usdc_contract.functions.allowance(
             account.address, self.ostium_trading_storage_address).call()
 
@@ -261,7 +264,7 @@ class Ostium:
             approve_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
-                approve_tx, private_key=self.private_key)
+                approve_tx, private_key=private_key or self.default_private_key)
             approve_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Approval TX Hash: {approve_tx_hash.hex()}")
@@ -270,8 +273,8 @@ class Ostium:
                 approve_tx_hash)
             self.log(f"Approval Receipt: {approve_receipt}")
 
-    def withdraw(self, amount, receiving_address):
-        account = self._get_account()
+    def withdraw(self, amount, receiving_address, private_key=None):
+        account = self._get_account(private_key)
 
         try:
             amount_in_base_units = to_base_units(amount, decimals=6)
@@ -287,7 +290,7 @@ class Ostium:
             transfer_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
-                transfer_tx, private_key=self.private_key)
+                transfer_tx, private_key=private_key or self.default_private_key)
             transfer_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Transfer TX Hash: {transfer_tx_hash.hex()}")
@@ -305,9 +308,10 @@ class Ostium:
             raise Exception(
                 f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
-    def update_limit_order(self, pair_id, index, pvt_key, price=None, tp=None, sl=None):
+    def update_limit_order(self, pair_id, index, private_key=None, price=None, tp=None, sl=None):
         try:
-            account = self.web3.eth.account.from_key(pvt_key)
+            # account = self.web3.eth.account.from_key(private_key)
+            account = self._get_account(private_key)
             # Get existing order details (tbd why read from storage)
             existing_order = self.ostium_trading_storage_contract.functions.getOpenLimitOrder(
                 account.address,
@@ -335,7 +339,7 @@ class Ostium:
             trade_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
-                trade_tx, private_key=account.key)
+                trade_tx, private_key=private_key or self.default_private_key)
             trade_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Update Limit Order TX Hash: {trade_tx_hash.hex()}")
