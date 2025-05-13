@@ -149,6 +149,14 @@ class OstiumSDK:
             ff_short-rollover_value, precision=4)
         return net_long_percent, net_short_percent
 
+    async def get_rollover_rate_for_pair_id(self, pair_id, period_hours=24):
+        pair_details = await self.subgraph.get_pair_details(pair_id)
+        rollover_fee_per_block = Decimal(
+            pair_details['rolloverFeePerBlock']) / Decimal('1e18')
+        rollover = calculate_fee_per_hours(
+            rollover_fee_per_block, hours=period_hours)
+        return rollover
+
     async def get_funding_rate_for_pair_id(self, pair_id, period_hours=24):
         pair_details = await self.subgraph.get_pair_details(pair_id)
         # get the block number
