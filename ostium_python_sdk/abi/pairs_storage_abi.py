@@ -128,16 +128,16 @@ pairs_storage_abi = [
         "type": "error"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bytes32",
                 "name": "name",
                 "type": "bytes32"
@@ -147,10 +147,10 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
@@ -160,16 +160,16 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bytes32",
                 "name": "name",
                 "type": "bytes32"
@@ -179,10 +179,10 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
@@ -192,10 +192,10 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint64",
                 "name": "version",
                 "type": "uint64"
@@ -205,22 +205,22 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "index",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bytes32",
                 "name": "from",
                 "type": "bytes32"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bytes32",
                 "name": "to",
                 "type": "bytes32"
@@ -230,16 +230,16 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bytes32",
                 "name": "feed",
                 "type": "bytes32"
@@ -249,16 +249,16 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint32",
                 "name": "maxLeverage",
                 "type": "uint32"
@@ -268,16 +268,16 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint32",
                 "name": "overnightMaxLeverage",
                 "type": "uint32"
@@ -287,22 +287,22 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "index",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bytes32",
                 "name": "from",
                 "type": "bytes32"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bytes32",
                 "name": "to",
                 "type": "bytes32"
@@ -312,10 +312,10 @@ pairs_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "index",
                 "type": "uint16"

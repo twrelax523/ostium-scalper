@@ -176,10 +176,10 @@ trading_storage_abi = [
         "type": "error"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint64",
                 "name": "version",
                 "type": "uint64"
@@ -189,16 +189,16 @@ trading_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -208,10 +208,10 @@ trading_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -221,10 +221,10 @@ trading_storage_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"

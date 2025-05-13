@@ -350,34 +350,34 @@ trading_abi = [
         "type": "error"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "enum IOstiumTradingStorage.LimitOrder",
                 "name": "",
                 "type": "uint8"
@@ -387,28 +387,28 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
@@ -418,16 +418,16 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "delegator",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "delegate",
                 "type": "address"
@@ -437,16 +437,16 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "delegator",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "delegate",
                 "type": "address"
@@ -456,10 +456,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bool",
                 "name": "done",
                 "type": "bool"
@@ -469,10 +469,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint64",
                 "name": "version",
                 "type": "uint64"
@@ -482,22 +482,22 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
@@ -507,28 +507,28 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
@@ -538,34 +538,34 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "closePercentage",
                 "type": "uint16"
@@ -575,16 +575,16 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
@@ -659,7 +659,7 @@ trading_abi = [
                         "type": "tuple"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumTradingStorage.PendingMarketOrder",
                 "name": "order",
                 "type": "tuple"
@@ -669,16 +669,16 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
@@ -758,7 +758,7 @@ trading_abi = [
                         "type": "uint16"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumTradingStorage.PendingMarketOrderV2",
                 "name": "order",
                 "type": "tuple"
@@ -768,22 +768,22 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
@@ -793,10 +793,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
@@ -871,7 +871,7 @@ trading_abi = [
                         "type": "tuple"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumTradingStorage.PendingMarketOrder",
                 "name": "order",
                 "type": "tuple"
@@ -881,10 +881,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
@@ -964,7 +964,7 @@ trading_abi = [
                         "type": "uint16"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumTradingStorage.PendingMarketOrderV2",
                 "name": "order",
                 "type": "tuple"
@@ -974,10 +974,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "value",
                 "type": "uint16"
@@ -987,10 +987,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -1000,22 +1000,22 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
@@ -1025,22 +1025,22 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
@@ -1050,40 +1050,40 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint192",
                 "name": "newPrice",
                 "type": "uint192"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint192",
                 "name": "newTp",
                 "type": "uint192"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint192",
                 "name": "newSl",
                 "type": "uint192"
@@ -1093,28 +1093,28 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -1124,22 +1124,22 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -1149,28 +1149,28 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -1180,10 +1180,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "bool",
                 "name": "paused",
                 "type": "bool"
@@ -1193,34 +1193,34 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "removeAmount",
                 "type": "uint256"
@@ -1230,40 +1230,40 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "removeAmount",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "string",
                 "name": "reason",
                 "type": "string"
@@ -1273,34 +1273,34 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint192",
                 "name": "newSl",
                 "type": "uint192"
@@ -1310,34 +1310,34 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "topUpAmount",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint32",
                 "name": "newLeverage",
                 "type": "uint32"
@@ -1347,34 +1347,34 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint192",
                 "name": "newTp",
                 "type": "uint192"
@@ -1384,10 +1384,10 @@ trading_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "value",
                 "type": "uint16"

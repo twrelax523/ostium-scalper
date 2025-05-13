@@ -107,34 +107,34 @@ pairs_info_abi = [
         "type": "error"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "valueLong",
                 "type": "int256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "valueShort",
                 "type": "int256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int64",
                 "name": "lastFundingRate",
                 "type": "int64"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int64",
                 "name": "velocity",
                 "type": "int64"
@@ -144,34 +144,34 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "valueLong",
                 "type": "int256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "valueShort",
                 "type": "int256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "lastOiDelta",
                 "type": "int256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int64",
                 "name": "lastFundingRate",
                 "type": "int64"
@@ -181,16 +181,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -200,34 +200,34 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "orderId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "rolloverFees",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "fundingFees",
                 "type": "int256"
@@ -237,16 +237,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -256,28 +256,28 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "hillInflectionPoint",
                 "type": "int256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "hillPosScale",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "hillNegScale",
                 "type": "uint256"
@@ -287,10 +287,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint64",
                 "name": "version",
                 "type": "uint64"
@@ -300,16 +300,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int64",
                 "name": "value",
                 "type": "int64"
@@ -319,10 +319,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -332,10 +332,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -345,10 +345,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "address",
                 "name": "value",
                 "type": "address"
@@ -358,16 +358,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -377,16 +377,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -396,10 +396,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -409,16 +409,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -428,16 +428,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -447,16 +447,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -466,10 +466,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
@@ -517,7 +517,7 @@ pairs_info_abi = [
                         "type": "uint16"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumPairInfos.PairFundingFees",
                 "name": "value",
                 "type": "tuple"
@@ -527,10 +527,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
@@ -598,7 +598,7 @@ pairs_info_abi = [
                         "type": "int256"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumPairInfos.PairFundingFeesV2",
                 "name": "value",
                 "type": "tuple"
@@ -608,10 +608,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
@@ -649,7 +649,7 @@ pairs_info_abi = [
                         "type": "uint8"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumPairInfos.PairOpeningFees",
                 "name": "value",
                 "type": "tuple"
@@ -659,10 +659,10 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
@@ -700,7 +700,7 @@ pairs_info_abi = [
                         "type": "uint16"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumPairInfos.PairRolloverFees",
                 "name": "value",
                 "type": "tuple"
@@ -710,22 +710,22 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "volatility",
                 "type": "uint256"
@@ -735,40 +735,40 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "tradeId",
                 "type": "uint256"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "trader",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "index",
                 "type": "uint8"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "rollover",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "funding",
                 "type": "int256"
@@ -778,16 +778,16 @@ pairs_info_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "pairIndex",
                 "type": "uint16"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint8",
                 "name": "value",
                 "type": "uint8"

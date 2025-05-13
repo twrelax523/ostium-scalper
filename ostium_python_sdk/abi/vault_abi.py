@@ -407,40 +407,40 @@ vault_abi = [
         "type": "error"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint256",
                 "name": "newEpoch",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "prevPositiveOpenPnl",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "newPositiveOpenPnl",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "newEpochPositiveOpenPnl",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "int256",
                 "name": "newAccPnlPerTokenUsed",
                 "type": "int256"
@@ -450,16 +450,16 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "string",
                 "name": "name",
                 "type": "string"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "address",
                 "name": "value",
                 "type": "address"
@@ -469,22 +469,22 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "owner",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "spender",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -494,22 +494,22 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "user",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "assets",
                 "type": "uint256"
@@ -519,22 +519,22 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "receiver",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "assets",
                 "type": "uint256"
@@ -544,10 +544,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -557,34 +557,34 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [],
         "name": "DailyAccPnlDeltaReset",
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "owner",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "assets",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "shares",
                 "type": "uint256"
@@ -594,22 +594,22 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "owner",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "depositId",
                 "type": "uint256"
@@ -647,7 +647,7 @@ vault_abi = [
                         "type": "uint32"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumVault.LockedDeposit",
                 "name": "d",
                 "type": "tuple"
@@ -657,28 +657,28 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "receiver",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "owner",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "depositId",
                 "type": "uint256"
@@ -716,7 +716,7 @@ vault_abi = [
                         "type": "uint32"
                     }
                 ],
-                "indexed": false,
+                "indexed": False,
                 "internalType": "struct IOstiumVault.LockedDeposit",
                 "name": "d",
                 "type": "tuple"
@@ -726,10 +726,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint64",
                 "name": "version",
                 "type": "uint64"
@@ -739,10 +739,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -752,10 +752,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -765,10 +765,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -778,10 +778,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -791,10 +791,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -804,28 +804,28 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [],
         "name": "OpenPnlCallFailed",
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "assets",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "accRewardsPerToken",
                 "type": "uint256"
@@ -835,10 +835,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -848,22 +848,22 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "from",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "to",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
@@ -873,34 +873,34 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "receiver",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "owner",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "assets",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "shares",
                 "type": "uint256"
@@ -910,34 +910,34 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "owner",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "shares",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "currEpoch",
                 "type": "uint16"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "unlockEpoch",
                 "type": "uint16"
@@ -947,10 +947,10 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16[2]",
                 "name": "value",
                 "type": "uint16[2]"
@@ -960,34 +960,34 @@ vault_abi = [
         "type": "event"
     },
     {
-        "anonymous": false,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "address",
                 "name": "owner",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint256",
                 "name": "shares",
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": False,
                 "internalType": "uint16",
                 "name": "currEpoch",
                 "type": "uint16"
             },
             {
-                "indexed": true,
+                "indexed": True,
                 "internalType": "uint16",
                 "name": "unlockEpoch",
                 "type": "uint16"

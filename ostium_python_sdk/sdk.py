@@ -86,8 +86,12 @@ class OstiumSDK:
         if self.verbose:
             print(message)
 
-    async def get_open_trades(self):
-        trader_public_address = self.ostium.get_public_address()
+    async def get_open_trades(self, trader_address = None):
+        if trader_address is None:
+            trader_public_address = self.ostium.get_public_address()
+        else:
+            trader_public_address = trader_address
+            
         self.log(f"Trader public address: {trader_public_address}")
         open_trades = await self.subgraph.get_open_trades(trader_public_address)
         return open_trades, trader_public_address
