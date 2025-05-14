@@ -26,9 +26,9 @@ async def main():
     load_dotenv()
 
     # Get delegate private key and trader address
-    delegate_private_key = os.getenv('DELEGATE_PRIVATE_KEY')
+    delegate_private_key = os.getenv('PRIVATE_KEY')
     if not delegate_private_key:
-        raise ValueError("DELEGATE_PRIVATE_KEY not found in .env file")
+        raise ValueError("PRIVATE_KEY not found in .env file")
         
     trader_address = os.getenv('TRADER_ADDRESS')
     if not trader_address:
@@ -42,10 +42,7 @@ async def main():
     config = NetworkConfig.mainnet()  # Use testnet() for testing
     
     # Initialize SDK with the delegate's private key and enable delegation
-    sdk = OstiumSDK(config, delegate_private_key, rpc_url, verbose=True)
-    
-    # Enable delegation in the Ostium instance
-    sdk.ostium.use_delegation = True
+    sdk = OstiumSDK(config, delegate_private_key, rpc_url, verbose=True, use_delegation=True)
     
     # Get the delegate's address (the account executing trades)
     delegate_address = sdk.ostium.get_public_address()
@@ -54,8 +51,8 @@ async def main():
     
     # Define trade parameters - specify the trader_address for delegation
     trade_params = {
-        'collateral': 10,        # USDC amount
-        'leverage': 50,          # Leverage multiplier
+        'collateral': 20,        # USDC amount
+        'leverage': 100,          # Leverage multiplier
         'asset_type': 0,         # 0 for BTC, see pair_details in README for other asset types
         'direction': True,       # True for Long, False for Short
         'order_type': 'MARKET',  # 'MARKET', 'LIMIT', or 'STOP'
@@ -83,7 +80,7 @@ async def main():
             
             # Track the order until it's processed and get the resulting trade
             print("\nTracking order status...")
-            result = await sdk.track_order(order_id)
+            result = await sdk.ostium.track_order_and_trade(sdk.subgraph, order_id)
             
             if result['order']:
                 order = result['order']
@@ -101,8 +98,8 @@ async def main():
                     pair_id = int(order['pair']['id'])
                     trade_index = int(trade['index'])
                     
-                    print("\n\nNow demonstrating closing 50% of the position...")
-                    close_percentage = 50
+                    print("\n\nNow demonstrating closing 100% of the position...")
+                    close_percentage = 100
                     
                     # Close part of the trade using delegatedAction
                     close_result = sdk.ostium.close_trade(
@@ -121,7 +118,7 @@ async def main():
                     
                     # Track the closing order
                     print("\nTracking close order status...")
-                    close_result = await sdk.track_order(close_order_id)
+                    close_result = await sdk.ostium.track_order_and_trade(sdk.subgraph, close_order_id)
                     
                     if close_result['order']:
                         close_order = close_result['order']

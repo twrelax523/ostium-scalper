@@ -92,7 +92,7 @@ class Ostium:
         self.log(f"Performing trade with params: {trade_params}")
         account = self._get_account()
         amount = to_base_units(trade_params['collateral'], decimals=6)
-        self.__approve(account, amount, self.use_delegation)
+        self.__approve(account, amount, self.use_delegation, trade_params.get('trader_address'))
 
         try:
             self.log(f"Final trade parameters being sent: {trade_params}")
@@ -129,11 +129,14 @@ class Ostium:
                 trader_address = trade_params['trader_address']
                 self.log(f"Using delegatedAction to trade on behalf of {trader_address}")
                 
-                # Create the encoded inner function call (openTrade)
-                inner_encoded_data = self.ostium_trading_contract.encodeABI(
-                    fn_name="openTrade",
-                    args=[trade, order_type, slippage]
+                # The correct way to encode the function call in Web3.py
+                # Create the function object for openTrade
+                open_trade_func = self.ostium_trading_contract.functions.openTrade(
+                    trade, order_type, slippage
                 )
+                
+                # Get the encoded data for the openTrade function call
+                inner_encoded_data = open_trade_func.build_transaction({'gas': 0})['data']
                 
                 # Create the outer delegatedAction transaction
                 trade_tx = self.ostium_trading_contract.functions.delegatedAction(
@@ -220,11 +223,14 @@ class Ostium:
         if self.use_delegation and trader_address:
             self.log(f"Using delegatedAction to close trade on behalf of {trader_address}")
             
-            # Create the encoded inner function call (closeTradeMarket)
-            inner_encoded_data = self.ostium_trading_contract.encodeABI(
-                fn_name="closeTradeMarket",
-                args=[int(pair_id), int(trade_index), int(close_percentage)]
+            # The correct way to encode the function call in Web3.py
+            # Create the function object for closeTradeMarket
+            close_trade_func = self.ostium_trading_contract.functions.closeTradeMarket(
+                int(pair_id), int(trade_index), int(close_percentage)
             )
+            
+            # Get the encoded data for the closeTradeMarket function call
+            inner_encoded_data = close_trade_func.build_transaction({'gas': 0})['data']
             
             # Create the outer delegatedAction transaction
             trade_tx = self.ostium_trading_contract.functions.delegatedAction(
@@ -303,16 +309,19 @@ class Ostium:
         account = self._get_account()
         try:
             amount = to_base_units(collateral, decimals=6)
-            self.__approve(account, amount)
+            self.__approve(account, amount, self.use_delegation, trader_address)
 
             if self.use_delegation and trader_address:
                 self.log(f"Using delegatedAction to add collateral on behalf of {trader_address}")
                 
-                # Create the encoded inner function call (topUpCollateral)
-                inner_encoded_data = self.ostium_trading_contract.encodeABI(
-                    fn_name="topUpCollateral",
-                    args=[int(pairID), int(index), amount]
+                # The correct way to encode the function call in Web3.py
+                # Create the function object for topUpCollateral
+                top_up_func = self.ostium_trading_contract.functions.topUpCollateral(
+                    int(pairID), int(index), amount
                 )
+                
+                # Get the encoded data for the topUpCollateral function call
+                inner_encoded_data = top_up_func.build_transaction({'gas': 0})['data']
                 
                 # Create the outer delegatedAction transaction
                 add_collateral_tx = self.ostium_trading_contract.functions.delegatedAction(
@@ -364,11 +373,14 @@ class Ostium:
             if self.use_delegation and trader_address:
                 self.log(f"Using delegatedAction to update TP on behalf of {trader_address}")
                 
-                # Create the encoded inner function call (updateTp)
-                inner_encoded_data = self.ostium_trading_contract.encodeABI(
-                    fn_name="updateTp",
-                    args=[int(pair_id), int(trade_index), tp_value]
+                # The correct way to encode the function call in Web3.py
+                # Create the function object for updateTp
+                update_tp_func = self.ostium_trading_contract.functions.updateTp(
+                    int(pair_id), int(trade_index), tp_value
                 )
+                
+                # Get the encoded data for the updateTp function call
+                inner_encoded_data = update_tp_func.build_transaction({'gas': 0})['data']
                 
                 # Create the outer delegatedAction transaction
                 update_tp_tx = self.ostium_trading_contract.functions.delegatedAction(
@@ -417,11 +429,14 @@ class Ostium:
             if self.use_delegation and trader_address:
                 self.log(f"Using delegatedAction to update SL on behalf of {trader_address}")
                 
-                # Create the encoded inner function call (updateSl)
-                inner_encoded_data = self.ostium_trading_contract.encodeABI(
-                    fn_name="updateSl",
-                    args=[int(pairID), int(index), sl_value]
+                # The correct way to encode the function call in Web3.py
+                # Create the function object for updateSl
+                update_sl_func = self.ostium_trading_contract.functions.updateSl(
+                    int(pairID), int(index), sl_value
                 )
+                
+                # Get the encoded data for the updateSl function call
+                inner_encoded_data = update_sl_func.build_transaction({'gas': 0})['data']
                 
                 # Create the outer delegatedAction transaction
                 update_sl_tx = self.ostium_trading_contract.functions.delegatedAction(
@@ -453,27 +468,31 @@ class Ostium:
             raise Exception(
                 f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
-    def __approve(self, account, collateral, use_delegation, trader_address=None):        
+    def __approve(self, account, collateral, use_delegation, trader_address=None):
+        trader_address = trader_address if trader_address and use_delegation else account.address
         allowance = self.usdc_contract.functions.allowance(
-             account.address, self.ostium_trading_storage_address).call()
+             trader_address, self.ostium_trading_storage_address).call()
 
         if allowance < collateral:
-            approve_tx = self.usdc_contract.functions.approve(
-                self.ostium_trading_storage_address,
-                self.web3.to_wei(1000000, 'mwei')
-            ).build_transaction({'from': account.address})
+            if not use_delegation:
+                approve_tx = self.usdc_contract.functions.approve(
+                    self.ostium_trading_storage_address,
+                    self.web3.to_wei(1000000, 'mwei')
+                ).build_transaction({'from': account.address})
 
-            approve_tx['nonce'] = self.get_nonce(account.address)
+                approve_tx['nonce'] = self.get_nonce(account.address)
 
-            signed_tx = self.web3.eth.account.sign_transaction(
-                approve_tx, private_key=self.private_key)
-            approve_tx_hash = self.web3.eth.send_raw_transaction(
-                signed_tx.raw_transaction)
-            self.log(f"Approval TX Hash: {approve_tx_hash.hex()}")
+                signed_tx = self.web3.eth.account.sign_transaction(
+                    approve_tx, private_key=self.private_key)
+                approve_tx_hash = self.web3.eth.send_raw_transaction(
+                    signed_tx.raw_transaction)
+                self.log(f"Approval TX Hash: {approve_tx_hash.hex()}")
 
-            approve_receipt = self.web3.eth.wait_for_transaction_receipt(
-                approve_tx_hash)
-            self.log(f"Approval Receipt: {approve_receipt}")
+                approve_receipt = self.web3.eth.wait_for_transaction_receipt(
+                    approve_tx_hash)
+                self.log(f"Approval Receipt: {approve_receipt}")
+            else:            
+                raise Exception(f"Sufficient allowance for {trader_address} not present. Please approve the trading contract to spend USDC.")
 
     def withdraw(self, amount, receiving_address):
         account = self._get_account()
