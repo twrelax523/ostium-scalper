@@ -120,9 +120,6 @@ def getTradeLiquidationPrice(
     fundingFee: Decimal,
     maxLeverage: Decimal
 ) -> Decimal:
-    print(
-        f"***** GetTradeLiquidationPrice: open_price: {openPrice}, long: {long}, collateral: {collateral}, leverage: {leverage}, rollover_fee: {rolloverFee}, funding_fee: {fundingFee}")
-
     rawAdjustedThreshold = (liqMarginThresholdP * leverage /
                             maxLeverage).quantize(quantization_6, rounding=ROUND_DOWN)
     liqMarginValue = (
