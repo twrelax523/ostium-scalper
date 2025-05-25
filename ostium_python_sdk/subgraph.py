@@ -163,6 +163,7 @@ class SubgraphClient:
             lastFundingBlock
             maxFundingFeePerBlock
             lastFundingRate
+            maxLeverage
           }
         }
       }

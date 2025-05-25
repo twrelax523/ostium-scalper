@@ -56,7 +56,7 @@ def get_funding_fee_long_short(pair_info, block_number, verbose=False):
 # Gets an open trade metrics: such as the open pnl, rollover, funding, liquidation price, price impact, etc.
 
 
-def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
+def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage, liq_margin_threshold_p=25, verbose=False):
     """
     Calculate PNL and related metrics for a trade.
     """
@@ -130,14 +130,17 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     if verbose:
         print(f"trade_funding_fee: {trade_funding_fee}")
 
+    print(f"ami: ami... calling with pair_max_leverage: {pair_max_leverage}")
     # Calculate liquidation price
-    trade_liquidation_price = GetTradeLiquidationPrice(
+    trade_liquidation_price = getTradeLiquidationPrice(
+        Decimal(liq_margin_threshold_p) / PRECISION_2,
         Decimal(trade_details['openPrice']) / PRECISION_18,
         trade_details['isBuy'],
         Decimal(trade_details['collateral']) / PRECISION_6,
         Decimal(trade_details['leverage']) / PRECISION_2,
-        Decimal(trade_rollover_fee),
-        Decimal(trade_funding_fee)
+        Decimal(trade_rollover_fee) / PRECISION_6,
+        Decimal(trade_funding_fee) / PRECISION_6,
+        Decimal(pair_max_leverage) / PRECISION_2
     )
 
     if verbose:

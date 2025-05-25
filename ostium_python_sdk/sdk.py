@@ -104,6 +104,10 @@ class OstiumSDK:
     async def get_open_trade_metrics(self, pair_id, trade_index):
         open_trades, trader_public_address = await self.get_open_trades()
 
+        liq_margin_threshold_p = await self.subgraph.get_liq_margin_threshold_p()
+        self.log(
+            f"SDK: get_open_trade_metrics: {liq_margin_threshold_p}, will use it for liquidation price calculation - call to get_trade_metrics()")
+
         trade_details = None
 
         if len(open_trades) == 0:
@@ -126,7 +130,19 @@ class OstiumSDK:
         # get the block number
         block_number = self.ostium.get_block_number()
         self.log(f"\nBlock number: {block_number}")
-        return get_trade_metrics(trade_details, price_data, block_number, verbose=self.verbose)
+
+        pair_max_leverage = await self.get_pair_max_leverage(trade_details['pair']['id'])
+
+        return get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage, liq_margin_threshold_p, verbose=self.verbose)
+
+    # either by group of pair or by pair id (e.g: maxLeverage 10000 means 100x  )
+    async def get_pair_max_leverage(self, pair_id):
+        obj = await self.subgraph.get_pair_details(pair_id)
+        # print(
+        #     f"ami: ami... obj: {obj} --> {obj['maxLeverage']} or group: {obj['group']['maxLeverage']}")
+        maxLeverage = obj['maxLeverage'] if int(
+            obj['group']['maxLeverage']) == 0 else obj['group']['maxLeverage']
+        return maxLeverage
 
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
         raise RuntimeError(
