@@ -4,7 +4,7 @@ from ostium_python_sdk.formulae import getOpeningFee
 
 # Global list of all test cases
 test_cases = [
-    # CASE-0
+    # CASE-0 - test_Validate_Full_Taker_getOpeningFee
     {
         'trade_size': Decimal('-10000'),
         'leverage': Decimal('3'),
@@ -13,6 +13,16 @@ test_cases = [
         'maker_fee_p': Decimal('0.0001'),  # 100 / PRECISION_6 => 0.0001
         'taker_fee_p': Decimal('0.0003'),  # 300 / PRECISION_6 => 0.0003
         'expected_fee': Decimal('0.02')
+    },
+    # CASE-1 - test_Validate_Negative_OiDelta_Full_Maker_getOpeningFee
+    {
+        'trade_size': Decimal('10'),  # 10000000 / PRECISION_6
+        'leverage': Decimal('3'),  # 300 / PRECISION_2
+        'oi_delta': Decimal('-5000'),  # -5000000000 / PRECISION_6
+        'maker_max_leverage': Decimal('10'),  # 1000 / PRECISION_2
+        'maker_fee_p': Decimal('0.0001'),  # 100 / PRECISION_6
+        'taker_fee_p': Decimal('0.0003'),  # 300 / PRECISION_6
+        'expected_fee': Decimal('0.000010')
     }
 ]
 
