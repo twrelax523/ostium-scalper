@@ -130,7 +130,6 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
     if verbose:
         print(f"trade_funding_fee: {trade_funding_fee}")
 
-    print(f"ami: ami... calling with pair_max_leverage: {pair_max_leverage}")
     # Calculate liquidation price
     trade_liquidation_price = getTradeLiquidationPrice(
         Decimal(liq_margin_threshold_p) / PRECISION_2,

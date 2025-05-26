@@ -140,8 +140,7 @@ class OstiumSDK:
     # either by group of pair or by pair id (e.g: maxLeverage 10000 means 100x  )
     async def get_pair_max_leverage(self, pair_id):
         obj = await self.subgraph.get_pair_details(pair_id)
-        # print(
-        #     f"ami: ami... obj: {obj} --> {obj['maxLeverage']} or group: {obj['group']['maxLeverage']}")
+
         maxLeverage = obj['maxLeverage'] if int(
             obj['group']['maxLeverage']) == 0 else obj['group']['maxLeverage']
         return maxLeverage

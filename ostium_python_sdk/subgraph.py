@@ -317,9 +317,9 @@ class SubgraphClient:
             }
             """
         )
-        
+
         result = await self.client.execute_async(query, variable_values={"order_id": str(order_id)})
-        
+
         if result and 'orders' in result and len(result['orders']) > 0:
             return result['orders'][0]
         return None
@@ -362,9 +362,9 @@ class SubgraphClient:
             }
             """
         )
-        
+
         result = await self.client.execute_async(query, variable_values={"trade_id": str(trade_id)})
-        
+
         if result and 'trades' in result and len(result['trades']) > 0:
             return result['trades'][0]
         return None
