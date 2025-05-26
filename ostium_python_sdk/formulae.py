@@ -6,8 +6,6 @@ from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 quantization_6 = Decimal('0.000001')
 quantization_18 = Decimal('0.000000000000000001')
 
-# v2 (formulae v1.3.3)
-
 
 def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
@@ -23,8 +21,6 @@ def GetTakeProfitPrice(open_price: Decimal, profit_p: Decimal, leverage: Decimal
 
     return Decimal(tp_price if tp_price > 0 else '0')
 
-# v2 (formulae v1.3.3)
-
 
 def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is_long: bool) -> Decimal:
     open_price = Decimal(open_price)
@@ -36,8 +32,6 @@ def GetStopLossPrice(open_price: Decimal, loss_p: Decimal, leverage: Decimal, is
 
     sl_price = open_price - price_diff if is_long else open_price + price_diff
     return sl_price if sl_price > 0 else Decimal('0')
-
-# v2 (formulae v1.3.3)
 
 
 def CurrentTradeProfitP(
@@ -62,8 +56,6 @@ def CurrentTradeProfitP(
 
     return profit_p
 
-# v2 (formulae v1.3.3)
-
 
 def TopUpWithCollateral(
     leverage: Decimal,
@@ -72,8 +64,6 @@ def TopUpWithCollateral(
 ) -> Decimal:
     new_leverage = (collateral * leverage) / (collateral + added_collateral)
     return new_leverage
-
-# v2 (formulae v1.3.3)
 
 
 def TopUpWithLeverage(
@@ -84,8 +74,6 @@ def TopUpWithLeverage(
     added_c = (collateral * leverage) / desired_leverage - collateral
     return added_c
 
-# v2 (formulae v1.3.3)
-
 
 def RemoveCollateralWithCollateral(
     leverage: Decimal,
@@ -95,8 +83,6 @@ def RemoveCollateralWithCollateral(
     new_leverage = (collateral * leverage) / (collateral - removed_collateral)
     return new_leverage
 
-# v2 (formulae v1.3.3)
-
 
 def RemoveCollateralFromLeverage(
     leverage: Decimal,
@@ -105,9 +91,6 @@ def RemoveCollateralFromLeverage(
 ) -> Decimal:
     added_c = collateral - (collateral * leverage / desired_leverage)
     return added_c
-
-# tbd - used by SDK
-# v2 (formulae v1.3.3)
 
 
 def getTradeLiquidationPrice(
@@ -136,7 +119,7 @@ def getTradeLiquidationPrice(
 
 
 def getTradeValue(
-    liqMarginThresholdP: Decimal,
+    liqMarginThresholdP: Decimal,  # 25 means 25%
     collateral: Decimal,
     percentProfit: Decimal,
     rolloverFee: Decimal,
@@ -168,7 +151,7 @@ def getTradeValuePure(
 
 
 def getTradeLiquidationMargin(
-    liqMarginThresholdP: Decimal,
+    liqMarginThresholdP: Decimal,  # 0.25 means 25%
     collateral: Decimal,
     leverage: Decimal,
     maxLeverage: Decimal
@@ -211,7 +194,6 @@ def getOpeningFee(
 # End of copied v1.2.3
 
 
-# ???
 def GetCurrentRolloverFee(
     acc_rollover: str,
     last_rollover_block: str,
@@ -231,7 +213,6 @@ def GetCurrentRolloverFee(
         raise Exception(f"Unable to compute Current Rollover Fee: {error}")
 
 
-# v2 (formulae v1.3.3)
 def GetTradeRolloverFee(
     trade_rollover: Decimal,
     current_rollover: Decimal,
@@ -243,7 +224,7 @@ def GetTradeRolloverFee(
 
 
 # Gets the funding fee (abs) for an open trade (up to this block, aka based on current_funding up till this block)
-# v2 (formulae v1.3.3)
+
 def GetTradeFundingFee(
     trade_funding: Decimal,
     current_funding: Decimal,
@@ -290,7 +271,7 @@ def GetPriceImpact(
 # calculates the gross (without fees) profit (abs) of an open trade
 
 # calculates the net profit (after fees) of an open trade (abs)
-# v2 (formulae v1.3.3)
+
 def CurrentTradeProfitRaw(
     open_price: Decimal,
     current_price: Decimal,
@@ -308,8 +289,6 @@ def CurrentTradeProfitRaw(
     )
     profit = (collateral * profit_p) / Decimal("100")
     return profit
-
-# v2 (formulae v1.3.3)
 
 
 def CurrentTotalProfitRaw(
@@ -339,7 +318,6 @@ def CurrentTotalProfitRaw(
     return total_profit
 
 
-# v2 (formulae v1.3.3)
 def CurrentTotalProfitP(total_profit: Decimal, collateral: Decimal) -> Decimal:
     profit_p = (total_profit * Decimal("100")) / collateral
     if profit_p <= MIN_LOSS_P:
