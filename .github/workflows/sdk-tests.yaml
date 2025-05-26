@@ -6,24 +6,22 @@ on:
   pull_request:
     branches: [ main ]
 
-permissions:
-  contents: read
-  pull-requests: write
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
-
     steps:
+    - name: Debug Information
+      run: |
+        echo "Running on branch: $GITHUB_REF"
+        echo "Event name: $GITHUB_EVENT_NAME"
+        echo "Workflow triggered by: $GITHUB_ACTOR"
+    
     - uses: actions/checkout@v4
     
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.11"
         
     - name: Install dependencies
       run: |
