@@ -65,6 +65,9 @@ class Ostium:
         if self.verbose:
             print(message)
 
+    def get_opening_fee(self, trade_size, leverage, pair_id):
+        pass
+
     def set_slippage_percentage(self, slippage_percentage):
         self.slippage_percentage = slippage_percentage
 

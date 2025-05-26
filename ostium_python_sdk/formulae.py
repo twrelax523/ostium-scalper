@@ -132,17 +132,38 @@ def getTradeLiquidationPrice(
         openPrice - liqPriceDistance if long else openPrice + liqPriceDistance)
     return max(Decimal('0'), liqPrice)
 
+# Start of copied v1.2.3
+
 
 def getTradeValue(
+    liqMarginThresholdP: Decimal,
     collateral: Decimal,
     percentProfit: Decimal,
     rolloverFee: Decimal,
-    fundingFee: Decimal
+    fundingFee: Decimal,
+    leverage: Decimal,
+    maxLeverage: Decimal,
+) -> (Decimal, Decimal):
+    liqMarginValue = getTradeLiquidationMargin(
+        liqMarginThresholdP, collateral, leverage, maxLeverage)
+    value = getTradeValuePure(
+        collateral, percentProfit, rolloverFee, fundingFee, liqMarginValue)
+
+    return value, liqMarginValue
+
+
+def getTradeValuePure(
+    collateral: Decimal,
+    percentProfit: Decimal,
+    rolloverFee: Decimal,
+    fundingFee: Decimal,
+    liqMarginValue: Decimal
 ) -> Decimal:
     profitPart = (collateral * percentProfit / Decimal('100')
                   ).quantize(quantization_6, rounding=ROUND_DOWN)
     value = (collateral + profitPart - rolloverFee - fundingFee)
-
+    if value <= liqMarginValue:
+        return Decimal('0')
     return value
 
 
@@ -155,6 +176,39 @@ def getTradeLiquidationMargin(
     rawAdjustedThreshold = (liqMarginThresholdP * leverage /
                             maxLeverage).quantize(quantization_6, rounding=ROUND_DOWN)
     return (collateral * rawAdjustedThreshold / Decimal('100')).quantize(quantization_6, rounding=ROUND_DOWN)
+
+
+def getOpeningFee(
+    tradeSize: Decimal,
+    leverage: Decimal,
+    oiDelta: Decimal,
+    makerMaxLeverage: Decimal,
+    makerFeeP: Decimal,
+    takerFeeP: Decimal
+) -> Decimal:
+    makerAmount: Decimal = Decimal(0)
+    takerAmount: Decimal = Decimal(0)
+
+    print(f"tradeSize: {tradeSize}, leverage: {leverage}, oiDelta: {oiDelta}, makerMaxLeverage: {makerMaxLeverage}, makerFeeP: {makerFeeP}, takerFeeP: {takerFeeP}")
+    # Base Fee
+    if (oiDelta * tradeSize < 0 and leverage <= makerMaxLeverage):
+        if (oiDelta * (oiDelta + tradeSize) >= 0):
+            makerAmount = abs(tradeSize)
+        else:
+            makerAmount = abs(oiDelta)
+            takerAmount = abs(oiDelta + tradeSize)
+    else:
+        takerAmount = abs(tradeSize)
+
+    baseFee: Decimal = (
+        (makerFeeP * makerAmount).quantize(quantization_6, rounding=ROUND_DOWN) +
+        (takerFeeP * takerAmount).quantize(quantization_6, rounding=ROUND_DOWN)
+    ) / Decimal('100')
+
+    return baseFee.quantize(quantization_6, rounding=ROUND_DOWN)
+
+
+# End of copied v1.2.3
 
 
 # ???

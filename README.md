@@ -67,6 +67,8 @@ pytest -v tests/test_current_trade_profit_raw.py
 pytest -v tests/test_current_total_profit_raw.py
 pytest -v tests/test_get_trade_funding_fee.py
 pytest -v tests/test_get_trade_rollover_fee.py 
+pytest -v tests/test_get_trade_value.py 
+pytest -v tests/test_get_opening_fee.py 
 
 
 
