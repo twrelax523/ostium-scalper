@@ -59,7 +59,9 @@ class OstiumSDK:
                 f"but RPC is connected to chain ID {actual_chain_id}. Please check your RPC_URL."
             )
 
-        print(f"v.UP! network_config: {self.network_config} !!!")
+        if self.verbose:
+            print(f"network_config: {'TESTNET' if self.network_config.is_testnet else 'MAINNET'}")
+
         # Initialize Ostium instance
         self.ostium = Ostium(
             self.w3,

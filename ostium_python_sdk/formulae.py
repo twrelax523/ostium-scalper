@@ -1,5 +1,5 @@
 from decimal import Decimal, getcontext, ROUND_DOWN
-from .constants import MAX_PROFIT_P, MIN_LOSS_P, MAX_STOP_LOSS_P, PRECISION_16, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, LIQ_THRESHOLD_P
+from .constants import MAX_PROFIT_P, MIN_LOSS_P, PRECISION_2, PRECISION_6, PRECISION_18
 from typing import Dict
 from .scscript.funding import getPendingAccFundingFees, getTargetFundingRate
 
@@ -93,6 +93,8 @@ def RemoveCollateralFromLeverage(
     return added_c
 
 
+# Start of copied v1.2.3
+
 def getTradeLiquidationPrice(
     liqMarginThresholdP: Decimal,
     openPrice: Decimal,
@@ -115,7 +117,7 @@ def getTradeLiquidationPrice(
         openPrice - liqPriceDistance if long else openPrice + liqPriceDistance)
     return max(Decimal('0'), liqPrice)
 
-# Start of copied v1.2.3
+
 
 
 def getTradeValue(
