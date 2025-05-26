@@ -33,6 +33,16 @@ test_cases = [
         'maker_fee_p': Decimal('0.0001'),  # 100 / PRECISION_6
         'taker_fee_p': Decimal('0.0003'),  # 300 / PRECISION_6
         'expected_fee': Decimal('0.000020')
+    },
+    # CASE-3 - test_Validate_Negative_OiDelta_Lower_Fees_getOpeningFee
+    {
+        'trade_size': Decimal('10'),  # 10000000 / PRECISION_6
+        'leverage': Decimal('3'),  # 300 / PRECISION_2
+        'oi_delta': Decimal('-5'),  # -5000000 / PRECISION_6
+        'maker_max_leverage': Decimal('10'),  # 1000 / PRECISION_2
+        'maker_fee_p': Decimal('0.00005'),  # 50 / PRECISION_6
+        'taker_fee_p': Decimal('0.0002'),  # 200 / PRECISION_6
+        'expected_fee': Decimal('0.000012')
     }
 ]
 
