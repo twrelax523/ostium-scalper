@@ -31,6 +31,18 @@ test_cases = [
         'max_leverage': Decimal('10'),  # 1000 / PRECISION_2
         'expected_trade_value': Decimal('184.227619'),  # 184227619 / PRECISION_6
         'expected_liq_margin_value': Decimal('25'),  # 25000000 / PRECISION_6
+    },
+    # CASE-2
+    {
+        'liq_margin_threshold_p': Decimal('25'),  # 25 (no division needed)
+        'collateral': Decimal('200'),  # 200000000 / PRECISION_6
+        'percent_profit': Decimal('99.900994'),  # 99900994 / PRECISION_6
+        'rollover_fee': Decimal('2.158825'),  # 2158825 / PRECISION_6
+        'funding_fee': Decimal('3.366384'),  # 3366384 / PRECISION_6
+        'leverage': Decimal('5'),  # 500 / PRECISION_2
+        'max_leverage': Decimal('10'),  # 1000 / PRECISION_2
+        'expected_trade_value': Decimal('394.276779'),  # 394276779 / PRECISION_6
+        'expected_liq_margin_value': Decimal('25'),  # 25000000 / PRECISION_6
     }
 ]
 
