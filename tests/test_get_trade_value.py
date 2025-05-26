@@ -2,10 +2,6 @@ import pytest
 from decimal import Decimal
 from ostium_python_sdk.formulae import getTradeValue
 
-# Constants for precision
-PRECISION_2 = Decimal('100')
-PRECISION_6 = Decimal('1000000')
-
 # Global list of all test cases
 test_cases = [
     # CASE-0
@@ -17,7 +13,8 @@ test_cases = [
         'funding_fee': Decimal('0'),  # 0 / PRECISION_6
         'leverage': Decimal('10'),  # 1000 / PRECISION_2
         'max_leverage': Decimal('10'),  # 1000 / PRECISION_2
-        'expected_trade_value': Decimal('100.999999'), # 100999999 / PRECISION_6
+        # 100999999 / PRECISION_6
+        'expected_trade_value': Decimal('100.999999'),
         'expected_liq_margin_value': Decimal('25'),  # 25000000 / PRECISION_6
     },
     # CASE-1
@@ -29,7 +26,8 @@ test_cases = [
         'funding_fee': Decimal('2.145623'),  # 2145623 / PRECISION_6
         'leverage': Decimal('10'),  # 1000 / PRECISION_2
         'max_leverage': Decimal('10'),  # 1000 / PRECISION_2
-        'expected_trade_value': Decimal('184.227619'),  # 184227619 / PRECISION_6
+        # 184227619 / PRECISION_6
+        'expected_trade_value': Decimal('184.227619'),
         'expected_liq_margin_value': Decimal('25'),  # 25000000 / PRECISION_6
     },
     # CASE-2
@@ -41,7 +39,8 @@ test_cases = [
         'funding_fee': Decimal('3.366384'),  # 3366384 / PRECISION_6
         'leverage': Decimal('5'),  # 500 / PRECISION_2
         'max_leverage': Decimal('10'),  # 1000 / PRECISION_2
-        'expected_trade_value': Decimal('394.276779'),  # 394276779 / PRECISION_6
+        # 394276779 / PRECISION_6
+        'expected_trade_value': Decimal('394.276779'),
         'expected_liq_margin_value': Decimal('25'),  # 25000000 / PRECISION_6
     },
     # CASE-3 - change liq margin threshold to 20%
@@ -53,10 +52,12 @@ test_cases = [
         'funding_fee': Decimal('3.366384'),  # 3366384 / PRECISION_6
         'leverage': Decimal('5'),  # 500 / PRECISION_2
         'max_leverage': Decimal('10'),  # 1000 / PRECISION_2
-        'expected_trade_value': Decimal('394.276779'),  # 394276779 / PRECISION_6
+        # 394276779 / PRECISION_6
+        'expected_trade_value': Decimal('394.276779'),
         'expected_liq_margin_value': Decimal('20'),  # 25000000 / PRECISION_6
     }
 ]
+
 
 @pytest.mark.parametrize("case", test_cases)
 def test_get_trade_value(case):
@@ -75,7 +76,7 @@ def test_get_trade_value(case):
     # Assert trade value
     assert trade_value == pytest.approx(case['expected_trade_value'], abs=1e-5), \
         f"Trade value failed for case: {case}"
-    
+
     # Assert liquidation margin value
     assert liq_margin_value == pytest.approx(case['expected_liq_margin_value'], abs=1e-5), \
         f"Liquidation margin value failed for case: {case}"
