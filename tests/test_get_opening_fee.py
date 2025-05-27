@@ -1,6 +1,7 @@
+from ostium_python_sdk.scscript.pairinfos import getOpeningFee
 import pytest
 from decimal import Decimal
-from ostium_python_sdk.formulae import getOpeningFee
+
 
 # Global list of all test cases
 test_cases = [

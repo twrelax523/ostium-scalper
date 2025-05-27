@@ -1,6 +1,6 @@
+from ostium_python_sdk.scscript.pairinfos import getTradeLiquidationPrice
 import pytest
 from decimal import Decimal
-from ostium_python_sdk.formulae import getTradeLiquidationPrice
 
 
 # Global list of all test cases

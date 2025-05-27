@@ -1,6 +1,8 @@
 from decimal import Decimal
+
+from ostium_python_sdk.scscript.pairinfos import getTradeLiquidationPrice
 from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRolloverFee, GetFundingRate,
-                       GetTradeFundingFee, getTradeLiquidationPrice, GetTradeRolloverFee,
+                       GetTradeFundingFee, GetTradeRolloverFee,
                        GetPriceImpact, CurrentTradeProfitRaw,
                        CurrentTotalProfitRaw, CurrentTotalProfitP)
 
