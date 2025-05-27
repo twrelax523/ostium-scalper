@@ -26,6 +26,7 @@ class SubgraphClient:
                 from
                 to
                 feed
+                overnightMaxLeverage
               }
             }
       """
@@ -43,7 +44,8 @@ class SubgraphClient:
             pair(id: $pair_id) {
               id
               from
-              to                    
+              to    
+              overnightMaxLeverage                
               longOI
               shortOI
               maxOI

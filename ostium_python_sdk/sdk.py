@@ -60,7 +60,8 @@ class OstiumSDK:
             )
 
         if self.verbose:
-            print(f"network_config: {'TESTNET' if self.network_config.is_testnet else 'MAINNET'}")
+            print(
+                f"network_config: {'TESTNET' if self.network_config.is_testnet else 'MAINNET'}")
 
         # Initialize Ostium instance
         self.ostium = Ostium(
@@ -139,12 +140,20 @@ class OstiumSDK:
 
         return get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage, liq_margin_threshold_p, verbose=self.verbose)
 
-    # either by group of pair or by pair id (e.g: maxLeverage 10000 means 100x  )
+    # max leverage for overnight trades (Stocks) - 100 means 100x, None if not set
+    async def get_pair_overnight_max_leverage(self, pair_id):
+        obj = await self.subgraph.get_pair_details(pair_id)
+
+        maxLeverage = int(obj['overnightMaxLeverage'])/100 if int(
+            obj['overnightMaxLeverage']) != 0 else None
+        return maxLeverage
+
+    # either by group of pair or by pair id (e.g: maxLeverage 100 means 100x  )
     async def get_pair_max_leverage(self, pair_id):
         obj = await self.subgraph.get_pair_details(pair_id)
 
-        maxLeverage = obj['maxLeverage'] if int(
-            obj['group']['maxLeverage']) == 0 else obj['group']['maxLeverage']
+        maxLeverage = int(obj['maxLeverage']) / 100 if int(
+            obj['group']['maxLeverage']) == 0 else int(obj['group']['maxLeverage']) / 100
         return maxLeverage
 
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
