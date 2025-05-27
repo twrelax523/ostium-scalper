@@ -29,6 +29,27 @@ test_cases = [
         'expected_acc_funding_long': Decimal('0.000045646799152794'),
         'expected_acc_funding_short': Decimal('0'),
         'expected_latest_funding_rate': Decimal('0.000000003929451136'),
+    },
+    # CASE-1
+    {
+        'blockNumber': Decimal('100'),
+        'lastUpdateBlock': Decimal('30'),
+        'valueLong': Decimal('0') / PRECISION_18,
+        'valueShort': Decimal('0') / PRECISION_18,
+        'openInterestUsdcLong': Decimal('999999999') / PRECISION_6,
+        'openInterestUsdcShort': Decimal('0') / PRECISION_6,
+        'oiCap': Decimal('1000000000000') / PRECISION_6,
+        'maxFundingFeePerBlock': Decimal('47564687975') / PRECISION_18,
+        'lastFundingRate': Decimal('19609397') / PRECISION_18,
+        'hillInflectionPoint': Decimal('160000000000000000') / PRECISION_18,
+        'hillPosScale': Decimal('118') / PRECISION_2,
+        'hillNegScale': Decimal('91') / PRECISION_2,
+        'springFactor': Decimal('86000000000000') / PRECISION_18,
+        'sFactorUpScale': Decimal('11000') / PRECISION_2,
+        'sFactorDownScaleP': Decimal('9000') / PRECISION_2,
+        'expected_acc_funding_long': Decimal('0.000000002969071461'),
+        'expected_acc_funding_short': Decimal('0'),
+        'expected_latest_funding_rate': Decimal('0.000000000065175499'),
     }
 ]
 
