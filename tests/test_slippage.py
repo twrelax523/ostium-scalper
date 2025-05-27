@@ -13,11 +13,6 @@ def sdk():
     # Load environment variables
     load_dotenv()
 
-    # # Get private key and RPC URL from environment variables
-    # private_key = os.getenv('PRIVATE_KEY')
-    # if not private_key:
-    #     raise ValueError("PRIVATE_KEY not found in .env file")
-
     rpc_url = os.getenv('RPC_URL')
     if not rpc_url:
         raise ValueError("RPC_URL not found in .env file")

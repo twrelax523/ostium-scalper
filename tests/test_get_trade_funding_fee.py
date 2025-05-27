@@ -5,7 +5,7 @@ from ostium_python_sdk.formulae import GetTradeFundingFee
 TEST_CASES = [
     {
         "case_name": "CASE-1",
-        "trade_funding": Decimal("0.00432345"),
+        "initial_funding": Decimal("0.00432345"),
         "current_funding": Decimal("0.00532355"),
         "collateral": Decimal("3000"),
         "leverage": Decimal("10"),
@@ -17,7 +17,7 @@ TEST_CASES = [
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_get_trade_funding_fee(case):
     actual = GetTradeFundingFee(
-        trade_funding=case["trade_funding"],
+        initial_funding=case["initial_funding"],
         current_funding=case["current_funding"],
         collateral=case["collateral"],
         leverage=case["leverage"],

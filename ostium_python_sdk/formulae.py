@@ -228,14 +228,14 @@ def GetTradeRolloverFee(
 # Gets the funding fee (abs) for an open trade (up to this block, aka based on current_funding up till this block)
 
 def GetTradeFundingFee(
-    trade_funding: Decimal,
+    initial_funding: Decimal,
     current_funding: Decimal,
     collateral: Decimal,
     leverage: Decimal
 ) -> Decimal:
     print(
-        f"======> GetTradeFundingFee: trade_funding: {trade_funding}, current_funding: {current_funding}, collateral: {collateral}, leverage: {leverage}")
-    funding_fee = (current_funding - trade_funding) * collateral * leverage
+        f"======> GetTradeFundingFee: initial_funding: {initial_funding}, current_funding: {current_funding}, collateral: {collateral}, leverage: {leverage}")
+    funding_fee = (current_funding - initial_funding) * collateral * leverage
     return funding_fee
 
 
