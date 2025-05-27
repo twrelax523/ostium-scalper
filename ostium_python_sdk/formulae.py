@@ -118,8 +118,6 @@ def getTradeLiquidationPrice(
     return max(Decimal('0'), liqPrice)
 
 
-
-
 def getTradeValue(
     liqMarginThresholdP: Decimal,  # 25 means 25%
     collateral: Decimal,

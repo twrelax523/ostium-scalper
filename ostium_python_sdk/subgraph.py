@@ -101,7 +101,7 @@ class SubgraphClient:
         else:
             raise ValueError(f"No pair details found for pair ID: {pair_id}")
 
-    async def get_liq_margin_threshold_p(self):          
+    async def get_liq_margin_threshold_p(self):
         query = gql(
             """
           query metaDatas {
@@ -116,7 +116,8 @@ class SubgraphClient:
         liq_margin_threshold_p = result['metaDatas'][0]['liqMarginThresholdP']
 
         if self.verbose:
-          self.log(f"Fetched get_liq_margin_threshold_p: {liq_margin_threshold_p}%")
+            self.log(
+                f"Fetched get_liq_margin_threshold_p: {liq_margin_threshold_p}%")
 
         return liq_margin_threshold_p
 
