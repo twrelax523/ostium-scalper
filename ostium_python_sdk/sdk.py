@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
 import os
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 
 from ostium_python_sdk.formulae import GetFundingRate
+from ostium_python_sdk.scscript.funding import getTargetFundingRate
 from ostium_python_sdk.utils import calculate_fee_per_hours, format_with_precision
 
 from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
@@ -139,6 +140,39 @@ class OstiumSDK:
         pair_max_leverage = await self.get_pair_max_leverage(trade_details['pair']['id'])
 
         return get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage, liq_margin_threshold_p, verbose=self.verbose)
+
+    async def get_target_funding_rate(self, pair_id):
+        pair_details = await self.subgraph.get_pair_details(pair_id)
+
+        hillInflectionPoint = Decimal(
+            pair_details['hillInflectionPoint']) / PRECISION_18
+
+        maxFundingFeePerBlock = Decimal(
+            pair_details['maxFundingFeePerBlock']) / PRECISION_18
+
+        hillPosScale = Decimal(pair_details['hillPosScale']) / PRECISION_2
+        hillNegScale = Decimal(pair_details['hillNegScale']) / PRECISION_2
+
+        currLongOI = Decimal(pair_details['longOI']) / PRECISION_6
+        currShortOI = Decimal(pair_details['shortOI']) / PRECISION_6
+        maxOI = Decimal(pair_details['maxOI']) / PRECISION_6
+
+        openInterestMax = max(currLongOI, currShortOI)
+        normalizedOiDelta = ((currLongOI - currShortOI).quantize(PRECISION_6, rounding=ROUND_DOWN) / max(
+            maxOI, openInterestMax).quantize(PRECISION_6, rounding=ROUND_DOWN)).quantize(PRECISION_6, rounding=ROUND_DOWN)
+
+        targetFundingRate = getTargetFundingRate(
+            normalizedOiDelta,
+            hillInflectionPoint,
+            maxFundingFeePerBlock,
+            hillPosScale,
+            hillNegScale
+        )
+
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} Traget Funding rate: {targetFundingRate}\n\nPair details: {pair_details}")
+
+        return targetFundingRate
 
     # max leverage for overnight trades (Stocks) - 100 means 100x, None if not set
     async def get_pair_overnight_max_leverage(self, pair_id):
