@@ -118,10 +118,12 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
     )
 
     if verbose:
-        print(f"Funding rate: {funding_rate_raw}")
+        print(
+            f"*** Funding rate: {funding_rate_raw} based on pair_info: {pair_info}")
 
     # Calculate funding fee
     trade_funding_fee = GetTradeFundingFee(
+        # initial funding fee (accFundingFeesPerOi)
         Decimal(trade_details['funding']) / PRECISION_18,
         Decimal(funding_rate_raw['accFundingLong']) if trade_details['isBuy'] else Decimal(
             funding_rate_raw['accFundingShort']),
@@ -130,7 +132,7 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
     )
 
     if verbose:
-        print(f"trade_funding_fee: {trade_funding_fee}")
+        print(f"*** trade_funding_fee: {trade_funding_fee}")
 
     # Calculate liquidation price
     trade_liquidation_price = getTradeLiquidationPrice(
@@ -139,9 +141,9 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
         trade_details['isBuy'],
         Decimal(trade_details['collateral']) / PRECISION_6,
         Decimal(trade_details['leverage']) / PRECISION_2,
-        Decimal(trade_rollover_fee) / PRECISION_6,
-        Decimal(trade_funding_fee) / PRECISION_6,
-        Decimal(pair_max_leverage) / PRECISION_2
+        Decimal(trade_rollover_fee),
+        Decimal(trade_funding_fee),
+        Decimal(pair_max_leverage)
     )
 
     if verbose:
