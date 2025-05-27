@@ -25,6 +25,10 @@ def sdk():
 @pytest.mark.asyncio
 async def test_slippage_validation(sdk):
     # Get address from private key
+    if not os.getenv('PRIVATE_KEY'):
+        pytest.skip(
+            "PRIVATE_KEY not found in .env file (test requires private key)")
+
     account = Account.from_key(os.getenv('PRIVATE_KEY'))
 
     # Check ETH and USDC balances first
@@ -34,12 +38,10 @@ async def test_slippage_validation(sdk):
 
     if eth_balance < Decimal('0.001'):
         msg = f"Insufficient ETH balance: {eth_balance} ETH (need at least 0.05 ETH for gas)"
-        print(msg)  # Add print statement
         pytest.skip(msg)
 
     if usdc_balance < Decimal('100'):
         msg = f"Insufficient USDC balance: {usdc_balance} USDC (need at least 100 USDC)"
-        print(msg)  # Add print statement
         pytest.skip(msg)
 
     # Get latest price for BTC
@@ -50,13 +52,14 @@ async def test_slippage_validation(sdk):
     # Define base trade parameters
     trade_params = {
         'collateral': Decimal('100'),
-        'leverage': Decimal('10'),
+        'leverage': Decimal('30'),
         'asset_type': 0,          # BTC-USD
         'direction': True,        # Long
         'order_type': 'MARKET'
     }
+    MAX_SLIPPAGE_PERCENTAGE = 1
     # Test case 1: Trade within slippage should succeed
-    sdk.ostium.set_slippage_percentage(1)  # 1% slippage
+    sdk.ostium.set_slippage_percentage(MAX_SLIPPAGE_PERCENTAGE)
 
     print(
         f"Slippage percentage set to: {sdk.ostium.get_slippage_percentage()}%")
@@ -70,15 +73,38 @@ async def test_slippage_validation(sdk):
 
     # Test case 2: Trade with price outside slippage range (should fail)
     await asyncio.sleep(1)  # Wait a bit to ensure price feed has updated
+
+    price_higher_than_latest = 1+((MAX_SLIPPAGE_PERCENTAGE+2)/100)
+
     price_outside_range = latest_price * \
-        Decimal('1.05')  # 2% higher than latest price
+        Decimal(price_higher_than_latest)  # X% higher than latest price
     print(
-        f"Attempting trade at price {price_outside_range} (2% higher than {latest_price})")
+        f"Attempting trade at price {price_outside_range} ({price_higher_than_latest}x higher than {latest_price}, while slippage is {MAX_SLIPPAGE_PERCENTAGE}%)")
 
     try:
         receipt = sdk.ostium.perform_trade(
             trade_params, at_price=price_outside_range)
-        pytest.fail("Trade should have failed due to slippage, but succeeded")
+
+        print("Placing market order...")
+        trade_result = sdk.ostium.perform_trade(
+            trade_params, at_price=latest_price)
+
+        # Get transaction receipt and order ID
+        receipt = trade_result['receipt']
+        order_id = trade_result['order_id']
+
+        print(f"Order placed!")
+        print(f"Transaction hash: {receipt['transactionHash'].hex()}")
+        print(f"Order ID: {order_id}")
+
+        # Track the order until it's processed and get the resulting trade
+        print("\nTracking order status...")
+        result = await sdk.ostium.track_order_and_trade(sdk.subgraph, order_id)
+
+        if result['order']:
+            pytest.fail(
+                "Trade should have failed due to slippage, but succeeded")
+
     except Exception as e:
         assert "execution reverted" in str(e)
         print("Trade outside slippage range correctly failed")
