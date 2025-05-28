@@ -8,53 +8,6 @@ from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRollove
 
 
 # TBD - used by SDK
-# returns the funding_fee_long_per_block, funding_fee_short_per_block
-
-
-def get_funding_fee_long_short(pair_info, block_number, verbose=False):
-    funding_rate_raw = GetFundingRate(
-        pair_info['accFundingLong'],
-        pair_info['accFundingShort'],
-        pair_info['lastFundingRate'],
-        pair_info['maxFundingFeePerBlock'],
-        pair_info['lastFundingBlock'],
-        str(block_number),
-        pair_info['longOI'],
-        pair_info['shortOI'],
-        pair_info['maxOI'],
-        pair_info['hillInflectionPoint'],
-        pair_info['hillPosScale'],
-        pair_info['hillNegScale'],
-        pair_info['springFactor'],
-        pair_info['sFactorUpScaleP'],
-        pair_info['sFactorDownScaleP'],
-        verbose
-    )
-
-    # Convert latest funding rate to decimal
-    latest_rate = Decimal(
-        funding_rate_raw['latestFundingRate']) / PRECISION_18  # Fixed key name
-
-    # Convert OI values to decimal
-    long_oi = Decimal(pair_info['longOI']) / PRECISION_18
-    short_oi = Decimal(pair_info['shortOI']) / PRECISION_18
-
-    if funding_rate_raw['longsPay']:
-        # If longs pay, they get negative rate
-        long_rate = -latest_rate
-        # Shorts receive proportional to OI ratio
-        short_rate = latest_rate * long_oi / \
-            short_oi if short_oi > 0 else Decimal('0')
-    else:
-        # If shorts pay, they get negative rate
-        short_rate = -latest_rate
-        # Longs receive proportional to OI ratio
-        long_rate = latest_rate * short_oi / \
-            long_oi if long_oi > 0 else Decimal('0')
-
-    return float(long_rate), float(short_rate)
-
-# TBD - used by SDK
 # Gets an open trade metrics: such as the open pnl, rollover, funding, liquidation price, price impact, etc.
 
 

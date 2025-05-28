@@ -6,7 +6,7 @@ from ostium_python_sdk.formulae import GetFundingRate
 from ostium_python_sdk.scscript.funding import getTargetFundingRate
 from ostium_python_sdk.utils import calculate_fee_per_hours, format_with_precision
 
-from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
+from .formulae_wrapper import get_trade_metrics
 from .constants import CHAIN_ID_ARBITRUM_MAINNET, CHAIN_ID_ARBITRUM_TESTNET, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
 
 from ostium_python_sdk.faucet import Faucet
@@ -193,28 +193,6 @@ class OstiumSDK:
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
         raise RuntimeError(
             f"Old version of function. Use get_funding_rate_for_pair_id(pair_id, period_hours=24).")
-
-        pair_details = await self.subgraph.get_pair_details(pair_id)
-        block_number = self.ostium.get_block_number()
-
-        funding_fee_long_per_block, funding_fee_short_per_block = get_funding_fee_long_short(
-            pair_details, block_number)
-        rollover_fee_per_block = Decimal(
-            pair_details['rolloverFeePerBlock']) / Decimal('1e18')
-
-        ff_long = calculate_fee_per_hours(
-            funding_fee_long_per_block, hours=period_hours)
-        ff_short = calculate_fee_per_hours(
-            funding_fee_short_per_block, hours=period_hours)
-        rollover = calculate_fee_per_hours(
-            rollover_fee_per_block, hours=period_hours)
-
-        rollover_value = Decimal('0') if rollover == 0 else rollover
-        net_long_percent = format_with_precision(
-            ff_long-rollover_value, precision=4)
-        net_short_percent = format_with_precision(
-            ff_short-rollover_value, precision=4)
-        return net_long_percent, net_short_percent
 
     async def get_rollover_rate_for_pair_id(self, pair_id, period_hours=24):
         pair_details = await self.subgraph.get_pair_details(pair_id)
