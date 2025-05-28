@@ -159,5 +159,9 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
         'net_pnl': float(net_pnl),  # same as total_profit
         'net_value': float(net_value),
         'liquidation_price': float(trade_liquidation_price),
-        'price_impact': float(price_impact)
+        'price_impact': float(price_impact),
+        'is_market_open': price_data['isMarketOpen'],
+        'bid': price_data['bid'],
+        'mid': price_data['mid'],
+        'ask': price_data['ask'],
     }

@@ -24,8 +24,8 @@ class Price:
                     raise Exception(
                         f"Failed to fetch prices: {response.status}")
 
-    # Returns a json, e.g: {'feed_id': '0x00039d9e45394f473ab1f050a1b963e6b05351e52d71e507509ada0c95ed75b8', 'bid': 97241.43864211132, 'mid': 97243.36503172085, 'ask': 97245.2739217016, 'isMarketOpen': True, 'from': 'BTC', 'to': 'USD', 'timestampSeconds': 1740043714}
-    async def get_latest_price_json(self, from_asset: str, to_asset: str) -> Tuple[float, bool]:
+    # Returns a json, e.g: {'feed_id': '0x00039d9e45394f473ab1f050a1b963e6b05351e52d71e507509ada0c95ed75b8', 'bid': 107646.01338169997, 'mid': 107646.03680130735, 'ask': 107646.06022091472, 'isMarketOpen': True, 'isDayTradingClosed': False, 'secondsToToggleIsDayTradingClosed': -1, 'from': 'BTC', 'to': 'USD', 'timestampSeconds': 1748460056}
+    async def get_latest_price_json(self, from_asset: str, to_asset: str):
         prices = await self.get_latest_prices()
         for price_data in prices:
             if (price_data.get('from') == from_asset and

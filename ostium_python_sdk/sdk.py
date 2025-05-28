@@ -132,7 +132,7 @@ class OstiumSDK:
         # get the price for this trade's asset/feed
         price_data = await self.price.get_latest_price_json(trade_details['pair']['from'], trade_details['pair']['to'])
         self.log(
-            f"\nPrice data: {price_data} (need here bid, mid, ask prices)")
+            f"\nPrice data: {price_data} (contains bid, mid, ask prices among other things)")
         # get the block number
         block_number = self.ostium.get_block_number()
         self.log(f"\nBlock number: {block_number}")
