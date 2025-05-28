@@ -196,7 +196,7 @@ The intraction with Ostium platform is denoted with pair_id and trade_index.
 
 ## List of available pairs (Mainnet)
 
-- As of January 2025, the following pairs are available on the mainnet: 
+- As of May 2025, the following pairs are available on the mainnet: 
 
 | ID | Trading Pair | Description                    |
 |----|--------------|--------------------------------|
@@ -211,6 +211,20 @@ The intraction with Ostium platform is denoted with pair_id and trade_index.
 | 8  | XAG-USD      | Silver                         |
 | 9  | SOL-USD      | Solana                         |
 | 10 | SPX-USD      | S&P 500 Index                  |
+| 11 | DJI-USD      | Dow Jones Industrial Average   |
+| 12 | NDX-USD      | NASDAQ-100 Index               |
+| 13 | NIK-JPY      | Nikkei 225 Index               |
+| 14 | FTSE-GBP     | FTSE 100 Index                 |
+| 15 | DAX-EUR      | DAX Index                      |
+| 16 | USD-CAD      | US Dollar to Canadian Dollar   |
+| 17 | USD-MXN      | US Dollar to Mexican Peso      |
+| 18 | NVDA-USD     | NVIDIA Stock                   |
+| 19 | GOOG-USD     | Alphabet (Google) Stock        |
+| 20 | AMZN-USD     | Amazon Stock                   |
+| 21 | META-USD     | Meta (Facebook) Stock          |
+| 22 | TSLA-USD     | Tesla Stock                    |
+| 23 | AAPL-USD     | Apple Stock                    |
+| 24 | MSFT-USD     | Microsoft Stock                |
 
 ## Usage Examples
 
