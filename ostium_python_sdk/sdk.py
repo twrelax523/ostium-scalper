@@ -178,16 +178,16 @@ class OstiumSDK:
     async def get_pair_overnight_max_leverage(self, pair_id):
         obj = await self.subgraph.get_pair_details(pair_id)
 
-        maxLeverage = int(obj['overnightMaxLeverage'])/100 if int(
+        maxLeverage = int(obj['overnightMaxLeverage'])/PRECISION_2 if int(
             obj['overnightMaxLeverage']) != 0 else None
         return maxLeverage
 
-    # either by group of pair or by pair id (e.g: maxLeverage 100 means 100x  )
+    # either by group of pair or by pair id (e.g: maxLeverage 100 means 100x)
     async def get_pair_max_leverage(self, pair_id):
         obj = await self.subgraph.get_pair_details(pair_id)
 
-        maxLeverage = int(obj['maxLeverage']) / 100 if int(
-            obj['group']['maxLeverage']) == 0 else int(obj['group']['maxLeverage']) / 100
+        maxLeverage = int(obj['maxLeverage']) / PRECISION_2 if int(
+            obj['group']['maxLeverage']) == 0 else int(obj['group']['maxLeverage']) / PRECISION_2
         return maxLeverage
 
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
@@ -274,45 +274,52 @@ class OstiumSDK:
 
         return accFundingLong, accFundingShort, fundingRate, targetFundingRate
 
-    async def get_formatted_pairs_details(self) -> list:
+    async def get_formatted_pairs_details(self, including_current_price_and_market_status=True) -> list:
         pairs = await self.subgraph.get_pairs()
         formatted_pairs = []
 
         for pair in pairs:
-            pair_details = await self.subgraph.get_pair_details(pair['id'])
-
-            # Get current price and market status
-            try:
-                price, is_market_open = await self.price.get_price(
-                    pair_details['from'],
-                    pair_details['to']
-                )
-            except ValueError:
-                price = 0
-                is_market_open = False
-
             formatted_pair = {
-                'id': int(pair_details['id']),
-                'from': pair_details['from'],
-                'to': pair_details['to'],
-                'price': price,
-                'isMarketOpen': is_market_open,
-                'longOI': Decimal(pair_details['longOI']) / PRECISION_18,
-                'shortOI': Decimal(pair_details['shortOI']) / PRECISION_18,
-                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_6,
-                'makerFeeP': Decimal(pair_details['makerFeeP']) / PRECISION_6,
-                'takerFeeP': Decimal(pair_details['takerFeeP']) / PRECISION_6,
-                'maxLeverage': Decimal(pair_details['group']['maxLeverage']) / PRECISION_2,
-                'minLeverage': Decimal(pair_details['group']['minLeverage']) / PRECISION_2,
-                'makerMaxLeverage': Decimal(pair_details['makerMaxLeverage']) / PRECISION_2,
-                'group': pair_details['group']['name'],
-                'groupMaxCollateralP': Decimal(pair_details['group']['maxCollateralP']) / PRECISION_2,
-                'minLevPos': Decimal(pair_details['fee']['minLevPos']) / PRECISION_9,
-                'lastFundingRate': Decimal(pair_details['lastFundingRate']) / PRECISION_9,
-                'curFundingLong': Decimal(pair_details['curFundingLong']) / PRECISION_9,
-                'curFundingShort': Decimal(pair_details['curFundingShort']) / PRECISION_9,
-                'lastFundingBlock': int(pair_details['lastFundingBlock'])
+                'id': int(pair['id']),
+                'from': pair['from'],
+                'to': pair['to'],
+                'group': pair['group']['name'],
+                'longOI': Decimal(pair['longOI']) / PRECISION_18,
+                'shortOI': Decimal(pair['shortOI']) / PRECISION_18,
+                'maxOI': Decimal(pair['maxOI']) / PRECISION_6,
+                'makerFeeP': Decimal(pair['makerFeeP']) / PRECISION_6,
+                'takerFeeP': Decimal(pair['takerFeeP']) / PRECISION_6,
+                'minLeverage': int(pair['minLeverage']) / 100 if int(
+                    pair['group']['minLeverage']) == 0 else Decimal(pair['group']['minLeverage']) / PRECISION_2,
+                'maxLeverage': int(pair['maxLeverage']) / 100 if int(
+                    pair['group']['maxLeverage']) == 0 else Decimal(pair['group']['maxLeverage']) / PRECISION_2,
+                'makerMaxLeverage': Decimal(pair['makerMaxLeverage']) / PRECISION_2,
+                'groupMaxCollateralP': Decimal(pair['group']['maxCollateralP']) / PRECISION_2,
+                'minLevPos': Decimal(pair['fee']['minLevPos']) / PRECISION_9,
+                'lastFundingRate': Decimal(pair['lastFundingRate']) / PRECISION_9,
+                'curFundingLong': Decimal(pair['curFundingLong']) / PRECISION_9,
+                'curFundingShort': Decimal(pair['curFundingShort']) / PRECISION_9,
+                'lastFundingBlock': int(pair['lastFundingBlock'])
             }
+
+            if int(pair['overnightMaxLeverage']) != 0:
+                formatted_pair['overnightMaxLeverage'] = Decimal(
+                    pair['overnightMaxLeverage']) / PRECISION_2
+
+            if including_current_price_and_market_status:
+                # Get current price and market status
+                try:
+                    price, is_market_open = await self.price.get_price(
+                        pair['from'],
+                        pair['to']
+                    )
+                    if price is not None:
+                        formatted_pair['price'] = price
+                    if is_market_open is not None:
+                        formatted_pair['isMarketOpen'] = is_market_open
+                except ValueError:
+                    pass
+
             formatted_pairs.append(formatted_pair)
 
         return formatted_pairs

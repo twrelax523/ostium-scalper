@@ -257,12 +257,9 @@ print("\nPair Information:")
 print("----------------------------------------")
 
 for pair in pairs:
-    # Get detailed information for each pair from the Graph API
-    pair_details = await sdk.subgraph.get_pair_details(pair['id'])
-    print("\nPair Details:")
     print("----------------------------------------")
     # Print all available fields in pair_details
-    for key, value in pair_details.items():
+    for key, value in pair.items():
         print(f"{key}: {value}")
     print("----------------------------------------")
 ```

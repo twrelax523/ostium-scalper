@@ -24,9 +24,48 @@ class SubgraphClient:
               pairs(first: 1000) {
                 id
                 from
-                to
+                to    
                 feed
-                overnightMaxLeverage
+                overnightMaxLeverage                
+                longOI
+                shortOI
+                maxOI
+                makerFeeP
+                takerFeeP
+                makerMaxLeverage    
+                curFundingLong  
+                curFundingShort
+                curRollover
+                totalOpenTrades
+                totalOpenLimitOrders
+                accRollover
+                lastRolloverBlock
+                rolloverFeePerBlock
+                accFundingLong
+                accFundingShort
+                lastFundingBlock
+                maxFundingFeePerBlock
+                lastFundingRate              
+                hillInflectionPoint
+                hillPosScale
+                hillNegScale
+                springFactor
+                sFactorUpScaleP
+                sFactorDownScaleP
+                lastTradePrice
+                maxLeverage              
+                group {
+                  id
+                  name
+                  minLeverage
+                  maxLeverage
+                  maxCollateralP
+                  longCollateral
+                  shortCollateral
+                }
+                fee {
+                  minLevPos                
+                }
               }
             }
       """
