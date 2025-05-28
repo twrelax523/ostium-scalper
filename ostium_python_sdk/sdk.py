@@ -1,11 +1,12 @@
 from dotenv import load_dotenv
 import os
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 
 from ostium_python_sdk.formulae import GetFundingRate
+from ostium_python_sdk.scscript.funding import getTargetFundingRate
 from ostium_python_sdk.utils import calculate_fee_per_hours, format_with_precision
 
-from .formulae_wrapper import get_funding_fee_long_short, get_trade_metrics
+from .formulae_wrapper import get_trade_metrics
 from .constants import CHAIN_ID_ARBITRUM_MAINNET, CHAIN_ID_ARBITRUM_TESTNET, PRECISION_2, PRECISION_6, PRECISION_12, PRECISION_18, PRECISION_9
 
 from ostium_python_sdk.faucet import Faucet
@@ -59,6 +60,10 @@ class OstiumSDK:
                 f"but RPC is connected to chain ID {actual_chain_id}. Please check your RPC_URL."
             )
 
+        if self.verbose:
+            print(
+                f"network_config: {'TESTNET' if self.network_config.is_testnet else 'MAINNET'}")
+
         # Initialize Ostium instance
         self.ostium = Ostium(
             self.w3,
@@ -88,8 +93,12 @@ class OstiumSDK:
         if self.verbose:
             print(message)
 
-    async def get_open_trades(self):
-        trader_public_address = self.ostium.get_public_address()
+    async def get_open_trades(self, trader_address=None):
+        if trader_address is None:
+            trader_public_address = self.ostium.get_public_address()
+        else:
+            trader_public_address = trader_address
+
         self.log(f"Trader public address: {trader_public_address}")
         open_trades = await self.subgraph.get_open_trades(trader_public_address)
         return open_trades, trader_public_address
@@ -100,6 +109,10 @@ class OstiumSDK:
     # Will thorw in case SDK instantiated with no private key
     async def get_open_trade_metrics(self, pair_id, trade_index):
         open_trades, trader_public_address = await self.get_open_trades()
+
+        liq_margin_threshold_p = await self.subgraph.get_liq_margin_threshold_p()
+        self.log(
+            f"SDK: get_open_trade_metrics: {liq_margin_threshold_p}, will use it for liquidation price calculation - call to get_trade_metrics()")
 
         trade_details = None
 
@@ -119,37 +132,75 @@ class OstiumSDK:
         # get the price for this trade's asset/feed
         price_data = await self.price.get_latest_price_json(trade_details['pair']['from'], trade_details['pair']['to'])
         self.log(
-            f"\nPrice data: {price_data} (need here bid, mid, ask prices)")
+            f"\nPrice data: {price_data} (contains bid, mid, ask prices among other things)")
         # get the block number
         block_number = self.ostium.get_block_number()
         self.log(f"\nBlock number: {block_number}")
-        return get_trade_metrics(trade_details, price_data, block_number, verbose=self.verbose)
+
+        pair_max_leverage = await self.get_pair_max_leverage(trade_details['pair']['id'])
+
+        return get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage, liq_margin_threshold_p, verbose=self.verbose)
+
+    async def get_target_funding_rate(self, pair_id):
+        pair_details = await self.subgraph.get_pair_details(pair_id)
+
+        hillInflectionPoint = Decimal(
+            pair_details['hillInflectionPoint']) / PRECISION_18
+
+        maxFundingFeePerBlock = Decimal(
+            pair_details['maxFundingFeePerBlock']) / PRECISION_18
+
+        hillPosScale = Decimal(pair_details['hillPosScale']) / PRECISION_2
+        hillNegScale = Decimal(pair_details['hillNegScale']) / PRECISION_2
+
+        currLongOI = Decimal(pair_details['longOI']) / PRECISION_6
+        currShortOI = Decimal(pair_details['shortOI']) / PRECISION_6
+        maxOI = Decimal(pair_details['maxOI']) / PRECISION_6  # maxOI is in USD
+
+        openInterestMax = max(currLongOI, currShortOI)
+        normalizedOiDelta = ((currLongOI - currShortOI).quantize(PRECISION_6, rounding=ROUND_DOWN) / max(
+            maxOI, openInterestMax).quantize(PRECISION_6, rounding=ROUND_DOWN)).quantize(PRECISION_6, rounding=ROUND_DOWN)
+
+        targetFundingRate = getTargetFundingRate(
+            normalizedOiDelta,
+            hillInflectionPoint,
+            maxFundingFeePerBlock,
+            hillPosScale,
+            hillNegScale
+        )
+
+        self.log(
+            f"{pair_details['from']}{pair_details['to']} Traget Funding rate: {targetFundingRate}\n\nPair details: {pair_details}")
+
+        return targetFundingRate
+
+    # max leverage for overnight trades (Stocks) - 100 means 100x, None if not set
+    async def get_pair_overnight_max_leverage(self, pair_id):
+        obj = await self.subgraph.get_pair_details(pair_id)
+
+        maxLeverage = int(obj['overnightMaxLeverage'])/PRECISION_2 if int(
+            obj['overnightMaxLeverage']) != 0 else None
+        return maxLeverage
+
+    # either by group of pair or by pair id (e.g: maxLeverage 100 means 100x)
+    async def get_pair_max_leverage(self, pair_id):
+        obj = await self.subgraph.get_pair_details(pair_id)
+
+        maxLeverage = int(obj['maxLeverage']) / PRECISION_2 if int(
+            obj['group']['maxLeverage']) == 0 else int(obj['group']['maxLeverage']) / PRECISION_2
+        return maxLeverage
 
     async def get_pair_net_rate_percent_per_hours(self, pair_id, period_hours=24):
         raise RuntimeError(
             f"Old version of function. Use get_funding_rate_for_pair_id(pair_id, period_hours=24).")
 
+    async def get_rollover_rate_for_pair_id(self, pair_id, period_hours=24):
         pair_details = await self.subgraph.get_pair_details(pair_id)
-        block_number = self.ostium.get_block_number()
-
-        funding_fee_long_per_block, funding_fee_short_per_block = get_funding_fee_long_short(
-            pair_details, block_number)
         rollover_fee_per_block = Decimal(
             pair_details['rolloverFeePerBlock']) / Decimal('1e18')
-
-        ff_long = calculate_fee_per_hours(
-            funding_fee_long_per_block, hours=period_hours)
-        ff_short = calculate_fee_per_hours(
-            funding_fee_short_per_block, hours=period_hours)
         rollover = calculate_fee_per_hours(
             rollover_fee_per_block, hours=period_hours)
-
-        rollover_value = Decimal('0') if rollover == 0 else rollover
-        net_long_percent = format_with_precision(
-            ff_long-rollover_value, precision=4)
-        net_short_percent = format_with_precision(
-            ff_short-rollover_value, precision=4)
-        return net_long_percent, net_short_percent
+        return rollover
 
     async def get_funding_rate_for_pair_id(self, pair_id, period_hours=24):
         pair_details = await self.subgraph.get_pair_details(pair_id)
@@ -201,45 +252,55 @@ class OstiumSDK:
 
         return accFundingLong, accFundingShort, fundingRate, targetFundingRate
 
-    async def get_formatted_pairs_details(self) -> list:
+    async def get_formatted_pairs_details(self, including_current_price_and_market_status=True) -> list:
         pairs = await self.subgraph.get_pairs()
         formatted_pairs = []
 
         for pair in pairs:
-            pair_details = await self.subgraph.get_pair_details(pair['id'])
-
-            # Get current price and market status
-            try:
-                price, is_market_open = await self.price.get_price(
-                    pair_details['from'],
-                    pair_details['to']
-                )
-            except ValueError:
-                price = 0
-                is_market_open = False
-
             formatted_pair = {
-                'id': int(pair_details['id']),
-                'from': pair_details['from'],
-                'to': pair_details['to'],
-                'price': price,
-                'isMarketOpen': is_market_open,
-                'longOI': Decimal(pair_details['longOI']) / PRECISION_18,
-                'shortOI': Decimal(pair_details['shortOI']) / PRECISION_18,
-                'maxOI': Decimal(pair_details['maxOI']) / PRECISION_6,
-                'makerFeeP': Decimal(pair_details['makerFeeP']) / PRECISION_6,
-                'takerFeeP': Decimal(pair_details['takerFeeP']) / PRECISION_6,
-                'maxLeverage': Decimal(pair_details['group']['maxLeverage']) / PRECISION_2,
-                'minLeverage': Decimal(pair_details['group']['minLeverage']) / PRECISION_2,
-                'makerMaxLeverage': Decimal(pair_details['makerMaxLeverage']) / PRECISION_2,
-                'group': pair_details['group']['name'],
-                'groupMaxCollateralP': Decimal(pair_details['group']['maxCollateralP']) / PRECISION_2,
-                'minLevPos': Decimal(pair_details['fee']['minLevPos']) / PRECISION_9,
-                'lastFundingRate': Decimal(pair_details['lastFundingRate']) / PRECISION_9,
-                'curFundingLong': Decimal(pair_details['curFundingLong']) / PRECISION_9,
-                'curFundingShort': Decimal(pair_details['curFundingShort']) / PRECISION_9,
-                'lastFundingBlock': int(pair_details['lastFundingBlock'])
+                'id': int(pair['id']),
+                'from': pair['from'],
+                'to': pair['to'],
+                'group': pair['group']['name'],
+                'longOI': Decimal(pair['longOI']) / PRECISION_18,
+                'shortOI': Decimal(pair['shortOI']) / PRECISION_18,
+                'maxOI': Decimal(pair['maxOI']) / PRECISION_6,
+                'makerFeeP': Decimal(pair['makerFeeP']) / PRECISION_6,
+                'takerFeeP': Decimal(pair['takerFeeP']) / PRECISION_6,
+                'minLeverage': int(pair['minLeverage']) / PRECISION_2 if int(
+                    pair['group']['minLeverage']) == 0 else Decimal(pair['group']['minLeverage']) / PRECISION_2,
+                'maxLeverage': int(pair['maxLeverage']) / PRECISION_2 if int(
+                    pair['group']['maxLeverage']) == 0 else Decimal(pair['group']['maxLeverage']) / PRECISION_2,
+                'makerMaxLeverage': Decimal(pair['makerMaxLeverage']) / PRECISION_2,
+                'groupMaxCollateralP': Decimal(pair['group']['maxCollateralP']) / PRECISION_2,
+                'minLevPos': Decimal(pair['fee']['minLevPos']) / PRECISION_6,
+                'lastFundingRate': Decimal(pair['lastFundingRate']) / PRECISION_9,
+                'curFundingLong': Decimal(pair['curFundingLong']) / PRECISION_9,
+                'curFundingShort': Decimal(pair['curFundingShort']) / PRECISION_9,
+                'lastFundingBlock': int(pair['lastFundingBlock'])
             }
+
+            if int(pair['overnightMaxLeverage']) != 0:
+                formatted_pair['overnightMaxLeverage'] = Decimal(
+                    pair['overnightMaxLeverage']) / PRECISION_2
+
+            if including_current_price_and_market_status:
+                # Get current price and market status
+                try:
+                    price, is_market_open, is_day_trading_closed = await self.price.get_price(
+                        pair['from'],
+                        pair['to']
+                    )
+                    if price is not None:
+                        formatted_pair['price'] = price
+                    if is_market_open is not None:
+                        formatted_pair['isMarketOpen'] = is_market_open
+                    if is_day_trading_closed is not None:
+                        formatted_pair['isDayTradingClosed'] = is_day_trading_closed
+                except ValueError:
+                    pass
+
             formatted_pairs.append(formatted_pair)
 
+        formatted_pairs.sort(key=lambda x: x['id'])
         return formatted_pairs

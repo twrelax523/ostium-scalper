@@ -420,10 +420,10 @@ async def test_oi_delta_negative_scaled_down_spring_factor_shorts_pay_longs():
 
     # 2. Expected outputs
     expected_latest_funding_rate = Decimal(
-        '-0.004999999382905974')  # 004999999444615238
+        '-0.004999999444615238')
     expected_acc_funding_long = Decimal(
-        '-0.4999999691452734')  # 499999972230743300
-    expected_acc_funding_short = Decimal('0.004999999691452734')
+        '-0.499999972230743300')
+    expected_acc_funding_short = Decimal('0.004999999722307433')
     expected_target_fr = Decimal('-0.004876580886315063')
 
     # 3. Call function

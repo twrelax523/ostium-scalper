@@ -4,7 +4,9 @@ from decimal import Decimal
 from enum import Enum
 from ostium_python_sdk.constants import PRECISION_2
 from web3 import Web3
-from .abi.abi import usdc_abi, ostium_trading_abi, ostium_trading_storage_abi
+from .abi.usdc_abi import usdc_abi
+from .abi.trading_abi import trading_abi
+from .abi.trading_storage_abi import trading_storage_abi
 from .utils import convert_to_scaled_integer, fromErrorCodeToMessage, get_tp_sl_prices, to_base_units
 from eth_account.account import Account
 
@@ -18,11 +20,11 @@ class OpenOrderType(Enum):
 class Ostium:
     """
     Main client for interacting with the Ostium trading platform on the Arbitrum network.
-    
+
     Supports opening and closing trades, managing positions, and other trading operations.
     Also supports delegation through the contract's native delegatedAction functionality,
     which allows an approved address to execute trades on behalf of another address.
-    
+
     Args:
         w3: Web3 instance connected to the Arbitrum network
         usdc_address: Contract address for USDC token
@@ -31,7 +33,7 @@ class Ostium:
         private_key: Private key for transaction signing
         verbose: Whether to log detailed information
         use_delegation: Whether to enable the delegatedAction functionality
-        
+
     Delegation Usage:
         1. Initialize the SDK with the delegate's private key
         2. Set use_delegation=True when initializing or set the use_delegation property to True later
@@ -40,6 +42,7 @@ class Ostium:
         4. The delegate address must be approved at the contract level to act on behalf of the trader
         5. The trader address must have approved enough USDC allowance for the trading contract
     """
+
     def __init__(self, w3: Web3, usdc_address: str, ostium_trading_storage_address: str, ostium_trading_address: str, private_key: str, verbose=False, use_delegation=False) -> None:
         self.web3 = w3
         self.verbose = verbose
@@ -52,15 +55,18 @@ class Ostium:
         self.usdc_contract = self.web3.eth.contract(
             address=self.usdc_address, abi=usdc_abi)
         self.ostium_trading_storage_contract = self.web3.eth.contract(
-            address=self.ostium_trading_storage_address, abi=ostium_trading_storage_abi)
+            address=self.ostium_trading_storage_address, abi=trading_storage_abi)
         self.ostium_trading_contract = self.web3.eth.contract(
-            address=self.ostium_trading_address, abi=ostium_trading_abi)
+            address=self.ostium_trading_address, abi=trading_abi)
 
         self.slippage_percentage = 2  # 2%
 
     def log(self, message):
         if self.verbose:
             print(message)
+
+    def get_opening_fee(self, trade_size, leverage, pair_id):
+        pass
 
     def set_slippage_percentage(self, slippage_percentage):
         self.slippage_percentage = slippage_percentage
@@ -92,7 +98,8 @@ class Ostium:
         self.log(f"Performing trade with params: {trade_params}")
         account = self._get_account()
         amount = to_base_units(trade_params['collateral'], decimals=6)
-        self.__approve(account, amount, self.use_delegation, trade_params.get('trader_address'))
+        self.__approve(account, amount, self.use_delegation,
+                       trade_params.get('trader_address'))
 
         try:
             self.log(f"Final trade parameters being sent: {trade_params}")
@@ -127,17 +134,19 @@ class Ostium:
             if self.use_delegation and 'trader_address' in trade_params:
                 # Use delegatedAction when delegation is enabled
                 trader_address = trade_params['trader_address']
-                self.log(f"Using delegatedAction to trade on behalf of {trader_address}")
-                
+                self.log(
+                    f"Using delegatedAction to trade on behalf of {trader_address}")
+
                 # The correct way to encode the function call in Web3.py
                 # Create the function object for openTrade
                 open_trade_func = self.ostium_trading_contract.functions.openTrade(
                     trade, order_type, slippage
                 )
-                
+
                 # Get the encoded data for the openTrade function call
-                inner_encoded_data = open_trade_func.build_transaction({'gas': 0})['data']
-                
+                inner_encoded_data = open_trade_func.build_transaction({'gas': 0})[
+                    'data']
+
                 # Create the outer delegatedAction transaction
                 trade_tx = self.ostium_trading_contract.functions.delegatedAction(
                     trader_address, inner_encoded_data
@@ -147,7 +156,7 @@ class Ostium:
                 trade_tx = self.ostium_trading_contract.functions.openTrade(
                     trade, order_type, slippage
                 ).build_transaction({'from': account.address})
-                
+
             trade_tx['nonce'] = self.get_nonce(account.address)
 
             signed_tx = self.web3.eth.account.sign_transaction(
@@ -157,20 +166,21 @@ class Ostium:
             trade_receipt = self.web3.eth.wait_for_transaction_receipt(
                 trade_tx_hash)
             # self.log(f"Order Receipt: {trade_receipt}")
-            
+
             # Extract orderId from logs
             order_id = None
             for log in trade_receipt.logs:
                 # Define PriceRequested event signature
-                price_requested_signature = self.web3.keccak(text="PriceRequested(uint256,bytes32,uint256)").hex()
-                
+                price_requested_signature = self.web3.keccak(
+                    text="PriceRequested(uint256,bytes32,uint256)").hex()
+
                 # Look at the event topic to identify the event type
                 if len(log['topics']) > 0 and log['topics'][0].hex() == price_requested_signature:
                     # orderId is the indexed parameter (second topic)
                     order_id = int(log['topics'][1].hex(), 16)
                     self.log(f"Found orderId from PriceRequested: {order_id}")
                     break
-                
+
             return {
                 'receipt': trade_receipt,
                 'order_id': order_id
@@ -205,13 +215,13 @@ class Ostium:
     def close_trade(self, pair_id, trade_index, close_percentage=100, trader_address=None):
         """
         Close a trade partially or completely
-        
+
         Args:
             pair_id: The ID of the trading pair
             trade_index: The index of the trade
             close_percentage: The percentage of the position to close (1-100, default: 100)
             trader_address: Optional address of the trader if different from the account (for delegation)
-        
+
         Returns:
             A dictionary containing the transaction receipt and order ID
         """
@@ -221,17 +231,19 @@ class Ostium:
         close_percentage = to_base_units(close_percentage, decimals=2)
 
         if self.use_delegation and trader_address:
-            self.log(f"Using delegatedAction to close trade on behalf of {trader_address}")
-            
+            self.log(
+                f"Using delegatedAction to close trade on behalf of {trader_address}")
+
             # The correct way to encode the function call in Web3.py
             # Create the function object for closeTradeMarket
             close_trade_func = self.ostium_trading_contract.functions.closeTradeMarket(
                 int(pair_id), int(trade_index), int(close_percentage)
             )
-            
+
             # Get the encoded data for the closeTradeMarket function call
-            inner_encoded_data = close_trade_func.build_transaction({'gas': 0})['data']
-            
+            inner_encoded_data = close_trade_func.build_transaction({'gas': 0})[
+                'data']
+
             # Create the outer delegatedAction transaction
             trade_tx = self.ostium_trading_contract.functions.delegatedAction(
                 trader_address, inner_encoded_data
@@ -253,27 +265,29 @@ class Ostium:
         trade_receipt = self.web3.eth.wait_for_transaction_receipt(
             trade_tx_hash)
         # self.log(f"Trade Receipt: {trade_receipt}")
-        
+
         # Extract orderId from logs
         order_id = None
         for log in trade_receipt.logs:
             # Define PriceRequested event signature
-            price_requested_signature = self.web3.keccak(text="PriceRequested(uint256,bytes32,uint256)").hex()
-            
+            price_requested_signature = self.web3.keccak(
+                text="PriceRequested(uint256,bytes32,uint256)").hex()
+
             # Look at the event topic to identify the event type
             if len(log['topics']) > 0 and log['topics'][0].hex() == price_requested_signature:
                 # orderId is the indexed parameter (second topic)
                 order_id = int(log['topics'][1].hex(), 16)
                 self.log(f"Found orderId from PriceRequested: {order_id}")
                 break
-                
+
         return {
             'receipt': trade_receipt,
             'order_id': order_id
         }
 
     def remove_collateral(self, pair_id, trade_index, remove_amount):
-        self.log(f"Remove collateral for trade for pair {pair_id}, index {trade_index}: {remove_amount} USDC")
+        self.log(
+            f"Remove collateral for trade for pair {pair_id}, index {trade_index}: {remove_amount} USDC")
         account = self._get_account()
 
         amount = to_base_units(remove_amount, decimals=6)
@@ -296,33 +310,36 @@ class Ostium:
     def add_collateral(self, pairID, index, collateral, trader_address=None):
         """
         Add collateral to an existing position
-        
+
         Args:
             pairID: The ID of the trading pair
             index: The index of the trade
             collateral: The amount of collateral to add
             trader_address: Optional address of the trader if different from the account (for delegation)
-            
+
         Returns:
             The transaction receipt
         """
         account = self._get_account()
         try:
             amount = to_base_units(collateral, decimals=6)
-            self.__approve(account, amount, self.use_delegation, trader_address)
+            self.__approve(account, amount,
+                           self.use_delegation, trader_address)
 
             if self.use_delegation and trader_address:
-                self.log(f"Using delegatedAction to add collateral on behalf of {trader_address}")
-                
+                self.log(
+                    f"Using delegatedAction to add collateral on behalf of {trader_address}")
+
                 # The correct way to encode the function call in Web3.py
                 # Create the function object for topUpCollateral
                 top_up_func = self.ostium_trading_contract.functions.topUpCollateral(
                     int(pairID), int(index), amount
                 )
-                
+
                 # Get the encoded data for the topUpCollateral function call
-                inner_encoded_data = top_up_func.build_transaction({'gas': 0})['data']
-                
+                inner_encoded_data = top_up_func.build_transaction({'gas': 0})[
+                    'data']
+
                 # Create the outer delegatedAction transaction
                 add_collateral_tx = self.ostium_trading_contract.functions.delegatedAction(
                     trader_address, inner_encoded_data
@@ -354,13 +371,13 @@ class Ostium:
     def update_tp(self, pair_id, trade_index, tp_price, trader_address=None):
         """
         Update take profit price for an existing position
-        
+
         Args:
             pair_id: The ID of the trading pair
             trade_index: The index of the trade
             tp_price: The new take profit price
             trader_address: Optional address of the trader if different from the account (for delegation)
-            
+
         Returns:
             The transaction receipt
         """
@@ -371,17 +388,19 @@ class Ostium:
             tp_value = to_base_units(tp_price, decimals=18)
 
             if self.use_delegation and trader_address:
-                self.log(f"Using delegatedAction to update TP on behalf of {trader_address}")
-                
+                self.log(
+                    f"Using delegatedAction to update TP on behalf of {trader_address}")
+
                 # The correct way to encode the function call in Web3.py
                 # Create the function object for updateTp
                 update_tp_func = self.ostium_trading_contract.functions.updateTp(
                     int(pair_id), int(trade_index), tp_value
                 )
-                
+
                 # Get the encoded data for the updateTp function call
-                inner_encoded_data = update_tp_func.build_transaction({'gas': 0})['data']
-                
+                inner_encoded_data = update_tp_func.build_transaction({'gas': 0})[
+                    'data']
+
                 # Create the outer delegatedAction transaction
                 update_tp_tx = self.ostium_trading_contract.functions.delegatedAction(
                     trader_address, inner_encoded_data
@@ -399,7 +418,7 @@ class Ostium:
             update_tp_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Update TP TX Hash: {update_tp_tx_hash.hex()}")
-            
+
             update_tp_receipt = self.web3.eth.wait_for_transaction_receipt(
                 update_tp_tx_hash)
             return update_tp_receipt
@@ -412,13 +431,13 @@ class Ostium:
     def update_sl(self, pairID, index, sl, trader_address=None):
         """
         Update stop loss price for an existing position
-        
+
         Args:
             pairID: The ID of the trading pair
             index: The index of the trade
             sl: The new stop loss price
             trader_address: Optional address of the trader if different from the account (for delegation)
-            
+
         Returns:
             The transaction receipt
         """
@@ -427,17 +446,19 @@ class Ostium:
             sl_value = to_base_units(sl, decimals=18)
 
             if self.use_delegation and trader_address:
-                self.log(f"Using delegatedAction to update SL on behalf of {trader_address}")
-                
+                self.log(
+                    f"Using delegatedAction to update SL on behalf of {trader_address}")
+
                 # The correct way to encode the function call in Web3.py
                 # Create the function object for updateSl
                 update_sl_func = self.ostium_trading_contract.functions.updateSl(
                     int(pairID), int(index), sl_value
                 )
-                
+
                 # Get the encoded data for the updateSl function call
-                inner_encoded_data = update_sl_func.build_transaction({'gas': 0})['data']
-                
+                inner_encoded_data = update_sl_func.build_transaction({'gas': 0})[
+                    'data']
+
                 # Create the outer delegatedAction transaction
                 update_sl_tx = self.ostium_trading_contract.functions.delegatedAction(
                     trader_address, inner_encoded_data
@@ -455,7 +476,7 @@ class Ostium:
             update_sl_tx_hash = self.web3.eth.send_raw_transaction(
                 signed_tx.raw_transaction)
             self.log(f"Update SL TX Hash: {update_sl_tx_hash.hex()}")
-            
+
             update_sl_receipt = self.web3.eth.wait_for_transaction_receipt(
                 update_sl_tx_hash)
             return update_sl_receipt
@@ -471,7 +492,7 @@ class Ostium:
     def __approve(self, account, collateral, use_delegation, trader_address=None):
         trader_address = trader_address if trader_address and use_delegation else account.address
         allowance = self.usdc_contract.functions.allowance(
-             trader_address, self.ostium_trading_storage_address).call()
+            trader_address, self.ostium_trading_storage_address).call()
 
         if allowance < collateral:
             if not use_delegation:
@@ -491,8 +512,9 @@ class Ostium:
                 approve_receipt = self.web3.eth.wait_for_transaction_receipt(
                     approve_tx_hash)
                 self.log(f"Approval Receipt: {approve_receipt}")
-            else:            
-                raise Exception(f"Sufficient allowance for {trader_address} not present. Please approve the trading contract to spend USDC.")
+            else:
+                raise Exception(
+                    f"Sufficient allowance for {trader_address} not present. Please approve the trading contract to spend USDC.")
 
     def withdraw(self, amount, receiving_address):
         account = self._get_account()
@@ -581,21 +603,21 @@ class Ostium:
         """
         Track an order by its ID and get the resulting trade once the order is executed.
         Formats the blockchain values to proper decimal representation.
-        
+
         Args:
             subgraph_client: The SubgraphClient instance to use for queries
             order_id: The ID of the order to track
             polling_interval: Time in seconds between polling attempts
             max_attempts: Maximum number of polling attempts
-            
+
         Returns:
             A dictionary containing both the order and trade data with formatted values
         """
         self.log(f"Tracking order ID: {order_id}")
-        
+
         # Fields that should be formatted to proper decimal values
         price_fields = [
-            'price', 'priceAfterImpact', 'openPrice', 'closePrice', 
+            'price', 'priceAfterImpact', 'openPrice', 'closePrice',
             'takeProfitPrice', 'stopLossPrice'
         ]
         collateral_fields = [
@@ -606,44 +628,49 @@ class Ostium:
             'profitPercent', 'totalProfitPercent', 'priceImpactP', 'leverage', 'highestLeverage',
             'closePercent'
         ]
-        
+
         for attempt in range(max_attempts):
             order = await subgraph_client.get_order_by_id(order_id)
-            
+
             if not order:
-                self.log(f"Order {order_id} not found yet, waiting... (attempt {attempt + 1}/{max_attempts})")
+                self.log(
+                    f"Order {order_id} not found yet, waiting... (attempt {attempt + 1}/{max_attempts})")
                 await asyncio.sleep(polling_interval)
                 continue
-                
+
             # Format numeric values in order
-            formatted_order = self._format_entity_values(order, price_fields, collateral_fields, percentage_fields)
-                
+            formatted_order = self._format_entity_values(
+                order, price_fields, collateral_fields, percentage_fields)
+
             if not formatted_order.get('isPending', True):
                 self.log(f"Order {order_id} has been processed")
-                
+
                 # Check if it was cancelled
                 if formatted_order.get('isCancelled', False):
-                    self.log(f"Order {order_id} was cancelled: {formatted_order.get('cancelReason', 'Unknown reason')}")
+                    self.log(
+                        f"Order {order_id} was cancelled: {formatted_order.get('cancelReason', 'Unknown reason')}")
                     return {'order': formatted_order, 'trade': None}
-                    
+
                 # If not cancelled, look for the trade using tradeID from the order
                 trade_id = formatted_order.get('tradeID')
                 if trade_id:
                     self.log(f"Looking for trade with ID: {trade_id}")
                     trade = await subgraph_client.get_trade_by_id(trade_id)
-                    
+
                     if trade:
                         # Format numeric values in trade
-                        formatted_trade = self._format_entity_values(trade, price_fields, collateral_fields, percentage_fields)
-                        
+                        formatted_trade = self._format_entity_values(
+                            trade, price_fields, collateral_fields, percentage_fields)
+
                         # Special handling for closing orders - we need to verify the trade is actually closed
                         if formatted_order.get('orderAction') == 'Close':
                             # For a close order, we need to check if the trade is actually closed (isOpen = false)
                             if formatted_trade.get('isOpen', True):
-                                self.log(f"Trade {trade_id} is closing but not fully closed yet, waiting... (attempt {attempt + 1}/{max_attempts})")
+                                self.log(
+                                    f"Trade {trade_id} is closing but not fully closed yet, waiting... (attempt {attempt + 1}/{max_attempts})")
                                 await asyncio.sleep(polling_interval)
                                 continue
-                        
+
                         self.log(f"Found trade for order {order_id}")
                         return {'order': formatted_order, 'trade': formatted_trade}
                     else:
@@ -652,40 +679,42 @@ class Ostium:
                 else:
                     self.log(f"No tradeID found in order {order_id}")
                     return {'order': formatted_order, 'trade': None}
-            
-            self.log(f"Order {order_id} is still pending, waiting... (attempt {attempt + 1}/{max_attempts})")
+
+            self.log(
+                f"Order {order_id} is still pending, waiting... (attempt {attempt + 1}/{max_attempts})")
             await asyncio.sleep(polling_interval)
-        
+
         self.log(f"Max polling attempts reached for order {order_id}")
         order = await subgraph_client.get_order_by_id(order_id)
         if order:
-            formatted_order = self._format_entity_values(order, price_fields, collateral_fields, percentage_fields)
+            formatted_order = self._format_entity_values(
+                order, price_fields, collateral_fields, percentage_fields)
             return {'order': formatted_order, 'trade': None}
         return {'order': None, 'trade': None}
-    
+
     def _format_entity_values(self, entity, price_fields, collateral_fields, percentage_fields):
         """
         Format values in an entity (order or trade) to proper decimal representations
-        
+
         Args:
             entity: The entity (order or trade) to format values for
             price_fields: List of field names that represent prices
             collateral_fields: List of field names that represent collateral/token amounts
             percentage_fields: List of field names that represent percentages
-            
+
         Returns:
             A new dictionary with formatted values
         """
         if not entity:
             return None
-            
+
         formatted_entity = {}
-        
+
         for key, value in entity.items():
             if value is None:
                 formatted_entity[key] = value
                 continue
-                
+
             if key in price_fields and isinstance(value, (int, str, Decimal)):
                 # Format prices with 18 decimals
                 try:
@@ -706,5 +735,5 @@ class Ostium:
                     formatted_entity[key] = value
             else:
                 formatted_entity[key] = value
-                
+
         return formatted_entity

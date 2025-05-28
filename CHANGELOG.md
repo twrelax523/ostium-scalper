@@ -5,6 +5,28 @@ All notable changes to the Ostium Python SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.12] - 2025-05-28
+
+- return isDayTradingClosed in sdk.get_formatted_pairs_details()
+
+## [2.0.11] - 2025-05-28
+
+- improve sdk.get_formatted_pairs_details()
+
+## [2.0.10] - 2025-05-27
+
+- Add sdk.get_target_funding_rate() for pair
+- Fix Liquidiation price calculation
+- Fix Funding Fee rate calculation
+- Add get_pair_overnight_max_leverage() for pair
+
+## [2.0.5] - 2025-05-26
+
+- Support new ABIs from smart-contracts v.1.2.3: PairInfo, PairStorage, Trading, TradingStorage, Vault.
+- Fix getTradeLiquidationPrice() exposed in sdk.get_open_trade_metrics()
+- Allow get_open_trades() with an optional parameter trader_address
+- Add sdk.get_rollover_rate_for_pair_id()
+
 ## [2.0.4] - 2025-05-26
 
 ### Added

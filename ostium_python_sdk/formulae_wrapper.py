@@ -1,62 +1,17 @@
 from decimal import Decimal
+
+from ostium_python_sdk.scscript.pairinfos import getTradeLiquidationPrice
 from .formulae import (PRECISION_18, PRECISION_2, PRECISION_6, GetCurrentRolloverFee, GetFundingRate,
-                       GetTradeFundingFee, GetTradeLiquidationPrice, GetTradeRolloverFee,
+                       GetTradeFundingFee, GetTradeRolloverFee,
                        GetPriceImpact, CurrentTradeProfitRaw,
                        CurrentTotalProfitRaw, CurrentTotalProfitP)
 
 
 # TBD - used by SDK
-# returns the funding_fee_long_per_block, funding_fee_short_per_block
-
-
-def get_funding_fee_long_short(pair_info, block_number, verbose=False):
-    funding_rate_raw = GetFundingRate(
-        pair_info['accFundingLong'],
-        pair_info['accFundingShort'],
-        pair_info['lastFundingRate'],
-        pair_info['maxFundingFeePerBlock'],
-        pair_info['lastFundingBlock'],
-        str(block_number),
-        pair_info['longOI'],
-        pair_info['shortOI'],
-        pair_info['maxOI'],
-        pair_info['hillInflectionPoint'],
-        pair_info['hillPosScale'],
-        pair_info['hillNegScale'],
-        pair_info['springFactor'],
-        pair_info['sFactorUpScaleP'],
-        pair_info['sFactorDownScaleP'],
-        verbose
-    )
-
-    # Convert latest funding rate to decimal
-    latest_rate = Decimal(
-        funding_rate_raw['latestFundingRate']) / PRECISION_18  # Fixed key name
-
-    # Convert OI values to decimal
-    long_oi = Decimal(pair_info['longOI']) / PRECISION_18
-    short_oi = Decimal(pair_info['shortOI']) / PRECISION_18
-
-    if funding_rate_raw['longsPay']:
-        # If longs pay, they get negative rate
-        long_rate = -latest_rate
-        # Shorts receive proportional to OI ratio
-        short_rate = latest_rate * long_oi / \
-            short_oi if short_oi > 0 else Decimal('0')
-    else:
-        # If shorts pay, they get negative rate
-        short_rate = -latest_rate
-        # Longs receive proportional to OI ratio
-        long_rate = latest_rate * short_oi / \
-            long_oi if long_oi > 0 else Decimal('0')
-
-    return float(long_rate), float(short_rate)
-
-# TBD - used by SDK
 # Gets an open trade metrics: such as the open pnl, rollover, funding, liquidation price, price impact, etc.
 
 
-def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
+def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage, liq_margin_threshold_p=25, verbose=False):
     """
     Calculate PNL and related metrics for a trade.
     """
@@ -116,10 +71,12 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     )
 
     if verbose:
-        print(f"Funding rate: {funding_rate_raw}")
+        print(
+            f"*** Funding rate: {funding_rate_raw} based on pair_info: {pair_info}")
 
     # Calculate funding fee
     trade_funding_fee = GetTradeFundingFee(
+        # initial funding fee (accFundingFeesPerOi)
         Decimal(trade_details['funding']) / PRECISION_18,
         Decimal(funding_rate_raw['accFundingLong']) if trade_details['isBuy'] else Decimal(
             funding_rate_raw['accFundingShort']),
@@ -128,16 +85,18 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     )
 
     if verbose:
-        print(f"trade_funding_fee: {trade_funding_fee}")
+        print(f"*** trade_funding_fee: {trade_funding_fee}")
 
     # Calculate liquidation price
-    trade_liquidation_price = GetTradeLiquidationPrice(
+    trade_liquidation_price = getTradeLiquidationPrice(
+        Decimal(liq_margin_threshold_p) / PRECISION_2,
         Decimal(trade_details['openPrice']) / PRECISION_18,
         trade_details['isBuy'],
         Decimal(trade_details['collateral']) / PRECISION_6,
         Decimal(trade_details['leverage']) / PRECISION_2,
         Decimal(trade_rollover_fee),
-        Decimal(trade_funding_fee)
+        Decimal(trade_funding_fee),
+        Decimal(pair_max_leverage)
     )
 
     if verbose:
@@ -165,7 +124,7 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         Decimal(trade_details['collateral']) / PRECISION_6
     )
 
-    # Calculate total profit (abs)
+    # Calculate total profit
     total_profit_raw = CurrentTotalProfitRaw(
         Decimal(trade_details['openPrice']) / PRECISION_18,
         Decimal(price_after_impact) / PRECISION_18,
@@ -185,7 +144,7 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
     pnl = Decimal(pnl_raw)
     pnl_percent = Decimal(pnl_percent_raw)
     net_pnl = Decimal(total_profit_raw)
-    total_profit = Decimal(total_profit_raw)
+    
     funding = Decimal(trade_funding_fee)
     rollover = Decimal(trade_rollover_fee)
     net_value = net_pnl + (Decimal(trade_details['collateral']) / PRECISION_6)
@@ -196,9 +155,12 @@ def get_trade_metrics(trade_details, price_data, block_number, verbose=False):
         'pnl_percent': float(pnl_percent),
         'rollover': float(rollover),
         'funding': float(funding),
-        'total_profit': float(total_profit),  # same as net_pnl
-        'net_pnl': float(net_pnl),  # same as total_profit
+        'net_pnl': float(net_pnl),  # pnl without ff, if any
         'net_value': float(net_value),
         'liquidation_price': float(trade_liquidation_price),
-        'price_impact': float(price_impact)
+        'price_impact': float(price_impact),
+        'is_market_open': price_data['isMarketOpen'],
+        'bid': price_data['bid'],
+        'mid': price_data['mid'],
+        'ask': price_data['ask'],
     }

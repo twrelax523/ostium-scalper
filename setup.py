@@ -4,10 +4,13 @@ from pathlib import Path
 this_directory = Path(__file__).parent
 
 # Read requirements.txt
+
+
 def read_requirements(filename: str):
-    return [line.strip() 
+    return [line.strip()
             for line in (this_directory / filename).read_text().splitlines()
             if line.strip() and not line.startswith('#')]
+
 
 # Read the contents of README.md and CHANGELOG.md
 long_description = (this_directory / "README.md").read_text()
@@ -19,7 +22,7 @@ if changelog_path.exists():
 
 setup(
     name="ostium-python-sdk",
-    version="2.0.4",
+    version="2.0.15",
     packages=find_packages(),
     install_requires=read_requirements('requirements.txt'),
     extras_require={

@@ -24,8 +24,48 @@ class SubgraphClient:
               pairs(first: 1000) {
                 id
                 from
-                to
+                to    
                 feed
+                overnightMaxLeverage                
+                longOI
+                shortOI
+                maxOI
+                makerFeeP
+                takerFeeP
+                makerMaxLeverage    
+                curFundingLong  
+                curFundingShort
+                curRollover
+                totalOpenTrades
+                totalOpenLimitOrders
+                accRollover
+                lastRolloverBlock
+                rolloverFeePerBlock
+                accFundingLong
+                accFundingShort
+                lastFundingBlock
+                maxFundingFeePerBlock
+                lastFundingRate              
+                hillInflectionPoint
+                hillPosScale
+                hillNegScale
+                springFactor
+                sFactorUpScaleP
+                sFactorDownScaleP
+                lastTradePrice
+                maxLeverage              
+                group {
+                  id
+                  name
+                  minLeverage
+                  maxLeverage
+                  maxCollateralP
+                  longCollateral
+                  shortCollateral
+                }
+                fee {
+                  minLevPos                
+                }
               }
             }
       """
@@ -43,7 +83,8 @@ class SubgraphClient:
             pair(id: $pair_id) {
               id
               from
-              to                    
+              to    
+              overnightMaxLeverage                
               longOI
               shortOI
               maxOI
@@ -99,6 +140,26 @@ class SubgraphClient:
         else:
             raise ValueError(f"No pair details found for pair ID: {pair_id}")
 
+    async def get_liq_margin_threshold_p(self):
+        query = gql(
+            """
+          query metaDatas {
+            metaDatas {              
+              liqMarginThresholdP
+            }
+          }
+          """
+        )
+        result = await self.client.execute_async(query)
+
+        liq_margin_threshold_p = result['metaDatas'][0]['liqMarginThresholdP']
+
+        if self.verbose:
+            self.log(
+                f"Fetched get_liq_margin_threshold_p: {liq_margin_threshold_p}%")
+
+        return liq_margin_threshold_p
+
     async def get_open_trades(self, address):
         # self.log(f"Fetching open trades for address: {address}")
         query = gql(
@@ -137,6 +198,7 @@ class SubgraphClient:
             longOI
             shortOI
             maxOI
+            maxLeverage
             hillInflectionPoint
             hillPosScale
             hillNegScale
@@ -146,6 +208,7 @@ class SubgraphClient:
             lastFundingBlock
             maxFundingFeePerBlock
             lastFundingRate
+            maxLeverage
           }
         }
       }
@@ -300,9 +363,9 @@ class SubgraphClient:
             }
             """
         )
-        
+
         result = await self.client.execute_async(query, variable_values={"order_id": str(order_id)})
-        
+
         if result and 'orders' in result and len(result['orders']) > 0:
             return result['orders'][0]
         return None
@@ -345,9 +408,9 @@ class SubgraphClient:
             }
             """
         )
-        
+
         result = await self.client.execute_async(query, variable_values={"trade_id": str(trade_id)})
-        
+
         if result and 'trades' in result and len(result['trades']) > 0:
             return result['trades'][0]
         return None

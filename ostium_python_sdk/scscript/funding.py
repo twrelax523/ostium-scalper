@@ -30,9 +30,7 @@ def getTargetFundingRate(normalizedOiDelta, hillInflectionPoint, maxFundingFeePe
     
     return (maxFundingFeePerBlock * targetFr).quantize(quantization_18, rounding=ROUND_DOWN)
 
-#
-# returns the accFundingLong, accFundingShort, latestFundingRate (per block), targetFr (per block)
-#
+
 def getPendingAccFundingFees(
         blockNumber: Decimal,
         lastUpdateBlock: Decimal,
@@ -50,7 +48,7 @@ def getPendingAccFundingFees(
         sFactorUpScale: Decimal,
         sFactorDownScaleP: Decimal,
     ):
-    # print(f"********* getPendingAccFundingFees *********")
+
     numBlocks = blockNumber - lastUpdateBlock
     openInterestMax = max(openInterestUsdcLong, openInterestUsdcShort)
     normalizedOiDelta = ((openInterestUsdcLong - openInterestUsdcShort).quantize(quantization_6, rounding=ROUND_DOWN) / max(OiCap, openInterestMax).quantize(quantization_6, rounding=ROUND_DOWN)).quantize(quantization_6, rounding=ROUND_DOWN)
@@ -80,7 +78,7 @@ def getPendingAccFundingFees(
             valueShort -= accFundingRate
             valueLong += (accFundingRate * openInterestUsdcShort / openInterestUsdcLong).quantize(quantization_18, rounding=ROUND_DOWN) if openInterestUsdcLong > 0 else 0
 
-    return (valueLong.quantize(quantization_18, rounding=ROUND_DOWN), valueShort.quantize(quantization_18, rounding=ROUND_DOWN), fr.quantize(quantization_18, rounding=ROUND_DOWN), targetFr.quantize(quantization_18, rounding=ROUND_DOWN))
+    return (valueLong.quantize(quantization_18, rounding=ROUND_DOWN), valueShort.quantize(quantization_18, rounding=ROUND_DOWN), fr.quantize(quantization_18, rounding=ROUND_DOWN))
 
 
 def exponentialApproximation(value):
@@ -133,9 +131,8 @@ if __name__ == "__main__":
         )
         encodedResult = "0x" + \
             encode(["int"], [int(result*PRECISION_18)]).hex()
-        # returns targetFr
         print(encodedResult)
-    elif sys.argv[1] == "accFundingRate": 
+    elif sys.argv[1] == "accFundingRate":
         blockNumber = Decimal(sys.argv[2])
         lastUpdateBlock = Decimal(sys.argv[3])
         valueLong = Decimal(sys.argv[4]) / PRECISION_18
@@ -158,7 +155,6 @@ if __name__ == "__main__":
         encodedResult = "0x" + \
             encode(["int", "int", "int64"], [int(result[0]*PRECISION_18),
                 int(result[1]*PRECISION_18), int(result[2]*PRECISION_18)]).hex()
-        # returns valueLong, valueShort, fr
         print(encodedResult)
     else:
         print("Invalid Operation")

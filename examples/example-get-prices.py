@@ -13,13 +13,13 @@ async def main():
     print("\nAll Latest Prices:")
     print("----------------------------------------")
     for price_data in prices:
-        price, is_open = await sdk.price.get_price(price_data['from'], price_data['to'])
+        price, is_open, _ = await sdk.price.get_price(price_data['from'], price_data['to'])
         print(
             f"{price_data['from']}/{price_data['to']}: {price:,.2f} {price_data['to']} (Market {'OPEN' if is_open else 'CLOSED'})")
 
     # Get specific asset pair prices
-    btc_usd_price, btc_usd_open = await sdk.price.get_price("BTC", "USD")
-    nik_jpy_price, nik_jpy_open = await sdk.price.get_price("NIK", "JPY")
+    btc_usd_price, btc_usd_open, _ = await sdk.price.get_price("BTC", "USD")
+    nik_jpy_price, nik_jpy_open, _ = await sdk.price.get_price("NIK", "JPY")
 
     print("\nSpecific Pair Prices:")
     print("----------------------------------------")
