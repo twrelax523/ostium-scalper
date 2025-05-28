@@ -424,38 +424,6 @@ except Exception as e:
 
 <b>NOTE:</b> Similiarly you can create a Stop order, just use 'STOP' as the order_type and make sure at_price is set to an acceptable stop loss price.
 
-
-### Add Colateral
-
-Added in version 0.1.2
-
-### Add control of Slippage - Not only default 2%
-
-Added in version 0.1.25
-
-### Remove Colleteral - Add when Audit is done
-TBD
-
-### Tp / Sl - explain not specifying what means - 900 % for TP max and SL meaning
-TBD
-
-### Maybe take or Make sure we have the error mapping from code to string errro msgs.
-TBD
-
-
-### Get a certain Pair Net Rate % (Funding Fees, Rollover)
-
-```bash 
-### Use sdk.get_pair_net_rate_percent_per_hours()
-```
-
-### Open Trade Fees calculation - SDK to get breakdown of FF, RF, PnL, etc.
-
-```bash
-## Use sdk.get_open_trade_metrics()
-```
-
-
 ## Example Usage Scripts
 
 More examples can be found in the [examples](https://github.com/0xOstium/ostium_python_sdk/tree/main/examples) folder.
