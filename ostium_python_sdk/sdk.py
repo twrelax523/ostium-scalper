@@ -273,7 +273,7 @@ class OstiumSDK:
                     pair['group']['maxLeverage']) == 0 else Decimal(pair['group']['maxLeverage']) / PRECISION_2,
                 'makerMaxLeverage': Decimal(pair['makerMaxLeverage']) / PRECISION_2,
                 'groupMaxCollateralP': Decimal(pair['group']['maxCollateralP']) / PRECISION_2,
-                'minLevPos': Decimal(pair['fee']['minLevPos']) / PRECISION_9,
+                'minLevPos': Decimal(pair['fee']['minLevPos']) / PRECISION_6,
                 'lastFundingRate': Decimal(pair['lastFundingRate']) / PRECISION_9,
                 'curFundingLong': Decimal(pair['curFundingLong']) / PRECISION_9,
                 'curFundingShort': Decimal(pair['curFundingShort']) / PRECISION_9,
