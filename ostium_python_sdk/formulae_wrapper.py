@@ -124,7 +124,7 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
         Decimal(trade_details['collateral']) / PRECISION_6
     )
 
-    # Calculate total profit (abs)
+    # Calculate total profit
     total_profit_raw = CurrentTotalProfitRaw(
         Decimal(trade_details['openPrice']) / PRECISION_18,
         Decimal(price_after_impact) / PRECISION_18,
@@ -144,7 +144,7 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
     pnl = Decimal(pnl_raw)
     pnl_percent = Decimal(pnl_percent_raw)
     net_pnl = Decimal(total_profit_raw)
-    total_profit = Decimal(total_profit_raw)
+    
     funding = Decimal(trade_funding_fee)
     rollover = Decimal(trade_rollover_fee)
     net_value = net_pnl + (Decimal(trade_details['collateral']) / PRECISION_6)
@@ -155,8 +155,7 @@ def get_trade_metrics(trade_details, price_data, block_number, pair_max_leverage
         'pnl_percent': float(pnl_percent),
         'rollover': float(rollover),
         'funding': float(funding),
-        'total_profit': float(total_profit),  # same as net_pnl
-        'net_pnl': float(net_pnl),  # same as total_profit
+        'net_pnl': float(net_pnl),  # pnl without ff, if any
         'net_value': float(net_value),
         'liquidation_price': float(trade_liquidation_price),
         'price_impact': float(price_impact),

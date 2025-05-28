@@ -155,7 +155,7 @@ class OstiumSDK:
 
         currLongOI = Decimal(pair_details['longOI']) / PRECISION_6
         currShortOI = Decimal(pair_details['shortOI']) / PRECISION_6
-        maxOI = Decimal(pair_details['maxOI']) / PRECISION_6
+        maxOI = Decimal(pair_details['maxOI']) / PRECISION_6  # maxOI is in USD
 
         openInterestMax = max(currLongOI, currShortOI)
         normalizedOiDelta = ((currLongOI - currShortOI).quantize(PRECISION_6, rounding=ROUND_DOWN) / max(
