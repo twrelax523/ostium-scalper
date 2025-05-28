@@ -61,7 +61,7 @@ async def main():
 
     try:
         # Get latest price for BTC
-        latest_price, _ = await sdk.price.get_price("BTC", "USD")
+        latest_price, _, _ = await sdk.price.get_price("BTC", "USD")
         print(f"Latest BTC/USD price: ${latest_price:,.2f}")
 
         # Execute trade at current market price using delegatedAction

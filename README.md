@@ -283,7 +283,7 @@ try:
   print(f"Slippage percentage set to: {sdk.ostium.get_slippage_percentage()}%")
 
   # Get latest price for BTC
-  latest_price, _ = await sdk.price.get_price("BTC", "USD")
+  latest_price, _, _ = await sdk.price.get_price("BTC", "USD")
   print(f"Latest price: {latest_price}")
   # Execute trade at current market price
   receipt = sdk.ostium.perform_trade(trade_params, at_price=latest_price)
@@ -373,7 +373,7 @@ order_params = {
 
 try:
     # Get latest price for ETH
-    latest_price, _ = await sdk.price.get_price("ETH", "USD")
+    latest_price, _, _ = await sdk.price.get_price("ETH", "USD")
     print(f"Latest price: {latest_price}")
     # Execute LIMIT trade order at 10% above the current price
     receipt = sdk.ostium.perform_trade(order_params, at_price=latest_price * 1.1)

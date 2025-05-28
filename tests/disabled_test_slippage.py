@@ -45,7 +45,7 @@ async def test_slippage_validation(sdk):
         pytest.skip(msg)
 
     # Get latest price for BTC
-    latest_price, _ = await sdk.price.get_price("BTC", "USD")
+    latest_price, _, _ = await sdk.price.get_price("BTC", "USD")
     latest_price = Decimal(str(latest_price))  # Convert float to Decimal
     print(f"Latest price: {latest_price}")
 

@@ -287,7 +287,7 @@ class OstiumSDK:
             if including_current_price_and_market_status:
                 # Get current price and market status
                 try:
-                    price, is_market_open = await self.price.get_price(
+                    price, is_market_open, is_day_trading_closed = await self.price.get_price(
                         pair['from'],
                         pair['to']
                     )
@@ -295,6 +295,8 @@ class OstiumSDK:
                         formatted_pair['price'] = price
                     if is_market_open is not None:
                         formatted_pair['isMarketOpen'] = is_market_open
+                    if is_day_trading_closed is not None:
+                        formatted_pair['isDayTradingClosed'] = is_day_trading_closed
                 except ValueError:
                     pass
 
