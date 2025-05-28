@@ -302,4 +302,5 @@ class OstiumSDK:
 
             formatted_pairs.append(formatted_pair)
 
+        formatted_pairs.sort(key=lambda x: x['id'])
         return formatted_pairs
