@@ -267,9 +267,9 @@ class OstiumSDK:
                 'maxOI': Decimal(pair['maxOI']) / PRECISION_6,
                 'makerFeeP': Decimal(pair['makerFeeP']) / PRECISION_6,
                 'takerFeeP': Decimal(pair['takerFeeP']) / PRECISION_6,
-                'minLeverage': int(pair['minLeverage']) / 100 if int(
+                'minLeverage': int(pair['minLeverage']) / PRECISION_2 if int(
                     pair['group']['minLeverage']) == 0 else Decimal(pair['group']['minLeverage']) / PRECISION_2,
-                'maxLeverage': int(pair['maxLeverage']) / 100 if int(
+                'maxLeverage': int(pair['maxLeverage']) / PRECISION_2 if int(
                     pair['group']['maxLeverage']) == 0 else Decimal(pair['group']['maxLeverage']) / PRECISION_2,
                 'makerMaxLeverage': Decimal(pair['makerMaxLeverage']) / PRECISION_2,
                 'groupMaxCollateralP': Decimal(pair['group']['maxCollateralP']) / PRECISION_2,
