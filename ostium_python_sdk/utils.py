@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from web3 import Web3
 from ast import literal_eval
+from eth_account.account import Account
 
 from .constants import MAX_PROFIT_P, MAX_STOP_LOSS_P
 
@@ -217,5 +218,64 @@ def convert_decimals(obj):
     elif isinstance(obj, Decimal):
         return str(obj)  # or float(obj) if you prefer
     return obj
+
+
+def approve_usdc(w3: Web3, usdc_contract, spender_address: str, amount: int, private_key: str, verbose: bool = False) -> dict:
+    """
+    Approve USDC spending for any contract.
+
+    Args:
+        w3: Web3 instance
+        usdc_contract: USDC contract instance
+        spender_address: Address of the contract to approve
+        amount: Amount to approve in base units
+        private_key: Private key for transaction signing
+        verbose: Whether to log detailed information
+
+    Returns:
+        Transaction receipt
+    """
+    if verbose:
+        print(f"Approving {amount} USDC for {spender_address}")
+
+    account = Account.from_key(private_key)
+
+    # Build and send approval transaction
+    tx = usdc_contract.functions.approve(
+        spender_address,
+        amount
+    ).build_transaction({
+        'from': account.address,
+        'nonce': w3.eth.get_transaction_count(account.address)
+    })
+
+    signed_tx = w3.eth.account.sign_transaction(tx, private_key)
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+
+    if verbose:
+        print(
+            f"Approval successful! Transaction hash: {receipt['transactionHash'].hex()}")
+
+    return receipt
+
+
+def get_account(w3: Web3, private_key: str) -> Account:
+    """
+    Get an Ethereum account from a private key.
+
+    Args:
+        w3: Web3 instance
+        private_key: Private key for the account
+
+    Returns:
+        Account instance
+
+    Raises:
+        ValueError: If private key is not provided
+    """
+    if not private_key:
+        raise ValueError("Private key is required for this operation")
+    return Account.from_key(private_key)
 
 # timestamp is a string in seconds as returned from graph
