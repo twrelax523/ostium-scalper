@@ -79,7 +79,7 @@ test_cases = [
 def test_get_pending_acc_funding_fees(test_case):
     """Test getPendingAccFundingFees function with various test cases"""
     # Call the function with test case parameters
-    acc_funding_long, acc_funding_short, latest_funding_rate = getPendingAccFundingFees(
+    acc_funding_long, acc_funding_short, latest_funding_rate, target_funding_rate = getPendingAccFundingFees(
         blockNumber=test_case['blockNumber'],
         lastUpdateBlock=test_case['lastUpdateBlock'],
         valueLong=test_case['valueLong'],
@@ -102,7 +102,7 @@ def test_get_pending_acc_funding_fees(test_case):
     print(f"acc_funding_long: {acc_funding_long}")
     print(f"acc_funding_short: {acc_funding_short}")
     print(f"latest_funding_rate: {latest_funding_rate}")
-
+    print(f"target_funding_rate: {target_funding_rate}")
     # Assertions
     assert acc_funding_long == pytest.approx(test_case['expected_acc_funding_long'], rel=Decimal('1e-12')), \
         f"acc_funding_long {acc_funding_long} != {test_case['expected_acc_funding_long']}"
