@@ -242,7 +242,7 @@ def GetFundingRate(
     sFactorDownScaleP: str,
     verbose: bool = False
 ):
-    acc_funding_long, acc_funding_short, latest_funding_rate = getPendingAccFundingFees(
+    acc_funding_long, acc_funding_short, latest_funding_rate, target_funding_rate = getPendingAccFundingFees(
         blockNumber=Decimal(latestBlock),
         lastUpdateBlock=Decimal(lastUpdateBlock),
         valueLong=Decimal(accPerOiLong) / PRECISION_18,
@@ -264,5 +264,5 @@ def GetFundingRate(
         'accFundingLong': acc_funding_long,
         'accFundingShort': acc_funding_short,
         'latestFundingRate': latest_funding_rate,
-        # 'targetFundingRate': target_fr
+        'targetFundingRate': target_funding_rate
     }
