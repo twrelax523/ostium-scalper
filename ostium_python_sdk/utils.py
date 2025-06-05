@@ -162,12 +162,12 @@ def fromErrorCodeToMessage(error_code, verbose=False):
 
     # Search for any of the known error hashes within the error_code string
     for hash_code, error_message in error_map.items():
-        if verbose:
-            print('checking', hash_code, 'in', str(error_code))
+        # if verbose:
+        #     print('checking', hash_code, 'in', str(error_code))
         if hash_code in str(error_code):
             ret = error_message
-            if verbose:
-                print('FOUND THE ERROR', ret)
+            # if verbose:
+            #     print('FOUND THE ERROR', ret)
             return str(ret), None
 
     # If we couldn't find the error in error_map, try to parse the error

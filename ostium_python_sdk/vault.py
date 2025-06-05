@@ -576,6 +576,11 @@ class OstiumVault:
         """
         return self.vault_contract.functions.withdrawEpochsTimelock().call()
 
+    def get_share_to_assets_price(self) -> Decimal:
+        """Get the share to assets price."""
+        price = self.vault_contract.functions.shareToAssetsPrice().call()
+        return Decimal(price) / Decimal(10**18)
+
     def preview_deposit(self, assets: Decimal) -> Decimal:
         """
         Preview how many shares would be received for depositing assets.
@@ -587,10 +592,7 @@ class OstiumVault:
             Amount of shares that would be received
         """
         try:
-            share_to_assets_price = self.vault_contract.functions.shareToAssetsPrice().call()
-            share_to_assets_price = Decimal(
-                share_to_assets_price) / PRECISION_18
-
+            share_to_assets_price = self.get_share_to_assets_price()
             if share_to_assets_price != Decimal(0):
                 return (assets / share_to_assets_price).quantize(QUANTIZATION_6, rounding=ROUND_DOWN)
             return Decimal(0)
@@ -612,11 +614,8 @@ class OstiumVault:
         Returns:
             Amount of assets needed in USDC
         """
-        share_to_assets_price = self.vault_contract.functions.shareToAssetsPrice().call()
-        share_to_assets_price = Decimal(share_to_assets_price) / PRECISION_18
-
+        share_to_assets_price = self.get_share_to_assets_price()
         uint256_max = Decimal((2**256 - 1) / PRECISION_6)
-
         if shares == uint256_max and share_to_assets_price >= Decimal(1):
             return shares
         return (shares * share_to_assets_price).quantize(QUANTIZATION_6, rounding=ROUND_UP)
@@ -713,8 +712,6 @@ class OstiumVault:
             Tuple of (shares, assets_deposited, assets_discount)
         """
         lock_discount_p = self.get_lock_discount_p(lock_duration_seconds)
-        share_to_assets_price = Decimal(
-            self.vault_contract.functions.shareToAssetsPrice().call()) / PRECISION_18
 
         assets = self.preview_mint(shares)
         assets_deposited = (assets * (Decimal(100) / (Decimal(100) +
@@ -1035,3 +1032,12 @@ class OstiumVault:
                 f"An error occurred during the make withdraw request process: {reason_string}")
             raise Exception(
                 f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
+
+    def get_acc_rewards_per_token(self) -> Decimal:
+        """Get the accumulated rewards per token."""
+        rewards = self.vault_contract.functions.accRewardsPerToken().call()
+        return Decimal(rewards) / Decimal(10**18)  # Adjust precision as needed
+
+    def get_last_daily_acc_pnl_delta_reset_ts(self) -> int:
+        """Get the last daily accumulated PnL delta reset timestamp."""
+        return self.vault_contract.functions.lastDailyAccPnlDeltaResetTs().call()

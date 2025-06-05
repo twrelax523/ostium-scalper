@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from ostium_python_sdk import OstiumSDK
 from ostium_python_sdk.config import NetworkConfig
 from eth_account import Account
+from web3 import Web3
 
 
 @pytest.fixture(scope="module")
@@ -180,3 +181,137 @@ def test_withdraw_request_functions(sdk, account):
     withdraw_request = sdk.vault.withdraw_requests(
         account.address, current_epoch)
     assert withdraw_request >= 0
+
+
+def test_token_info(sdk):
+    """Test token information functions"""
+    # Test token name
+    name = sdk.vault.get_name()
+    assert name == "ostiumLP"
+
+    # Test token symbol
+    symbol = sdk.vault.get_symbol()
+    assert symbol == "oLP"
+
+    # Test token decimals
+    decimals = sdk.vault.get_decimals()
+    assert decimals == 6
+
+
+def test_zero_address_balance(sdk):
+    """Test balance for zero address"""
+    zero_address = "0x0000000000000000000000000000000000000000"
+    balance = sdk.vault.get_balance(zero_address)
+    assert balance == 0
+
+
+def test_max_redeem(sdk, account):
+    """Test max redeem function"""
+    max_redeem = sdk.vault.max_redeem(account.address)
+    assert max_redeem >= 0
+
+
+def test_withdrawal_timelock(sdk):
+    """Test withdrawal epochs timelock"""
+    timelock = sdk.vault.get_withdraw_epochs_timelock()
+    assert timelock > 0
+    assert isinstance(timelock, int)
+
+
+def test_vault_parameters(sdk):
+    """Test various vault parameters"""
+    # Test max supply
+    max_supply = sdk.vault.get_current_max_supply()
+    assert max_supply > 0
+
+    # Test max supply increase daily percentage
+    max_supply_increase = sdk.vault.get_max_supply_increase_daily_p()
+    assert max_supply_increase > 0
+    assert max_supply_increase <= 1000  # Should be reasonable percentage
+
+    # Test max discount percentage
+    max_discount = sdk.vault.get_max_discount_p()
+    assert max_discount > 0
+    assert max_discount <= 100  # Should be reasonable percentage
+
+    # Test max discount threshold percentage
+    max_discount_threshold = sdk.vault.get_max_discount_threshold_p()
+    assert max_discount_threshold > 0
+    assert max_discount_threshold <= 1000  # Should be reasonable percentage
+
+
+def test_discount_metrics(sdk):
+    """Test discount related metrics"""
+    # Test total discounts
+    total_discounts = sdk.vault.get_total_discounts()
+    assert total_discounts >= 0
+
+    # Test total locked discounts
+    total_locked_discounts = sdk.vault.get_total_locked_discounts()
+    assert total_locked_discounts >= 0
+    assert total_locked_discounts <= total_discounts
+
+
+def test_collateralization(sdk):
+    """Test collateralization metrics"""
+    # Test collateralization percentage
+    collat_p = sdk.vault.get_collateralization_p()
+    assert collat_p > 0
+    assert collat_p <= 100  # Should be percentage
+
+    # Test total deposited
+    total_deposited = sdk.vault.get_total_deposited()
+    assert total_deposited >= 0
+
+    # Test total liability
+    total_liability = sdk.vault.get_total_liability()
+    assert isinstance(total_liability, (int, Decimal))
+
+
+def test_rewards(sdk):
+    """Test rewards related functions"""
+    # Test total rewards
+    total_rewards = sdk.vault.get_total_rewards()
+    assert total_rewards >= 0
+
+    # Test acc rewards per token
+    acc_rewards = sdk.vault.get_acc_rewards_per_token()
+    assert acc_rewards >= 0
+
+
+def test_daily_metrics(sdk):
+    """Test daily metrics"""
+    # Test daily acc PnL delta per token
+    daily_pnl_delta = sdk.vault.get_daily_acc_pnl_delta_per_token()
+    assert isinstance(daily_pnl_delta, (int, Decimal))
+
+    # Test last daily acc PnL delta reset timestamp
+    last_reset = sdk.vault.get_last_daily_acc_pnl_delta_reset_ts()
+    assert last_reset > 0
+    assert isinstance(last_reset, int)
+
+
+def test_share_price(sdk):
+    """Test share price calculation"""
+    # Test share to assets price
+    share_price = sdk.vault.get_share_to_assets_price()
+    assert share_price > 0
+
+    # Verify price calculation
+    one_share = Decimal('1.0')
+    assets = sdk.vault.convert_to_assets(one_share)
+
+    # Print values for debugging
+    print(f"\nShare price (18 decimals): {share_price}")
+    print(f"Assets (6 decimals): {assets}")
+
+    # Convert share_price to 6 decimals for comparison
+    share_price_6_decimals = share_price * \
+        Decimal('1000000000000')  # Convert from 18 to 6 decimals
+
+    # Calculate relative difference
+    relative_diff = abs(assets - share_price_6_decimals) / \
+        share_price_6_decimals
+    # Allow for 0.1% difference due to rounding
+    assert relative_diff < Decimal(
+        '0.001'), f"Relative difference {relative_diff} exceeds tolerance"
