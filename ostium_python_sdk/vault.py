@@ -91,22 +91,31 @@ class OstiumVault:
             self.verbose
         )
 
-        # Build and send deposit transaction
-        self.log("Depositing USDC to vault...")
-        tx = self.vault_contract.functions.deposit(
-            amount_base,
-            receiver
-        ).build_transaction({
-            'from': account.address,
-            'nonce': self.get_nonce(account.address)
-        })
+        try:
+            # Build and send deposit transaction
+            self.log("Depositing USDC to vault...")
+            tx = self.vault_contract.functions.deposit(
+                amount_base,
+                receiver
+            ).build_transaction({
+                'from': account.address,
+                'nonce': self.get_nonce(account.address)
+            })
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            tx, self.private_key)
-        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            signed_tx = self.web3.eth.account.sign_transaction(
+                tx, self.private_key)
+            tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
-        return receipt
+            return receipt
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the deposit process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def deposit_with_lock(self, amount: float, lock_period_seconds: int, receiver: str = None):
         """
@@ -144,23 +153,32 @@ class OstiumVault:
             self.verbose
         )
 
-        # Build and send transaction
-        self.log("Depositing USDC to vault with lock...")
-        tx = self.vault_contract.functions.depositWithDiscountAndLock(
-            amount_base,
-            lock_period_seconds,
-            receiver
-        ).build_transaction({
-            'from': account.address,
-            'nonce': self.get_nonce(account.address)
-        })
+        try:
+            # Build and send transaction
+            self.log("Depositing USDC to vault with lock...")
+            tx = self.vault_contract.functions.depositWithDiscountAndLock(
+                amount_base,
+                lock_period_seconds,
+                receiver
+            ).build_transaction({
+                'from': account.address,
+                'nonce': self.get_nonce(account.address)
+            })
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            tx, self.private_key)
-        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            signed_tx = self.web3.eth.account.sign_transaction(
+                tx, self.private_key)
+            tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
-        return receipt
+            return receipt
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the deposit with discount and lock process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def withdraw(self, shares: float, receiver: str = None):
         """
@@ -182,22 +200,31 @@ class OstiumVault:
         # Convert shares to base units (18 decimals for vault shares)
         shares_base = to_base_units(shares, decimals=18)
 
-        # Build and send transaction
-        tx = self.vault_contract.functions.redeem(
-            shares_base,
-            receiver,
-            account.address
-        ).build_transaction({
-            'from': account.address,
-            'nonce': self.get_nonce(account.address)
-        })
+        try:
+            # Build and send transaction
+            tx = self.vault_contract.functions.redeem(
+                shares_base,
+                receiver,
+                account.address
+            ).build_transaction({
+                'from': account.address,
+                'nonce': self.get_nonce(account.address)
+            })
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            tx, self.private_key)
-        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            signed_tx = self.web3.eth.account.sign_transaction(
+                tx, self.private_key)
+            tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
-        return receipt
+            return receipt
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the withdraw process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def get_balance(self, address: str = None):
         """
