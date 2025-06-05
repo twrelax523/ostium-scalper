@@ -142,15 +142,32 @@ def fromErrorCodeToMessage(error_code, verbose=False):
         "35fe85c5": "WrongLeverage(uint32)",
         "5863f789": "WrongParams()",
         "083fbd78": "WrongSL()",
-        "a41bb918": "WrongTP()"
+        "a41bb918": "WrongTP()",
+        "6bcd09d8": "PendingWithdrawal(address,uint256)",
+        "f0f4c3e2": "AboveBalance()",
+        "d2eecb0b": "AboveMaxDeposit()",
+        "a0c0c8a1": "AboveMaxMint()",
+        "b1f8100d": "AboveWithdrawAmount()",
+        "e1c7392a": "DepositNotUnlocked(uint256)",
+        "4f1ef286": "NotEnoughAssets()",
+        "f7b7c3c6": "WaitNextEpochStart()",
+        "a6f9dae1": "NullAmount()",
+        "b1f8100d": "NullPrice()",
+        "d2eecb0b": "MaxDailyPnlReached()",
+        "a0c0c8a1": "NoActiveDiscount()",
+        "f0f4c3e2": "NoDiscount()",
+        "0efd6122": "WaitNextEpochStart()",
+        "3d093e84": "ERC20InsufficientAllowance(address,uint256,uint256)"
     }
 
     # Search for any of the known error hashes within the error_code string
     for hash_code, error_message in error_map.items():
+        if verbose:
+            print('checking', hash_code, 'in', str(error_code))
         if hash_code in str(error_code):
             ret = error_message
             if verbose:
-                print('----->fromErrorCodeToMessage(error_code) returns', ret)
+                print('FOUND THE ERROR', ret)
             return str(ret), None
 
     # If we couldn't find the error in error_map, try to parse the error

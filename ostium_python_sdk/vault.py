@@ -2,7 +2,7 @@ from decimal import Decimal, ROUND_DOWN, ROUND_UP
 from web3 import Web3
 from .abi.vault_abi import vault_abi
 from .abi.usdc_abi import usdc_abi
-from .utils import convert_to_scaled_integer, to_base_units, approve_usdc, get_account
+from .utils import convert_to_scaled_integer, to_base_units, approve_usdc, get_account, fromErrorCodeToMessage
 from eth_account.account import Account
 
 # Precision constants
@@ -559,12 +559,21 @@ class OstiumVault:
         Returns:
             Amount of shares that would be received
         """
-        share_to_assets_price = self.vault_contract.functions.shareToAssetsPrice().call()
-        share_to_assets_price = Decimal(share_to_assets_price) / PRECISION_18
+        try:
+            share_to_assets_price = self.vault_contract.functions.shareToAssetsPrice().call()
+            share_to_assets_price = Decimal(
+                share_to_assets_price) / PRECISION_18
 
-        if share_to_assets_price != Decimal(0):
-            return (assets / share_to_assets_price).quantize(QUANTIZATION_6, rounding=ROUND_DOWN)
-        return Decimal(0)
+            if share_to_assets_price != Decimal(0):
+                return (assets / share_to_assets_price).quantize(QUANTIZATION_6, rounding=ROUND_DOWN)
+            return Decimal(0)
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the preview deposit process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def preview_mint(self, shares: Decimal) -> Decimal:
         """
@@ -713,22 +722,31 @@ class OstiumVault:
         # Convert shares to base units (18 decimals for vault shares)
         shares_base = to_base_units(shares, decimals=18)
 
-        # Build and send transaction
-        tx = self.vault_contract.functions.redeem(
-            shares_base,
-            receiver,
-            owner
-        ).build_transaction({
-            'from': account.address,
-            'nonce': self.get_nonce(account.address)
-        })
+        try:
+            # Build and send transaction
+            tx = self.vault_contract.functions.redeem(
+                shares_base,
+                receiver,
+                owner
+            ).build_transaction({
+                'from': account.address,
+                'nonce': self.get_nonce(account.address)
+            })
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            tx, self.private_key)
-        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            signed_tx = self.web3.eth.account.sign_transaction(
+                tx, self.private_key)
+            tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
-        return receipt
+            return receipt
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the redeem process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def max_withdraw(self, owner: str = None) -> Decimal:
         """
@@ -747,8 +765,17 @@ class OstiumVault:
             raise ValueError(
                 "Either owner parameter or private_key must be provided")
 
-        max_assets = self.vault_contract.functions.maxWithdraw(owner).call()
-        return Decimal(max_assets) / PRECISION_6
+        try:
+            max_assets = self.vault_contract.functions.maxWithdraw(
+                owner).call()
+            return Decimal(max_assets) / PRECISION_6
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the max withdraw process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def max_mint(self, owner: str = None) -> Decimal:
         """
@@ -767,8 +794,16 @@ class OstiumVault:
             raise ValueError(
                 "Either owner parameter or private_key must be provided")
 
-        max_shares = self.vault_contract.functions.maxMint(owner).call()
-        return Decimal(max_shares) / PRECISION_18
+        try:
+            max_shares = self.vault_contract.functions.maxMint(owner).call()
+            return Decimal(max_shares) / PRECISION_18
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the max mint process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def max_redeem(self, owner: str = None) -> Decimal:
         """
@@ -787,8 +822,16 @@ class OstiumVault:
             raise ValueError(
                 "Either owner parameter or private_key must be provided")
 
-        max_shares = self.vault_contract.functions.maxRedeem(owner).call()
-        return Decimal(max_shares) / PRECISION_18
+        try:
+            max_shares = self.vault_contract.functions.maxRedeem(owner).call()
+            return Decimal(max_shares) / PRECISION_18
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the max redeem process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def mint_with_discount_and_lock(self, shares: float, lock_duration_seconds: int, receiver: str = None):
         """
@@ -843,58 +886,75 @@ class OstiumVault:
             self.verbose
         )
 
-        # Build and send transaction
-        tx = self.vault_contract.functions.mintWithDiscountAndLock(
-            shares_base,
-            lock_duration_seconds,
-            receiver
-        ).build_transaction({
-            'from': account.address,
-            'nonce': self.get_nonce(account.address)
-        })
+        try:
+            # Build and send transaction
+            tx = self.vault_contract.functions.mintWithDiscountAndLock(
+                shares_base,
+                lock_duration_seconds,
+                receiver
+            ).build_transaction({
+                'from': account.address,
+                'nonce': self.get_nonce(account.address)
+            })
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            tx, self.private_key)
-        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            signed_tx = self.web3.eth.account.sign_transaction(
+                tx, self.private_key)
+            tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
-        return receipt
+            return receipt
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the mint with discount and lock process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def make_withdraw_request(self, shares: float, owner: str = None):
         """
-        Make a withdrawal request for shares.
+        Make a withdrawal request for the specified number of shares.
 
         Args:
-            shares: Amount of shares to request withdrawal for
-            owner: Optional address that owns the shares (defaults to sender)
+            shares: The number of shares to withdraw
+            owner: Optional address of the owner if different from the account (for delegation)
 
         Returns:
-            Transaction receipt
-
-        Raises:
-            ValueError: If no private key is provided during initialization
+            The transaction receipt
         """
-        account = get_account(self.web3, self.private_key)
-        owner = owner or account.address
 
-        # Convert shares to base units (18 decimals for vault shares)
-        shares_base = to_base_units(shares, decimals=18)
+        try:
+            account = get_account(self.web3, self.private_key)
+            owner = owner or account.address
 
-        # Build and send transaction
-        tx = self.vault_contract.functions.makeWithdrawRequest(
-            shares_base,
-            owner
-        ).build_transaction({
-            'from': account.address,
-            'nonce': self.get_nonce(account.address)
-        })
+            # Convert shares to base units (18 decimals for vault shares)
+            shares_base = to_base_units(shares, decimals=18)
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            tx, self.private_key)
-        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            # Build and send transaction
+            tx = self.vault_contract.functions.makeWithdrawRequest(
+                shares_base,
+                owner
+            ).build_transaction({
+                'from': account.address,
+                'nonce': self.get_nonce(account.address)
+            })
 
-        return receipt
+            signed_tx = self.web3.eth.account.sign_transaction(
+                tx, self.private_key)
+            tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+
+            return receipt
+
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the make withdraw request process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def cancel_withdraw_request(self, shares: float, owner: str = None, unlock_epoch: int = None):
         """
@@ -911,30 +971,40 @@ class OstiumVault:
         Raises:
             ValueError: If no private key is provided during initialization
         """
-        account = get_account(self.web3, self.private_key)
-        owner = owner or account.address
 
-        if unlock_epoch is None:
-            current_epoch = self.get_current_epoch()
-            timelock = self.get_withdraw_epochs_timelock()
-            unlock_epoch = current_epoch + timelock
+        try:
+            account = get_account(self.web3, self.private_key)
+            owner = owner or account.address
 
-        # Convert shares to base units (18 decimals for vault shares)
-        shares_base = to_base_units(shares, decimals=18)
+            if unlock_epoch is None:
+                current_epoch = self.get_current_epoch()
+                timelock = self.get_withdraw_epochs_timelock()
+                unlock_epoch = current_epoch + timelock
 
-        # Build and send transaction
-        tx = self.vault_contract.functions.cancelWithdrawRequest(
-            shares_base,
-            owner,
-            unlock_epoch
-        ).build_transaction({
-            'from': account.address,
-            'nonce': self.get_nonce(account.address)
-        })
+            # Convert shares to base units (18 decimals for vault shares)
+            shares_base = to_base_units(shares, decimals=18)
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            tx, self.private_key)
-        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            # Build and send transaction
+            tx = self.vault_contract.functions.cancelWithdrawRequest(
+                shares_base,
+                owner,
+                unlock_epoch
+            ).build_transaction({
+                'from': account.address,
+                'nonce': self.get_nonce(account.address)
+            })
 
-        return receipt
+            signed_tx = self.web3.eth.account.sign_transaction(
+                tx, self.private_key)
+            tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+
+            return receipt
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the make withdraw request process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
