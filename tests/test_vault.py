@@ -315,3 +315,199 @@ def test_share_price(sdk):
     # Allow for 0.1% difference due to rounding
     assert relative_diff < Decimal(
         '0.001'), f"Relative difference {relative_diff} exceeds tolerance"
+
+
+def test_locked_deposits(sdk):
+    """Test locked deposits related functions"""
+    # Test locked deposits count
+    count = sdk.vault.get_locked_deposits_count()
+    assert count >= 0
+
+    # If there are locked deposits, test getting deposit info
+    if count > 0:
+        # Test getting first locked deposit
+        deposit = sdk.vault.get_locked_deposit(0)
+        assert deposit is not None
+        assert 'owner' in deposit
+        assert 'shares' in deposit
+        assert 'assetsDeposited' in deposit
+        assert 'lockDuration' in deposit
+
+        # Test getting deposit through locked_deposits function
+        deposit_info = sdk.vault.locked_deposits(0)
+        assert deposit_info is not None
+        assert len(deposit_info) == 6  # Should return tuple of 6 values
+
+
+def test_market_metrics(sdk):
+    """Test market cap and current balance"""
+    # Test market cap
+    market_cap = sdk.vault.get_market_cap()
+    assert market_cap >= 0
+
+    # Test current balance
+    current_balance = sdk.vault.get_current_balance()
+    assert current_balance >= 0
+
+    # Market cap should be related to total supply and share price
+    total_supply = sdk.vault.get_total_supply()
+    share_price = sdk.vault.get_share_to_assets_price()
+    expected_market_cap = total_supply * share_price
+
+    # Allow for small rounding differences
+    relative_diff = abs(market_cap - expected_market_cap) / expected_market_cap
+    assert relative_diff < Decimal('0.001')
+
+
+def test_preview_functions(sdk):
+    """Test preview functions for deposits and withdrawals"""
+    # Test preview deposit
+    assets = Decimal('1000.0')
+    preview_shares = sdk.vault.preview_deposit(assets)
+    assert preview_shares > 0
+
+    # Test preview mint
+    shares = Decimal('1000.0')
+    preview_assets = sdk.vault.preview_mint(shares)
+    assert preview_assets > 0
+
+    # Test preview redeem
+    preview_redeem_assets = sdk.vault.preview_redeem(shares)
+    assert preview_redeem_assets > 0
+
+    # Test preview withdraw
+    preview_withdraw_shares = sdk.vault.preview_withdraw(assets)
+    assert preview_withdraw_shares > 0
+
+    # Verify relationships between preview functions
+    # preview_deposit and preview_mint should be related
+    relative_diff = abs(preview_shares * preview_assets -
+                        assets * shares) / (assets * shares)
+    assert relative_diff < Decimal('0.001')
+
+    # preview_redeem and preview_withdraw should be related
+    relative_diff = abs(preview_redeem_assets *
+                        preview_withdraw_shares - assets * shares) / (assets * shares)
+    assert relative_diff < Decimal('0.001')
+
+
+def test_total_supply(sdk):
+    """Test total supply"""
+    # Get total supply
+    total_supply = sdk.vault.get_total_supply()
+    print(f"\nTotal supply: {total_supply}")
+    
+    # Check if it's 1 billion (10^9)
+    expected_supply = Decimal('1000000000')
+    assert total_supply == expected_supply, f"Total supply {total_supply} is not equal to expected {expected_supply}"
+
+
+def test_locked_deposits(sdk):
+    """Test locked deposits related functions"""
+    # Test locked deposits count
+    count = sdk.vault.get_locked_deposits_count()
+    assert count >= 0
+
+    # If there are locked deposits, test getting deposit info
+    if count > 0:
+        # Test getting first locked deposit
+        deposit = sdk.vault.get_locked_deposit(0)
+        assert deposit is not None
+        assert 'owner' in deposit
+        assert 'shares' in deposit
+        assert 'assetsDeposited' in deposit
+        assert 'lockDuration' in deposit
+
+        # Test getting deposit through locked_deposits function
+        deposit_info = sdk.vault.locked_deposits(0)
+        assert deposit_info is not None
+        assert len(deposit_info) == 6  # Should return tuple of 6 values
+
+
+def test_market_metrics(sdk):
+    """Test market cap and current balance"""
+    # Test market cap
+    market_cap = sdk.vault.get_market_cap()
+    assert market_cap >= 0
+
+    # Test current balance
+    current_balance = sdk.vault.get_current_balance()
+    assert current_balance >= 0
+
+    # Market cap should be related to total supply and share price
+    total_supply = sdk.vault.get_total_supply()
+    share_price = sdk.vault.get_share_to_assets_price()
+    expected_market_cap = total_supply * share_price
+
+    # Allow for small rounding differences
+    relative_diff = abs(market_cap - expected_market_cap) / expected_market_cap
+    assert relative_diff < Decimal('0.001')
+
+
+def test_preview_functions(sdk):
+    """Test preview functions for deposits and withdrawals"""
+    # Test preview deposit
+    assets = Decimal('1000.0')
+    preview_shares = sdk.vault.preview_deposit(assets)
+    assert preview_shares > 0
+
+    # Test preview mint
+    shares = Decimal('1000.0')
+    preview_assets = sdk.vault.preview_mint(shares)
+    assert preview_assets > 0
+
+    # Test preview redeem
+    preview_redeem_assets = sdk.vault.preview_redeem(shares)
+    assert preview_redeem_assets > 0
+
+    # Test preview withdraw
+    preview_withdraw_shares = sdk.vault.preview_withdraw(assets)
+    assert preview_withdraw_shares > 0
+
+    # Verify relationships between preview functions
+    # preview_deposit and preview_mint should be related
+    relative_diff = abs(preview_shares * preview_assets -
+                        assets * shares) / (assets * shares)
+    assert relative_diff < Decimal('0.001')
+
+    # preview_redeem and preview_withdraw should be related
+    relative_diff = abs(preview_redeem_assets *
+                        preview_withdraw_shares - assets * shares) / (assets * shares)
+    assert relative_diff < Decimal('0.001')
+
+
+def test_total_supply(sdk):
+    """Test total supply and its relationships with other metrics"""
+    # Get total supply
+    total_supply = sdk.vault.get_total_supply()
+    assert total_supply >= 0
+    
+    # Get total assets and TVL
+    total_assets = sdk.vault.get_total_assets()
+    tvl = sdk.vault.get_tvl()
+    
+    # Get share price
+    share_price = sdk.vault.get_share_to_assets_price()
+    
+    # Print values for debugging
+    print(f"\nTotal supply: {total_supply}")
+    print(f"Total assets: {total_assets}")
+    print(f"TVL: {tvl}")
+    print(f"Share price: {share_price}")
+    
+    # Total supply should be related to TVL and share price
+    # TVL = total_supply * share_price
+    expected_tvl = total_supply * share_price
+    
+    # Calculate relative difference
+    relative_diff = abs(tvl - expected_tvl) / expected_tvl if expected_tvl > 0 else 0
+    # Allow for 0.1% difference due to rounding
+    assert relative_diff < Decimal('0.001'), f"Relative difference {relative_diff} exceeds tolerance"
+    
+    # Total assets should be less than or equal to TVL
+    assert total_assets <= tvl, "Total assets should not exceed TVL"
+    
+    # If there are assets, total supply should be positive
+    if total_assets > 0:
+        assert total_supply > 0, "Total supply should be positive when there are assets"
+    

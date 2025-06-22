@@ -6,14 +6,14 @@ from .utils import convert_to_scaled_integer, to_base_units, approve_usdc, get_a
 from eth_account.account import Account
 
 # Precision constants
-PRECISION_2 = Decimal(1e2)
+# PRECISION_2 = Decimal(1e2)
 QUANTIZATION_2 = Decimal('0.01')
 
-PRECISION_6 = Decimal(1e6)
-QUANTIZATION_6 = Decimal('0.000001')
+# PRECISION_6 = Decimal(1e6)
+# QUANTIZATION_6 = Decimal('0.000001')
 
-PRECISION_18 = Decimal(1e18)
-QUANTIZATION_18 = Decimal('0.000000000000000001')
+# PRECISION_18 = Decimal(1e18)
+# QUANTIZATION_18 = Decimal('0.000000000000000001')
 
 # Minimum lock duration in seconds (1 week)
 MIN_LOCK_DURATION = 7 * 24 * 60 * 60  # 7 days in seconds
@@ -49,6 +49,9 @@ class OstiumVault:
         self.usdc_contract = self.web3.eth.contract(
             address=self.usdc_address, abi=usdc_abi)
 
+        # Get deposit asset decimals (USDC)
+        self._deposit_asset_decimals = self.usdc_contract.functions.decimals().call()
+
         if (verbose):
             print(f"Vault contract: {self.vault_contract.address}")
             print(f"USDC contract: {self.usdc_contract.address}")
@@ -78,7 +81,7 @@ class OstiumVault:
         receiver = receiver or account.address
 
         # Convert amount to base units (6 decimals for USDC)
-        amount_base = to_base_units(amount, decimals=6)
+        amount_base = to_base_units(amount, decimals=self._deposit_asset_decimals)
 
         # First approve the vault to spend USDC
         self.log("Approving USDC spend for vault...")
@@ -140,7 +143,7 @@ class OstiumVault:
         receiver = receiver or account.address
 
         # Convert amount to base units (6 decimals for USDC)
-        amount_base = to_base_units(amount, decimals=6)
+        amount_base = to_base_units(amount, decimals=self._deposit_asset_decimals)
 
         # First approve the vault to spend USDC
         self.log("Approving USDC spend for vault...")
@@ -194,11 +197,15 @@ class OstiumVault:
         Raises:
             ValueError: If no private key is provided during initialization
         """
+        if shares > self.max_withdraw():
+            raise ValueError(
+                f"Shares to withdraw ({shares}) exceeds maximum withdrawable amount ({self.max_withdraw()})")
+
         account = get_account(self.web3, self.private_key)
         receiver = receiver or account.address
 
-        # Convert shares to base units (18 decimals for vault shares)
-        shares_base = to_base_units(shares, decimals=18)
+        # Convert shares to base units using vault decimals
+        shares_base = to_base_units(shares, decimals=self.get_decimals())
 
         try:
             # Build and send transaction
@@ -228,23 +235,21 @@ class OstiumVault:
 
     def get_balance(self, address: str = None):
         """
-        Get the vault share (OLP) balance for an address.
+        Get the balance of vault shares for an address.
 
         Args:
-            address: Address to check balance for (defaults to sender if private key provided)
+            address: Address to check balance for. If None, uses the address from the private key.
 
         Returns:
-            Balance in vault shares
+            Balance of vault shares
         """
-        if address is None and self.private_key:
-            account = get_account(self.web3, self.private_key)
-            address = account.address
-        elif address is None:
-            raise ValueError(
-                "Either address parameter or private_key must be provided")
+        if address is None:
+            if self.private_key is None:
+                raise ValueError(
+                    "Either address parameter or private_key must be provided")
 
         balance = self.vault_contract.functions.balanceOf(address).call()
-        return Decimal(balance) / Decimal(10**6)
+        return Decimal(balance) / Decimal(10**self._deposit_asset_decimals)  # Both shares and assets use same decimals
 
     def get_total_assets(self):
         """
@@ -254,8 +259,7 @@ class OstiumVault:
             Total assets in USDC
         """
         total_assets = self.vault_contract.functions.totalAssets().call()
-        # Convert from base units
-        return Decimal(total_assets) / Decimal(10**6)
+        return Decimal(total_assets) / Decimal(10**self._deposit_asset_decimals)
 
     def get_total_supply(self) -> Decimal:
         """
@@ -265,8 +269,11 @@ class OstiumVault:
             Total supply of vault shares
         """
         total_supply = self.vault_contract.functions.totalSupply().call()
-        # Convert from base units (18 decimals)
-        return Decimal(total_supply) / Decimal(10**18)
+
+        if (self.verbose):
+            print(f"total_supply: {total_supply}")
+
+        return Decimal(total_supply) / Decimal(10**self._deposit_asset_decimals)  # Both shares and assets use same decimals
 
     def get_asset_per_share(self):
         """
@@ -295,7 +302,7 @@ class OstiumVault:
             Accumulated PnL per token
         """
         pnl = self.vault_contract.functions.accPnlPerToken().call()
-        return Decimal(pnl) / Decimal(10**18)  # PRECISION_18
+        return Decimal(pnl) / Decimal(10**self._deposit_asset_decimals)  # Both shares and assets use same decimals
 
     def get_asset(self) -> str:
         """
@@ -314,7 +321,7 @@ class OstiumVault:
             Available assets in USDC
         """
         available = self.vault_contract.functions.availableAssets().call()
-        return Decimal(available) / Decimal(10**6)
+        return Decimal(available) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_collateralization_p(self) -> Decimal:
         """
@@ -324,7 +331,7 @@ class OstiumVault:
             Collateralization percentage (e.g., 99.13 for 99.13%)
         """
         collat = self.vault_contract.functions.collateralizationP().call()
-        return Decimal(collat) / Decimal(10**2)  # PRECISION_2
+        return Decimal(collat) / Decimal(10**2)  
 
     def convert_to_shares(self, assets: float) -> Decimal:
         """
@@ -336,10 +343,10 @@ class OstiumVault:
         Returns:
             Amount of shares
         """
-        assets_base = to_base_units(assets, decimals=6)
+        assets_base = to_base_units(assets, decimals=self._deposit_asset_decimals)  # USDC decimals
         shares = self.vault_contract.functions.convertToShares(
             assets_base).call()
-        return Decimal(shares) / Decimal(10**18)
+        return Decimal(shares) / Decimal(10**self._deposit_asset_decimals)  # Both shares and assets use same decimals
 
     def convert_to_assets(self, shares: float) -> Decimal:
         """
@@ -351,10 +358,10 @@ class OstiumVault:
         Returns:
             Amount of assets in USDC
         """
-        shares_base = to_base_units(shares, decimals=18)
+        shares_base = to_base_units(shares, decimals=self.get_decimals())  # Vault decimals
         assets = self.vault_contract.functions.convertToAssets(
             shares_base).call()
-        return Decimal(assets) / Decimal(10**6)
+        return Decimal(assets) / Decimal(10**self._deposit_asset_decimals)  # Both shares and assets use same decimals
 
     def get_current_epoch(self) -> int:
         """
@@ -370,10 +377,10 @@ class OstiumVault:
         Get the current epoch's positive open PnL.
 
         Returns:
-            Current epoch positive open PnL in USDC
+            Current epoch's positive open PnL in USDC
         """
         pnl = self.vault_contract.functions.currentEpochPositiveOpenPnl().call()
-        return Decimal(pnl) / Decimal(10**6)  # PRECISION_6
+        return Decimal(pnl) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_current_epoch_start(self) -> int:
         """
@@ -398,10 +405,10 @@ class OstiumVault:
         Get the daily accumulated PnL delta per token.
 
         Returns:
-            Daily accumulated PnL delta per token
+            Daily accumulated PnL delta per token in USDC
         """
-        delta = self.vault_contract.functions.dailyAccPnlDeltaPerToken().call()
-        return Decimal(delta) / Decimal(10**18)  # PRECISION_18
+        pnl = self.vault_contract.functions.dailyAccPnlDeltaPerToken().call()
+        return Decimal(pnl) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_market_cap(self) -> Decimal:
         """
@@ -411,7 +418,7 @@ class OstiumVault:
             Market cap in USDC
         """
         market_cap = self.vault_contract.functions.marketCap().call()
-        return Decimal(market_cap) / Decimal(10**6)  # PRECISION_6
+        return Decimal(market_cap) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_max_acc_open_pnl_delta_per_token(self) -> int:
         """
@@ -448,7 +455,7 @@ class OstiumVault:
             Maximum discount percentage (e.g., 50.00 for 50%)
         """
         discount = self.vault_contract.functions.maxDiscountP().call()
-        return Decimal(discount) / Decimal(10**2)  # PRECISION_2
+        return Decimal(discount) / Decimal(10**2) 
 
     def get_max_discount_threshold_p(self) -> Decimal:
         """
@@ -458,7 +465,7 @@ class OstiumVault:
             Maximum discount threshold percentage (e.g., 120.00 for 120%)
         """
         threshold = self.vault_contract.functions.maxDiscountThresholdP().call()
-        return Decimal(threshold) / Decimal(10**2)  # PRECISION_2
+        return Decimal(threshold) / Decimal(10**2)  
 
     def get_max_supply_increase_daily_p(self) -> Decimal:
         """
@@ -468,7 +475,7 @@ class OstiumVault:
             Maximum supply increase daily percentage (e.g., 300.00 for 300%)
         """
         increase = self.vault_contract.functions.maxSupplyIncreaseDailyP().call()
-        return Decimal(increase) / Decimal(10**2)  # PRECISION_2
+        return Decimal(increase) / Decimal(10**2)  
 
     def get_name(self) -> str:
         """
@@ -505,7 +512,7 @@ class OstiumVault:
             Total closed PnL in USDC
         """
         pnl = self.vault_contract.functions.totalClosedPnl().call()
-        return Decimal(pnl) / Decimal(10**6)  # PRECISION_6
+        return Decimal(pnl) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_total_deposited(self) -> Decimal:
         """
@@ -515,7 +522,7 @@ class OstiumVault:
             Total deposited amount in USDC
         """
         total = self.vault_contract.functions.totalDeposited().call()
-        return Decimal(total) / Decimal(10**6)
+        return Decimal(total) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_total_discounts(self) -> Decimal:
         """
@@ -525,7 +532,7 @@ class OstiumVault:
             Total discounts in USDC
         """
         discounts = self.vault_contract.functions.totalDiscounts().call()
-        return Decimal(discounts) / Decimal(10**6)  # PRECISION_6
+        return Decimal(discounts) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_total_liability(self) -> Decimal:
         """
@@ -535,7 +542,7 @@ class OstiumVault:
             Total liability in USDC
         """
         liability = self.vault_contract.functions.totalLiability().call()
-        return Decimal(liability) / Decimal(10**6)  # PRECISION_6
+        return Decimal(liability) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_total_locked_discounts(self) -> Decimal:
         """
@@ -545,7 +552,7 @@ class OstiumVault:
             Total locked discounts in USDC
         """
         discounts = self.vault_contract.functions.totalLockedDiscounts().call()
-        return Decimal(discounts) / Decimal(10**6)  # PRECISION_6
+        return Decimal(discounts) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_total_rewards(self) -> Decimal:
         """
@@ -555,7 +562,7 @@ class OstiumVault:
             Total rewards in USDC
         """
         rewards = self.vault_contract.functions.totalRewards().call()
-        return Decimal(rewards) / Decimal(10**6)  # PRECISION_6
+        return Decimal(rewards) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_tvl(self) -> Decimal:
         """
@@ -565,7 +572,7 @@ class OstiumVault:
             Total value locked in USDC
         """
         tvl = self.vault_contract.functions.tvl().call()
-        return Decimal(tvl) / Decimal(10**6)
+        return Decimal(tvl) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals
 
     def get_withdraw_epochs_timelock(self) -> int:
         """
@@ -579,7 +586,7 @@ class OstiumVault:
     def get_share_to_assets_price(self) -> Decimal:
         """Get the share to assets price."""
         price = self.vault_contract.functions.shareToAssetsPrice().call()
-        return Decimal(price) / Decimal(10**18)
+        return Decimal(price) / Decimal(10**self.get_decimals())  # Vault decimals
 
     def preview_deposit(self, assets: Decimal) -> Decimal:
         """
@@ -593,9 +600,14 @@ class OstiumVault:
         """
         try:
             share_to_assets_price = self.get_share_to_assets_price()
-            if share_to_assets_price != Decimal(0):
-                return (assets / share_to_assets_price).quantize(QUANTIZATION_6, rounding=ROUND_DOWN)
-            return Decimal(0)
+            if share_to_assets_price == Decimal(0):
+                return Decimal(0)
+            
+            # Check for potential overflow
+            if assets > Decimal(2**256 - 1) / Decimal(10**self._deposit_asset_decimals):
+                raise ValueError("Deposit amount too large, would cause overflow")
+                
+            return (assets / share_to_assets_price).quantize(Decimal('0.' + '0' * self.get_decimals()), rounding=ROUND_DOWN)
         except Exception as e:
             reason_string, suggestion = fromErrorCodeToMessage(
                 str(e), verbose=self.verbose)
@@ -615,10 +627,10 @@ class OstiumVault:
             Amount of assets needed in USDC
         """
         share_to_assets_price = self.get_share_to_assets_price()
-        uint256_max = Decimal((2**256 - 1) / PRECISION_6)
+        uint256_max = Decimal((2**256 - 1) / Decimal(10**self._deposit_asset_decimals))
         if shares == uint256_max and share_to_assets_price >= Decimal(1):
             return shares
-        return (shares * share_to_assets_price).quantize(QUANTIZATION_6, rounding=ROUND_UP)
+        return (shares * share_to_assets_price).quantize(Decimal('0.' + '0' * self._deposit_asset_decimals), rounding=ROUND_UP)
 
     def preview_redeem(self, shares: Decimal) -> Decimal:
         """
@@ -715,7 +727,7 @@ class OstiumVault:
 
         assets = self.preview_mint(shares)
         assets_deposited = (assets * (Decimal(100) / (Decimal(100) +
-                            lock_discount_p))).quantize(QUANTIZATION_6, rounding=ROUND_DOWN)
+                            lock_discount_p))).quantize(Decimal('0.' + '0' * self._deposit_asset_decimals), rounding=ROUND_DOWN)
         assets_discount = assets - assets_deposited
 
         return shares, assets_deposited, assets_discount
@@ -743,8 +755,8 @@ class OstiumVault:
         receiver = receiver or account.address
         owner = owner or account.address
 
-        # Convert shares to base units (18 decimals for vault shares)
-        shares_base = to_base_units(shares, decimals=18)
+        
+        shares_base = to_base_units(shares, decimals=self.get_decimals())
 
         try:
             # Build and send transaction
@@ -792,7 +804,7 @@ class OstiumVault:
         try:
             max_assets = self.vault_contract.functions.maxWithdraw(
                 owner).call()
-            return Decimal(max_assets) / PRECISION_6
+            return Decimal(max_assets) / Decimal(10**self._deposit_asset_decimals)
         except Exception as e:
             reason_string, suggestion = fromErrorCodeToMessage(
                 str(e), verbose=self.verbose)
@@ -806,56 +818,38 @@ class OstiumVault:
         Get the maximum amount of shares that can be minted by an owner.
 
         Args:
-            owner: Address to check max mint for (defaults to sender if private key provided)
+            owner: Address of the owner. If None, uses the address from the private key.
 
         Returns:
             Maximum amount of shares that can be minted
         """
-        if owner is None and self.private_key:
-            account = get_account(self.web3, self.private_key)
-            owner = account.address
-        elif owner is None:
-            raise ValueError(
-                "Either owner parameter or private_key must be provided")
+        if owner is None:
+            if self.private_key is None:
+                raise ValueError(
+                    "Either owner parameter or private_key must be provided")
+            owner = self.web3.eth.account.from_key(self.private_key).address
 
-        try:
-            max_shares = self.vault_contract.functions.maxMint(owner).call()
-            return Decimal(max_shares) / PRECISION_18
-        except Exception as e:
-            reason_string, suggestion = fromErrorCodeToMessage(
-                str(e), verbose=self.verbose)
-            print(
-                f"An error occurred during the max mint process: {reason_string}")
-            raise Exception(
-                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
+        max_shares = self.vault_contract.functions.maxMint(owner).call()
+        return Decimal(max_shares) / Decimal(10**self._deposit_asset_decimals)  # Both shares and assets use same decimals
 
     def max_redeem(self, owner: str = None) -> Decimal:
         """
         Get the maximum amount of shares that can be redeemed by an owner.
 
         Args:
-            owner: Address to check max redeem for (defaults to sender if private key provided)
+            owner: Address of the owner. If None, uses the address from the private key.
 
         Returns:
             Maximum amount of shares that can be redeemed
         """
-        if owner is None and self.private_key:
-            account = get_account(self.web3, self.private_key)
-            owner = account.address
-        elif owner is None:
-            raise ValueError(
-                "Either owner parameter or private_key must be provided")
+        if owner is None:
+            if self.private_key is None:
+                raise ValueError(
+                    "Either owner parameter or private_key must be provided")
+            owner = self.web3.eth.account.from_key(self.private_key).address
 
-        try:
-            max_shares = self.vault_contract.functions.maxRedeem(owner).call()
-            return Decimal(max_shares) / PRECISION_18
-        except Exception as e:
-            reason_string, suggestion = fromErrorCodeToMessage(
-                str(e), verbose=self.verbose)
-            print(
-                f"An error occurred during the max redeem process: {reason_string}")
-            raise Exception(
-                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
+        max_shares = self.vault_contract.functions.maxRedeem(owner).call()
+        return Decimal(max_shares) / Decimal(10**self._deposit_asset_decimals)  # Both shares and assets use same decimals
 
     def mint_with_discount_and_lock(self, shares: float, lock_duration_seconds: int, receiver: str = None):
         """
@@ -884,8 +878,8 @@ class OstiumVault:
             print(f"lock_duration_seconds: {lock_duration_seconds}")
             print(f"receiver: {receiver}")
 
-        # Convert shares to base units (18 decimals for vault shares)
-        shares_base = to_base_units(shares, decimals=18)
+        
+        shares_base = to_base_units(shares, decimals=self.get_decimals())
 
         if (self.verbose):
             print(f"shares_base: {shares_base}")
@@ -896,7 +890,7 @@ class OstiumVault:
         if (self.verbose):
             print(f"assets_needed: {assets_needed}")
 
-        assets_base = to_base_units(assets_needed, decimals=6)
+        assets_base = to_base_units(assets_needed, decimals=self._deposit_asset_decimals)
 
         # First approve the vault to spend USDC
         self.log(
@@ -952,8 +946,8 @@ class OstiumVault:
             account = get_account(self.web3, self.private_key)
             owner = owner or account.address
 
-            # Convert shares to base units (18 decimals for vault shares)
-            shares_base = to_base_units(shares, decimals=18)
+            
+            shares_base = to_base_units(shares, decimals=self.get_decimals())
 
             # Build and send transaction
             tx = self.vault_contract.functions.makeWithdrawRequest(
@@ -1005,8 +999,8 @@ class OstiumVault:
                 timelock = self.get_withdraw_epochs_timelock()
                 unlock_epoch = current_epoch + timelock
 
-            # Convert shares to base units (18 decimals for vault shares)
-            shares_base = to_base_units(shares, decimals=18)
+            
+            shares_base = to_base_units(shares, decimals=self.get_decimals())
 
             # Build and send transaction
             tx = self.vault_contract.functions.cancelWithdrawRequest(
@@ -1036,8 +1030,60 @@ class OstiumVault:
     def get_acc_rewards_per_token(self) -> Decimal:
         """Get the accumulated rewards per token."""
         rewards = self.vault_contract.functions.accRewardsPerToken().call()
-        return Decimal(rewards) / Decimal(10**18)  # Adjust precision as needed
+        return Decimal(rewards) / Decimal(10**self.get_decimals())  # Vault decimals
 
     def get_last_daily_acc_pnl_delta_reset_ts(self) -> int:
         """Get the last daily accumulated PnL delta reset timestamp."""
         return self.vault_contract.functions.lastDailyAccPnlDeltaResetTs().call()
+
+    def get_locked_deposits_count(self) -> int:
+        """
+        Get the total number of locked deposits.
+
+        Returns:
+            Total number of locked deposits
+        """
+        return self.vault_contract.functions.lockedDepositsCount().call()
+
+    def get_locked_deposit(self, deposit_id: int) -> dict:
+        """
+        Get information about a specific locked deposit.
+
+        Args:
+            deposit_id: ID of the locked deposit
+
+        Returns:
+            Dictionary containing deposit information
+        """
+        deposit = self.vault_contract.functions.lockedDeposits(
+            deposit_id).call()
+        return {
+            'owner': deposit[0],
+            'shares': Decimal(deposit[1]) / Decimal(10**self.get_decimals()),  # Vault decimals
+            'assetsDeposited': Decimal(deposit[2]) / Decimal(10**self._deposit_asset_decimals),  # Deposit asset decimals
+            'assetsDiscount': Decimal(deposit[3]) / Decimal(10**self._deposit_asset_decimals),  # Deposit asset decimals
+            'atTimestamp': deposit[4],
+            'lockDuration': deposit[5]
+        }
+
+    def locked_deposits(self, deposit_id: int) -> tuple:
+        """
+        Get raw locked deposit information.
+
+        Args:
+            deposit_id: ID of the locked deposit
+
+        Returns:
+            Tuple containing raw deposit information
+        """
+        return self.vault_contract.functions.lockedDeposits(deposit_id).call()
+
+    def get_current_balance(self) -> Decimal:
+        """
+        Get the current balance of the vault.
+
+        Returns:
+            Current balance in USDC
+        """
+        balance = self.vault_contract.functions.currentBalance().call()
+        return Decimal(balance) / Decimal(10**self._deposit_asset_decimals)  # Deposit asset decimals

@@ -157,7 +157,8 @@ def fromErrorCodeToMessage(error_code, verbose=False):
         "a0c0c8a1": "NoActiveDiscount()",
         "f0f4c3e2": "NoDiscount()",
         "0efd6122": "WaitNextEpochStart()",
-        "3d093e84": "ERC20InsufficientAllowance(address,uint256,uint256)"
+        "3d093e84": "ERC20InsufficientAllowance(address,uint256,uint256)",
+        "4a67a8d2": "MathOverflowedMulDiv()"
     }
 
     # Search for any of the known error hashes within the error_code string
