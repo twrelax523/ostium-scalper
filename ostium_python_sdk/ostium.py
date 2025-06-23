@@ -194,23 +194,52 @@ class Ostium:
             raise Exception(
                 f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
-    def cancel_limit_order(self, pair_id, trade_index):
+    def cancel_limit_order(self, pair_id, trade_index, trader_address=None):
         account = self._get_account()
 
-        trade_tx = self.ostium_trading_contract.functions.cancelOpenLimitOrder(
-            int(pair_id), int(trade_index)).build_transaction({'from': account.address})
-        trade_tx['nonce'] = self.get_nonce(account.address)
+        try:
+            if self.use_delegation and trader_address:
+                self.log(
+                    f"Using delegatedAction to cancel limit order on behalf of {trader_address}")
 
-        signed_tx = self.web3.eth.account.sign_transaction(
-            trade_tx, private_key=self.private_key)
-        trade_tx_hash = self.web3.eth.send_raw_transaction(
-            signed_tx.raw_transaction)
-        self.log(f"Cancel Limit Order TX Hash: {trade_tx_hash.hex()}")
+                # The correct way to encode the function call in Web3.py
+                # Create the function object for closeTradeMarket
+                cancel_limit_func = self.ostium_trading_contract.functions.cancelOpenLimitOrder(
+                    int(pair_id), int(trade_index)
+                )
 
-        trade_receipt = self.web3.eth.wait_for_transaction_receipt(
-            trade_tx_hash)
-        self.log(f"Cancel Limit Order Receipt: {trade_receipt}")
-        return trade_receipt
+                # Get the encoded data for the closeTradeMarket function call
+                inner_encoded_data = cancel_limit_func.build_transaction({'gas': 0})[
+                    'data']
+
+                # Create the outer delegatedAction transaction
+                trade_tx = self.ostium_trading_contract.functions.delegatedAction(
+                    trader_address, inner_encoded_data
+                ).build_transaction({'from': account.address})
+            else:
+                trade_tx = self.ostium_trading_contract.functions.cancelOpenLimitOrder(
+                    int(pair_id), int(trade_index)).build_transaction({'from': account.address})
+
+            trade_tx['nonce'] = self.get_nonce(account.address)
+
+            signed_tx = self.web3.eth.account.sign_transaction(
+                trade_tx, private_key=self.private_key)
+            trade_tx_hash = self.web3.eth.send_raw_transaction(
+                signed_tx.raw_transaction)
+            self.log(f"Cancel Limit Order TX Hash: {trade_tx_hash.hex()}")
+
+            trade_receipt = self.web3.eth.wait_for_transaction_receipt(
+                trade_tx_hash)
+            self.log(f"Cancel Limit Order Receipt: {trade_receipt}")
+            return trade_receipt
+
+        except Exception as e:
+            reason_string, suggestion = fromErrorCodeToMessage(
+                str(e), verbose=self.verbose)
+            print(
+                f"An error occurred during the update sl process: {reason_string}")
+            raise Exception(
+                f'{reason_string}\n\n{suggestion}' if suggestion != None else reason_string)
 
     def close_trade(self, pair_id, trade_index, close_percentage=100, trader_address=None):
         """
@@ -615,6 +644,8 @@ class Ostium:
         """
         self.log(f"Tracking order ID: {order_id}")
 
+        if not order_id:
+            raise ValueError("Order ID is required")
         # Fields that should be formatted to proper decimal values
         price_fields = [
             'price', 'priceAfterImpact', 'openPrice', 'closePrice',
