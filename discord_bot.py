@@ -15,7 +15,6 @@ from datetime import datetime
 import json
 
 # Import the trading bot components
-from trading_bot import OstiumTradingBot, TradingViewSignalParser
 from ostium_python_sdk.config import NetworkConfig
 
 logger = logging.getLogger(__name__)
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 class TradingDiscordBot(commands.Bot):
     """Discord bot for Ostium trading commands"""
     
-    def __init__(self, trading_bot: OstiumTradingBot, discord_token: str):
+    def __init__(self, trading_bot, discord_token: str):
         """Initialize Discord bot with trading bot instance"""
         intents = discord.Intents.default()
         intents.message_content = True
@@ -337,17 +336,6 @@ class TradingDiscordBot(commands.Bot):
         logger.info(f"Discord bot logged in as {self.user}")
         await self.change_presence(activity=discord.Game(name="Trading on Ostium"))
 
-async def run_discord_bot(trading_bot: OstiumTradingBot, discord_token: str):
-    """Run the Discord bot"""
-    bot = TradingDiscordBot(trading_bot, discord_token)
-    
-    try:
-        await bot.start(discord_token)
-    except Exception as e:
-        logger.error(f"Discord bot error: {e}")
-    finally:
-        await bot.close()
-
 if __name__ == "__main__":
     # This would be run separately from the main trading bot
     import asyncio
@@ -371,7 +359,9 @@ if __name__ == "__main__":
     else:
         network_config = NetworkConfig.testnet()
     
+    from trading_bot import OstiumTradingBot
     trading_bot = OstiumTradingBot(network_config, private_key, rpc_url)
     
     # Run Discord bot
+    from discord_runner import run_discord_bot
     asyncio.run(run_discord_bot(trading_bot, discord_token)) 

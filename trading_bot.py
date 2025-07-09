@@ -636,7 +636,7 @@ def main():
     logger.info(f"Discord token found: {'Yes' if discord_token else 'No'}")
     if discord_token:
         import threading
-        from discord_bot import run_discord_bot
+        from discord_runner import run_discord_bot
         
         def run_discord():
             try:
