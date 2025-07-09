@@ -597,7 +597,7 @@ async def initialize_bot():
     # Get configuration
     private_key = os.getenv('PRIVATE_KEY')
     rpc_url = os.getenv('RPC_URL')
-    network_type = os.getenv('NETWORK_TYPE', 'testnet')  # testnet or mainnet
+    network_type = os.getenv('NETWORK_TYPE', 'mainnet')  # mainnet or testnet
     discord_webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
     
     if not private_key:
