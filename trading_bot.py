@@ -566,7 +566,12 @@ async def webhook_handler():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
+    discord_status = "enabled" if os.getenv('DISCORD_BOT_TOKEN') else "disabled"
+    return jsonify({
+        'status': 'healthy', 
+        'timestamp': datetime.now().isoformat(),
+        'discord_bot': discord_status
+    })
 
 @app.route('/positions', methods=['GET'])
 async def get_positions():
@@ -621,11 +626,37 @@ async def initialize_bot():
 
 def main():
     """Main function to run the trading bot"""
+    logger.info("Starting trading bot application...")
+    
     # Initialize the bot
     asyncio.run(initialize_bot())
     
+    # Start Discord bot in background if token is provided
+    discord_token = os.getenv('DISCORD_BOT_TOKEN')
+    logger.info(f"Discord token found: {'Yes' if discord_token else 'No'}")
+    if discord_token:
+        import threading
+        from discord_bot import run_discord_bot
+        
+        def run_discord():
+            try:
+                logger.info("Starting Discord bot thread...")
+                asyncio.run(run_discord_bot(trading_bot, discord_token))
+            except Exception as e:
+                logger.error(f"Discord bot thread error: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
+        
+        discord_thread = threading.Thread(target=run_discord)
+        discord_thread.daemon = True
+        discord_thread.start()
+        logger.info("Discord bot thread started in background")
+    else:
+        logger.warning("DISCORD_BOT_TOKEN not provided - Discord commands disabled")
+    
     # Run the Flask app
     port = int(os.getenv('PORT', 5000))
+    logger.info(f"Starting Flask app on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == '__main__':
