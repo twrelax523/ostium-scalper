@@ -512,15 +512,18 @@ async def webhook_handler():
         
         # Notify Discord about signal received
         if discord_notifier:
-            signal = trading_bot.signal_parser.parse_signal(signal_text)
-            await discord_notifier.notify_signal_received({
-                'symbol': signal.symbol,
-                'signal_id': signal.signal_id,
-                'signal_type': 'Exit' if signal.is_exit_signal else 'Entry',
-                'side': signal.side,
-                'position_size': signal.position_size_usd,
-                'entry_price': signal.entry_price
-            })
+            try:
+                signal = trading_bot.signal_parser.parse_signal(signal_text)
+                await discord_notifier.notify_signal_received({
+                    'symbol': signal.symbol,
+                    'signal_id': signal.signal_id,
+                    'signal_type': 'Exit' if signal.is_exit_signal else 'Entry',
+                    'side': signal.side,
+                    'position_size': signal.position_size_usd,
+                    'entry_price': signal.entry_price
+                })
+            except Exception as e:
+                logger.error(f"Error sending Discord notification: {e}")
         
         # Process the signal
         result = await trading_bot.process_signal(signal_text)
@@ -528,18 +531,21 @@ async def webhook_handler():
         if result['success']:
             # Notify Discord about successful trade
             if discord_notifier and 'position_info' in result.get('result', {}):
-                position_info = result['result']['position_info']
-                if 'transaction_hash' in result.get('result', {}):
-                    await discord_notifier.notify_trade_opened({
-                        'symbol': position_info.get('symbol', 'Unknown'),
-                        'side': position_info.get('side', 'Unknown'),
-                        'position_size': position_info.get('position_size', 0),
-                        'entry_price': position_info.get('entry_price', 0),
-                        'leverage': trading_bot.default_leverage,
-                        'transaction_hash': result['result']['transaction_hash'],
-                        'stop_loss': position_info.get('stop_loss'),
-                        'take_profit': position_info.get('take_profit')
-                    })
+                try:
+                    position_info = result['result']['position_info']
+                    if 'transaction_hash' in result.get('result', {}):
+                        await discord_notifier.notify_trade_opened({
+                            'symbol': position_info.get('symbol', 'Unknown'),
+                            'side': position_info.get('side', 'Unknown'),
+                            'position_size': position_info.get('position_size', 0),
+                            'entry_price': position_info.get('entry_price', 0),
+                            'leverage': trading_bot.default_leverage,
+                            'transaction_hash': result['result']['transaction_hash'],
+                            'stop_loss': position_info.get('stop_loss'),
+                            'take_profit': position_info.get('take_profit')
+                        })
+                except Exception as e:
+                    logger.error(f"Error sending trade notification: {e}")
             
             return jsonify({
                 'success': True,
@@ -549,10 +555,13 @@ async def webhook_handler():
         else:
             # Notify Discord about error
             if discord_notifier:
-                await discord_notifier.notify_error(
-                    result.get('error', 'Unknown error'),
-                    'Signal Processing'
-                )
+                try:
+                    await discord_notifier.notify_error(
+                        result.get('error', 'Unknown error'),
+                        'Signal Processing'
+                    )
+                except Exception as e:
+                    logger.error(f"Error sending error notification: {e}")
             
             return jsonify({
                 'success': False,
@@ -616,11 +625,21 @@ async def initialize_bot():
     
     # Initialize Discord notifier if webhook URL is provided
     if discord_webhook_url:
-        from discord_notifier import DiscordNotifier
-        discord_notifier = DiscordNotifier(discord_webhook_url)
-        logger.info("Discord notifier initialized")
+        try:
+            from discord_notifier import DiscordNotifier
+            discord_notifier = DiscordNotifier(discord_webhook_url)
+            logger.info("Discord notifier initialized")
+        except ImportError as e:
+            logger.error(f"Failed to import Discord notifier: {e}")
+            discord_notifier = None
+            logger.warning("Discord notifications disabled due to import error")
+        except Exception as e:
+            logger.error(f"Error initializing Discord notifier: {e}")
+            discord_notifier = None
+            logger.warning("Discord notifications disabled due to error")
     else:
         logger.warning("DISCORD_WEBHOOK_URL not provided - Discord notifications disabled")
+        discord_notifier = None
     
     logger.info(f"Trading bot initialized for {network_type}")
 
@@ -648,21 +667,28 @@ def start_bot_in_background():
         discord_token = os.getenv('DISCORD_BOT_TOKEN')
         logger.info(f"Discord token found: {'Yes' if discord_token else 'No'}")
         if discord_token:
-            from discord_runner import run_discord_bot
-            
-            def run_discord():
-                try:
-                    logger.info("Starting Discord bot thread...")
-                    asyncio.run(run_discord_bot(trading_bot, discord_token))
-                except Exception as e:
-                    logger.error(f"Discord bot thread error: {e}")
-                    import traceback
-                    logger.error(traceback.format_exc())
-            
-            discord_thread = threading.Thread(target=run_discord)
-            discord_thread.daemon = True
-            discord_thread.start()
-            logger.info("Discord bot thread started in background")
+            try:
+                from discord_runner import run_discord_bot
+                
+                def run_discord():
+                    try:
+                        logger.info("Starting Discord bot thread...")
+                        asyncio.run(run_discord_bot(trading_bot, discord_token))
+                    except Exception as e:
+                        logger.error(f"Discord bot thread error: {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
+                
+                discord_thread = threading.Thread(target=run_discord)
+                discord_thread.daemon = True
+                discord_thread.start()
+                logger.info("Discord bot thread started in background")
+            except ImportError as e:
+                logger.error(f"Failed to import Discord bot: {e}")
+                logger.warning("Discord bot disabled due to import error - trading bot will continue without Discord commands")
+            except Exception as e:
+                logger.error(f"Error setting up Discord bot: {e}")
+                logger.warning("Discord bot disabled due to error - trading bot will continue without Discord commands")
         else:
             logger.warning("DISCORD_BOT_TOKEN not provided - Discord commands disabled")
             

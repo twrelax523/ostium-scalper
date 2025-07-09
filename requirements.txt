@@ -16,7 +16,11 @@ pydantic>=2.0.0  # for data validation
 #
 # Async support
 asyncio>=3.4.3
-# Discord and Flask dependencies for trading bot
-flask==2.3.3
-discord.py==2.3.2
-hypercorn==0.15.0
+
+# Web framework
+flask>=2.0.0
+hypercorn>=0.14.0
+
+# Discord integration (using py-cord for better Python 3.13 compatibility)
+py-cord>=2.4.0
+
