@@ -628,36 +628,50 @@ def main():
     """Main function to run the trading bot"""
     logger.info("Starting trading bot application...")
     
-    # Initialize the bot
-    asyncio.run(initialize_bot())
-    
-    # Start Discord bot in background if token is provided
-    discord_token = os.getenv('DISCORD_BOT_TOKEN')
-    logger.info(f"Discord token found: {'Yes' if discord_token else 'No'}")
-    if discord_token:
-        import threading
-        from discord_runner import run_discord_bot
-        
-        def run_discord():
-            try:
-                logger.info("Starting Discord bot thread...")
-                asyncio.run(run_discord_bot(trading_bot, discord_token))
-            except Exception as e:
-                logger.error(f"Discord bot thread error: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
-        
-        discord_thread = threading.Thread(target=run_discord)
-        discord_thread.daemon = True
-        discord_thread.start()
-        logger.info("Discord bot thread started in background")
-    else:
-        logger.warning("DISCORD_BOT_TOKEN not provided - Discord commands disabled")
-    
     # Run the Flask app
     port = int(os.getenv('PORT', 5000))
     logger.info(f"Starting Flask app on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == '__main__':
-    main() 
+    main()
+
+# Initialize the bot when the module is imported (for Heroku)
+import threading
+
+def start_bot_in_background():
+    """Start the bot in a background thread"""
+    try:
+        asyncio.run(initialize_bot())
+        
+        # Start Discord bot in background if token is provided
+        discord_token = os.getenv('DISCORD_BOT_TOKEN')
+        logger.info(f"Discord token found: {'Yes' if discord_token else 'No'}")
+        if discord_token:
+            from discord_runner import run_discord_bot
+            
+            def run_discord():
+                try:
+                    logger.info("Starting Discord bot thread...")
+                    asyncio.run(run_discord_bot(trading_bot, discord_token))
+                except Exception as e:
+                    logger.error(f"Discord bot thread error: {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+            
+            discord_thread = threading.Thread(target=run_discord)
+            discord_thread.daemon = True
+            discord_thread.start()
+            logger.info("Discord bot thread started in background")
+        else:
+            logger.warning("DISCORD_BOT_TOKEN not provided - Discord commands disabled")
+            
+    except Exception as e:
+        logger.error(f"Error initializing bot: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+
+# Start the bot in background thread
+bot_thread = threading.Thread(target=start_bot_in_background)
+bot_thread.daemon = True
+bot_thread.start() 
