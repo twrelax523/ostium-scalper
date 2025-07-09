@@ -668,12 +668,12 @@ def start_bot_in_background():
         logger.info(f"Discord token found: {'Yes' if discord_token else 'No'}")
         if discord_token:
             try:
-                from discord_runner import run_discord_bot
+                from simple_discord_bot import run_simple_discord_bot
                 
                 def run_discord():
                     try:
-                        logger.info("Starting Discord bot thread...")
-                        asyncio.run(run_discord_bot(trading_bot, discord_token))
+                        logger.info("Starting simple Discord bot thread...")
+                        asyncio.run(run_simple_discord_bot(trading_bot, discord_token))
                     except Exception as e:
                         logger.error(f"Discord bot thread error: {e}")
                         import traceback
@@ -682,9 +682,9 @@ def start_bot_in_background():
                 discord_thread = threading.Thread(target=run_discord)
                 discord_thread.daemon = True
                 discord_thread.start()
-                logger.info("Discord bot thread started in background")
+                logger.info("Simple Discord bot thread started in background")
             except ImportError as e:
-                logger.error(f"Failed to import Discord bot: {e}")
+                logger.error(f"Failed to import simple Discord bot: {e}")
                 logger.warning("Discord bot disabled due to import error - trading bot will continue without Discord commands")
             except Exception as e:
                 logger.error(f"Error setting up Discord bot: {e}")

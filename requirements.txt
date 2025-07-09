@@ -21,6 +21,3 @@ asyncio>=3.4.3
 flask>=2.0.0
 hypercorn>=0.14.0
 
-# Discord integration (using py-cord for better Python 3.13 compatibility)
-py-cord>=2.4.0
-
