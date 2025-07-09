@@ -21,3 +21,6 @@ asyncio>=3.4.3
 flask>=2.0.0
 hypercorn>=0.14.0
 
+# Discord Gateway support
+websockets>=11.0.0
+
